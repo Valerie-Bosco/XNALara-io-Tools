@@ -187,7 +187,7 @@ def makeNodesMaterial(xpsSettings, materialData, rootDir, mesh_da, meshInfo, fla
     if useAlpha:
         materialData.blend_method = 'BLEND'
 
-    node_tree.links.new(xpsShadeNode.outputs['Shader'], ouputNode.inputs['Surface'])
+    node_tree.links.new(xpsShadeNode.interface.get('Shader'), ouputNode.interface.get('Surface'))
 
     bump1Image = None
     bump2Image = None
@@ -343,13 +343,12 @@ def mix_normal_group():
     group_inputs.location = mainNormalSeparateNode.location + Vector((-200, -100))
     group_outputs = node_tree.nodes.new(NODE_GROUP_OUTPUT)
     group_outputs.location = mainNormalSeparateNode.location + Vector((1200, -100))
-    node_tree.inputs.clear()
-    node_tree.outputs.clear()
+    node_tree.interface.clear()
 
     # Input Sockets
-    main_normal_socket = node_tree.inputs.new(NODE_SOCKET_COLOR, 'Main')
+    main_normal_socket = node_tree.interface.new_socket("Main", in_out="INPUT", socket_type="RGBA")
     main_normal_socket.default_value = NORMAL_COLOR
-    detail_normal_socket = node_tree.inputs.new(NODE_SOCKET_COLOR, 'Detail')
+    detail_normal_socket = node_tree.interface.new_socket("Detail", in_out="INPUT", socket_type="RGBA")
     detail_normal_socket.default_value = NORMAL_COLOR
 
     # Output Sockets
@@ -410,26 +409,28 @@ def invert_channel_group():
     group_inputs.location = separateRgbNode.location + Vector((-200, -100))
     group_outputs = node_tree.nodes.new(NODE_GROUP_OUTPUT)
     group_outputs.location = combineRgbNode.location + Vector((200, 0))
-    node_tree.inputs.clear()
-    node_tree.outputs.clear()
+    node_tree.nodes.clear()
 
     # Input/Output Sockets
-    input_color = node_tree.inputs.new(NODE_SOCKET_COLOR, 'Color')
+    input_color = node_tree.interface.new_socket("Color", in_out="INPUT", socket_type="RGBA")
     input_color.default_value = GREY_COLOR
-    invert_r = node_tree.inputs.new(NODE_SOCKET_FLOAT_FACTOR, 'R')
+    invert_r = node_tree.interface.new_socket("R", in_out="INPUT", socket_type="VALUE")
+    invert_r.subtype = "FACTOR"
     invert_r.default_value = 0
     invert_r.min_value = 0
     invert_r.max_value = 1
-    invert_g = node_tree.inputs.new(NODE_SOCKET_FLOAT_FACTOR, 'G')
+    invert_g = node_tree.interface.new_socket("G", in_out="INPUT", socket_type="VALUE")
+    invert_g.subtype = "FACTOR"
     invert_g.default_value = 0
     invert_g.min_value = 0
     invert_g.max_value = 1
-    invert_b = node_tree.inputs.new(NODE_SOCKET_FLOAT_FACTOR, 'B')
+    invert_b = node_tree.interface.new_socket("B", in_out="INPUT", socket_type="VALUE")
+    invert_b.subtype = "FACTOR"
     invert_b.default_value = 0
     invert_b.min_value = 0
     invert_b.max_value = 1
 
-    output_value = node_tree.outputs.new(NODE_SOCKET_COLOR, 'Color')
+    output_value = node_tree.interface.new_socket("Color", in_out="OUTPUT", socket_type="RGBA")
 
     # Links Input
     links = node_tree.links
@@ -497,15 +498,14 @@ def normal_mask_group():
     group_inputs.location = maskSeparateNode.location + Vector((-200, -100))
     group_outputs = node_tree.nodes.new(NODE_GROUP_OUTPUT)
     group_outputs.location = normalMixNode.location + Vector((200, 0))
-    node_tree.inputs.clear()
-    node_tree.outputs.clear()
+    node_tree.nodes.clear()
 
     # Input/Output Sockets
-    mask_color = node_tree.inputs.new(NODE_SOCKET_COLOR, 'Mask')
+    mask_color = node_tree.interface.new_socket("Mask", in_out="INPUT", socket_type="RGBA")
     mask_color.default_value = LIGHTMAP_COLOR
-    normalMain_color = node_tree.inputs.new(NODE_SOCKET_COLOR, 'Normal1')
+    normalMain_color = node_tree.interface.new_socket("Normal1", in_out="INPUT", socket_type="RGBA")
     normalMain_color.default_value = NORMAL_COLOR
-    normalDetail_color = node_tree.inputs.new(NODE_SOCKET_COLOR, 'Normal2')
+    normalDetail_color = node_tree.interface.new_socket("Normal2", in_out="INPUT", socket_type="RGBA")
     normalDetail_color.default_value = NORMAL_COLOR
 
     output_value = node_tree.outputs.new(NODE_SOCKET_COLOR, 'Normal')
@@ -537,28 +537,29 @@ def xps_shader_group():
     group_output = shader.nodes.new(NODE_GROUP_OUTPUT)
     group_output.location += Vector((600, 0))
 
-    output_diffuse = shader.inputs.new(NODE_SOCKET_COLOR, 'Diffuse')
+    output_diffuse = shader.interface.new_socket("Diffuse", in_out="INPUT", socket_type="RGBA")
     output_diffuse.default_value = (DIFFUSE_COLOR)
-    output_lightmap = shader.inputs.new(NODE_SOCKET_COLOR, 'Lightmap')
+    output_lightmap = shader.interface.new_socket("Lightmap", in_out="INPUT", socket_type="RGBA")
     output_lightmap.default_value = (LIGHTMAP_COLOR)
-    output_specular = shader.inputs.new(NODE_SOCKET_COLOR, 'Specular')
+    output_specular = shader.interface.new_socket("Specular", in_out="INPUT", socket_type="RGBA")
     output_specular.default_value = (SPECULAR_COLOR)
-    output_emission = shader.inputs.new(NODE_SOCKET_COLOR, 'Emission')
-    output_normal = shader.inputs.new(NODE_SOCKET_COLOR, 'Bump Map')
+    output_emission = shader.interface.new_socket("Emission", in_out="INPUT", socket_type="RGBA")
+    output_normal = shader.interface.new_socket("Bump Map", in_out="INPUT", socket_type="RGBA")
     output_normal.default_value = (NORMAL_COLOR)
-    output_bump_mask = shader.inputs.new(NODE_SOCKET_COLOR, 'Bump Mask')
-    output_microbump1 = shader.inputs.new(NODE_SOCKET_COLOR, 'MicroBump 1')
+    output_bump_mask = shader.interface.new_socket("Bump Mask", in_out="INPUT", socket_type="RGBA")
+    output_microbump1 = shader.interface.new_socket("MicroBump 1", in_out="INPUT", socket_type="RGBA")
     output_microbump1.default_value = (NORMAL_COLOR)
-    output_microbump2 = shader.inputs.new(NODE_SOCKET_COLOR, 'MicroBump 2')
+    output_microbump2 = shader.interface.new_socket("MicroBump 2", in_out="INPUT", socket_type="RGBA")
     output_microbump2.default_value = (NORMAL_COLOR)
-    output_environment = shader.inputs.new(NODE_SOCKET_COLOR, 'Environment')
-    output_alpha = shader.inputs.new(NODE_SOCKET_FLOAT_FACTOR, 'Alpha')
+    output_environment = shader.interface.new_socket("Environment", in_out="INPUT", socket_type="RGBA")
+    output_alpha = shader.interface.new_socket("Alpha", in_out="INPUT", socket_type="VALUE")
+    output_alpha.subtype = "FACTOR"
     output_alpha.min_value = 0
     output_alpha.max_value = 1
     output_alpha.default_value = 1
 
     # Group outputs
-    shader.outputs.new(NODE_SOCKET_SHADER, 'Shader')
+    shader.interface.new_socket("Shader", in_out="INPUT", socket_type="SHADER")
 
     principled = shader.nodes.new(PRINCIPLED_SHADER_NODE)
 
