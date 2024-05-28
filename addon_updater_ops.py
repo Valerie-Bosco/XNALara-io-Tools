@@ -1362,7 +1362,7 @@ def register(bl_info):
     #updater.addon = # define at top of module, MUST be done first
 
     # Website for manual addon download, optional but recommended to set
-    updater.website = "https://github.com/johnzero7/XNALaraMesh/"
+    updater.website = "https://github.com/Valery-AA/XNALaraMesh-BL4_X"
 
     # Addon subfolder path
     # "sample/path/to/addon"
