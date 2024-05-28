@@ -257,7 +257,7 @@ def showBone(bone):
 
 
 def visibleBone(bone):
-    return bone.layers[0]
+    return True
 
 
 def showAllBones(armature_objs):
@@ -575,7 +575,7 @@ def importMesh(armature_ob, meshInfo):
 
         # Create Mesh
         mesh_ob = makeMesh(meshFullName)
-        mesh_da = mesh_ob.data
+        mesh_da : bpy.types.Mesh = mesh_ob.data
 
         coords = []
         normals = []
@@ -627,11 +627,11 @@ def importMesh(armature_ob, meshInfo):
         # unique_smooth_groups = True
 
         if verts_nor:
-            mesh_da.create_normals_split()
             meshCorrected = mesh_da.validate(clean_customdata=False)  # *Very* important to not remove nors!
             mesh_da.update(calc_edges=use_edges)
             mesh_da.normals_split_custom_set_from_vertices(normals)
-            mesh_da.use_auto_smooth = True
+            if (bpy.app.version[:2] in [(4,0), (3,6), (3,3)]):
+                mesh_da.use_auto_smooth = True
         else:
             meshCorrected = mesh_da.validate()
 
@@ -745,7 +745,7 @@ def assignVertexGroup(vert, armature, mesh_ob):
                 vertGroup.add([vert.id], vertexWeight, 'REPLACE')
 
 
-def makeBoneGroups(armature_ob, mesh_ob):
+def makeBoneGroups(armature_ob: bpy.types.Object, mesh_ob):
     # Use current theme for selecte and active bone colors
     # current_theme = C.user_preferences.themes.items()[0][0]
     # theme = C.user_preferences.themes[current_theme]
@@ -758,17 +758,8 @@ def makeBoneGroups(armature_ob, mesh_ob):
     bone_pose_color = (color2)
     bone_pose_active_color = (color3)
 
-    boneGroup = armature_ob.pose.bone_groups.new(name=mesh_ob.name)
+    boneGroup = armature_ob.data.collections.new(name=mesh_ob.name)
 
-    boneGroup.color_set = 'CUSTOM'
-    boneGroup.colors.normal = bone_pose_surface_color
-    boneGroup.colors.select = bone_pose_color
-    boneGroup.colors.active = bone_pose_active_color
-
-    vertexGroups = mesh_ob.vertex_groups.keys()
-    poseBones = armature_ob.pose.bones
-    for boneName in vertexGroups:
-        poseBones[boneName].bone_group = boneGroup
 
 
 if __name__ == "__main__":

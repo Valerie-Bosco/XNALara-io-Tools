@@ -16,51 +16,59 @@ bl_info = {
 }
 
 
-#############################################
-# support reloading sub-modules
-_modules = [
-    'xps_panels',
-    'xps_tools',
-    'xps_toolshelf',
-    'xps_const',
-    'xps_types',
-    'xps_material',
-    'write_ascii_xps',
-    'write_bin_xps',
-    'read_ascii_xps',
-    'read_bin_xps',
-    'mock_xps_data',
-    'export_xnalara_model',
-    'export_xnalara_pose',
-    'import_xnalara_model',
-    'import_xnalara_pose',
-    'import_obj',
-    'export_obj',
-    'ascii_ops',
-    'bin_ops',
-    'timing',
-    'material_creator',
-    'node_shader_utils',
-    'addon_updater_ops',
-]
-
-# Reload previously loaded modules
-if "bpy" in locals():
-    from importlib import reload
-    _modules_loaded[:] = [reload(module) for module in _modules_loaded]
-    del reload
-
-
-# First import the modules
-__import__(name=__name__, fromlist=_modules)
-_namespace = globals()
-_modules_loaded = [_namespace[name] for name in _modules]
-del _namespace
-# support reloading sub-modules
-#############################################
+#################################################
+# ALX MODULE-AUTO-LOADER
 
 import bpy
 
+# Class Import/Reload
+import os
+import importlib
+
+folder_blacklist = ["__pycache__"]
+file_blacklist = ["__init__.py", "addon_updater_ops.py", "addon_updater.py"]
+
+addon_folders = list([__path__[0]])
+addon_folders.extend( [os.path.join(__path__[0], folder_name) for folder_name in os.listdir(__path__[0]) if ( os.path.isdir( os.path.join(__path__[0], folder_name) ) ) and (folder_name not in folder_blacklist) ] )
+
+addon_files = [[folder_path, file_name[0:-3]] for folder_path in addon_folders for file_name in os.listdir(folder_path) if (file_name not in file_blacklist) and (file_name.endswith(".py"))]
+
+for folder_file_batch in addon_files:
+    if (os.path.basename(folder_file_batch[0]) == os.path.basename(__path__[0])):
+        file = folder_file_batch[1]
+
+        if (file not in locals()):
+            import_line = f"from . import {file}"
+            exec(import_line)
+        else:
+            reload_line = f"{file} = importlib.reload({file})"
+            exec(reload_line)
+    
+    else:
+        if (os.path.basename(folder_file_batch[0]) != os.path.basename(__path__[0])):
+            file = folder_file_batch[1]
+
+            if (file not in locals()):
+                import_line = f"from . {os.path.basename(folder_file_batch[0])} import {file}"
+                exec(import_line)
+            else:
+                reload_line = f"{file} = importlib.reload({file})"
+                exec(reload_line)
+
+    
+
+# Class Queue
+import inspect
+
+bpy_class_object_list = tuple(bpy_class[1] for bpy_class in inspect.getmembers(bpy.types, inspect.isclass))
+alx_class_object_list = tuple(alx_class[1] for file_batch in addon_files for alx_class in inspect.getmembers(eval(file_batch[1]), inspect.isclass) if issubclass(alx_class[1], bpy_class_object_list) and (not issubclass(alx_class[1], bpy.types.WorkSpaceTool)))
+
+AlxClassQueue = alx_class_object_list
+
+#################################################
+
+from . import addon_updater_ops
+from . import xps_tools
 
 class UpdaterPreferences(bpy.types.AddonPreferences):
     """Updater Class."""
@@ -72,89 +80,68 @@ class UpdaterPreferences(bpy.types.AddonPreferences):
         name="Auto-check for Update",
         description="If enabled, auto-check for updates using an interval",
         default=False,
-    )
+    ) #type:ignore
     updater_interval_months: bpy.props.IntProperty(
         name='Months',
         description="Number of months between checking for updates",
         default=0,
         min=0
-    )
+    ) #type:ignore
     updater_interval_days: bpy.props.IntProperty(
         name='Days',
         description="Number of days between checking for updates",
         default=7,
         min=0,
-    )
+    ) #type:ignore
     updater_interval_hours: bpy.props.IntProperty(
         name='Hours',
         description="Number of hours between checking for updates",
         default=0,
         min=0,
         max=23
-    )
+    ) #type:ignore
     updater_interval_minutes: bpy.props.IntProperty(
         name='Minutes',
         description="Number of minutes between checking for updates",
         default=0,
         min=0,
         max=59
-    )
+    ) #type:ignore
 
     def draw(self, context):
         """Draw Method."""
         addon_updater_ops.update_settings_ui(self, context)
 
-#
-# Registration
-#
 
 
-classesToRegister = [
-    UpdaterPreferences,
-    xps_panels.XPSToolsObjectPanel,
-    xps_panels.XPSToolsBonesPanel,
-    xps_panels.XPSToolsAnimPanel,
-
-    xps_toolshelf.ArmatureBonesHideByName_Op,
-    xps_toolshelf.ArmatureBonesHideByVertexGroup_Op,
-    xps_toolshelf.ArmatureBonesShowAll_Op,
-    xps_toolshelf.ArmatureBonesRenameToBlender_Op,
-    xps_toolshelf.ArmatureBonesRenameToXps_Op,
-    xps_toolshelf.ArmatureBonesConnect_Op,
-    xps_toolshelf.NewRestPose_Op,
-
-    xps_tools.Import_Xps_Model_Op,
-    xps_tools.Export_Xps_Model_Op,
-    xps_tools.Import_Xps_Pose_Op,
-    xps_tools.Export_Xps_Pose_Op,
-    xps_tools.Import_Poses_To_Keyframes_Op,
-    xps_tools.Export_Frames_To_Poses_Op,
-    xps_tools.ArmatureBoneDictGenerate_Op,
-    xps_tools.ArmatureBoneDictRename_Op,
-    xps_tools.ArmatureBoneDictRestore_Op,
-    xps_tools.ImportXpsNgff,
-    xps_tools.ExportXpsNgff,
-    xps_tools.XpsImportSubMenu,
-    xps_tools.XpsExportSubMenu,
-]
-
-
-# Use factory to create method to register and unregister the classes
-registerClasses, unregisterClasses = bpy.utils.register_classes_factory(classesToRegister)
-
+def AlxRegisterClassQueue():
+    for AlxClass in AlxClassQueue:
+        try:
+            bpy.utils.register_class(AlxClass)
+        except:
+            bpy.utils.unregister_class(AlxClass)
+            bpy.utils.register_class(AlxClass)
+def AlxUnregisterClassQueue():
+    for AlxClass in AlxClassQueue:
+        try:
+            bpy.utils.unregister_class(AlxClass)
+        except:
+            print("Can't Unregister", AlxClass)
 
 def register():
     """Register addon classes."""
-    registerClasses()
-    xps_tools.register()
     addon_updater_ops.register(bl_info)
+    AlxRegisterClassQueue()
+    xps_tools.register()
+    
 
 
 def unregister():
     """Unregister addon classes."""
     addon_updater_ops.unregister()
+    AlxUnregisterClassQueue()
     xps_tools.unregister()
-    unregisterClasses()
+    
 
 
 if __name__ == "__main__":
