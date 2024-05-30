@@ -4,14 +4,12 @@
 
 bl_info = {
     "name": "XNALara/XPS Import/Export",
-    "author": "johnzero7",
-    "version": (2, 0, 2),
-    "blender": (2, 80, 0),
+    "author": "johnzero7, Valeria Bosco[Valy Arhal][4.x patch]",
+    "version": (1, 0, 1, 1),
+    "blender": (4, 0, 0),
     "location": "File > Import-Export > XNALara/XPS",
     "description": "Import-Export XNALara/XPS",
-    "warning": "",
-    "wiki_url":    "https://github.com/johnzero7/xps_tools",
-    "tracker_url": "https://github.com/johnzero7/xps_tools/issues",
+    "warning": "full 4.x support is still in development",
     "category": "Import-Export",
 }
 
@@ -21,12 +19,11 @@ bl_info = {
 
 import bpy
 
-# Class Import/Reload
 import os
 import importlib
 
-folder_blacklist = ["__pycache__"]
-file_blacklist = ["__init__.py", "addon_updater_ops.py", "addon_updater.py"]
+folder_blacklist = ["__pycache__", "alxoverhaul_updater"]
+file_blacklist = ["__init__.py", "addon_updater_ops", "addon_updater.py", "Extras.py", ]
 
 addon_folders = list([__path__[0]])
 addon_folders.extend( [os.path.join(__path__[0], folder_name) for folder_name in os.listdir(__path__[0]) if ( os.path.isdir( os.path.join(__path__[0], folder_name) ) ) and (folder_name not in folder_blacklist) ] )
@@ -55,12 +52,12 @@ for folder_file_batch in addon_files:
                 reload_line = f"{file} = importlib.reload({file})"
                 exec(reload_line)
 
-    
 
-# Class Queue
 import inspect
 
-bpy_class_object_list = tuple(bpy_class[1] for bpy_class in inspect.getmembers(bpy.types, inspect.isclass))
+class_blacklist = ["PSA_UL_SequenceList"]
+
+bpy_class_object_list = tuple(bpy_class[1] for bpy_class in inspect.getmembers(bpy.types, inspect.isclass) if (bpy_class not in class_blacklist))
 alx_class_object_list = tuple(alx_class[1] for file_batch in addon_files for alx_class in inspect.getmembers(eval(file_batch[1]), inspect.isclass) if issubclass(alx_class[1], bpy_class_object_list) and (not issubclass(alx_class[1], bpy.types.WorkSpaceTool)))
 
 AlxClassQueue = alx_class_object_list

@@ -72,7 +72,7 @@ except Exception as e:
 # not match and have errors. Must be all lowercase and no spaces! Should also
 # be unique among any other addons that could exist (using this updater code),
 # to avoid clashes in operator registration.
-updater.addon = "xps_tools"
+updater.addon = "xnalara_mesh_bl4x"
 
 
 # -----------------------------------------------------------------------------
@@ -1353,11 +1353,11 @@ def register(bl_info):
     updater.private_token = None  # "tokenstring"
 
     # Choose your own username, must match website (not needed for GitLab).
-    updater.user = "johnzero7"
+    updater.user = "Valery-AA"
 
     # Choose your own repository, must match git name for GitHUb and Bitbucket,
     # for GitLab use project ID (numbers only).
-    updater.repo = "xps_tools"
+    updater.repo = "XNALaraMesh-BL4_X"
 
     #updater.addon = # define at top of module, MUST be done first
 
@@ -1378,7 +1378,7 @@ def register(bl_info):
 
     # Optional, consider turning off for production or allow as an option
     # This will print out additional debugging info to the console
-    updater.verbose = True  # make False for production default
+    updater.verbose = False  # make False for production default
 
     # Optional, customize where the addon updater processing subfolder is,
     # essentially a staging folder used by the updater on its own
@@ -1391,7 +1391,7 @@ def register(bl_info):
     updater.backup_current = True  # True by default
 
     # Sample ignore patterns for when creating backup of current during update.
-    updater.backup_ignore_patterns = ["__pycache__"]
+    updater.backup_ignore_patterns = ["__pycache__", ".git", ".gitignore"]
     # Alternate example patterns:
     # updater.backup_ignore_patterns = [".git", "__pycache__", "*.bat", ".gitignore", "*.exe"]
 
@@ -1443,13 +1443,13 @@ def register(bl_info):
     # but the user has the option from user preferences to directly
     # update to the master branch or any other branches specified using
     # the "install {branch}/older version" operator.
-    updater.include_branches = True
+    updater.include_branches = False
 
     # (GitHub only) This options allows using "releases" instead of "tags",
     # which enables pulling down release logs/notes, as well as installs update
     # from release-attached zips (instead of the auto-packaged code generated
     # with a release/tag). Setting has no impact on BitBucket or GitLab repos.
-    updater.use_releases = False
+    updater.use_releases = True
     # Note: Releases always have a tag, but a tag may not always be a release.
     # Therefore, setting True above will filter out any non-annotated tags.
     # Note 2: Using this option will also display (and filter by) the release
