@@ -5,7 +5,7 @@
 bl_info = {
     "name": "XNALara/XPS Import/Export",
     "author": "johnzero7, Valeria Bosco[Valy Arhal][4.x patch]",
-    "version": (1, 0, 2, 1),
+    "version": (1, 0, 2, 2),
     "blender": (4, 0, 0),
     "location": "File > Import-Export > XNALara/XPS",
     "description": "Import-Export XNALara/XPS",
@@ -14,10 +14,13 @@ bl_info = {
 }
 
 
+import bpy
+from . import addon_updater_ops
+
+
 #################################################
 # ALX MODULE-AUTO-LOADER
 
-import bpy
 
 import os
 import importlib
@@ -64,51 +67,8 @@ AlxClassQueue = alx_class_object_list
 
 #################################################
 
-from . import addon_updater_ops
+
 from . import xps_tools
-
-class UpdaterPreferences(bpy.types.AddonPreferences):
-    """Updater Class."""
-
-    bl_idname = __package__
-
-    # addon updater preferences from `__init__`, be sure to copy all of them
-    auto_check_update: bpy.props.BoolProperty(
-        name="Auto-check for Update",
-        description="If enabled, auto-check for updates using an interval",
-        default=False,
-    ) #type:ignore
-    updater_interval_months: bpy.props.IntProperty(
-        name='Months',
-        description="Number of months between checking for updates",
-        default=0,
-        min=0
-    ) #type:ignore
-    updater_interval_days: bpy.props.IntProperty(
-        name='Days',
-        description="Number of days between checking for updates",
-        default=7,
-        min=0,
-    ) #type:ignore
-    updater_interval_hours: bpy.props.IntProperty(
-        name='Hours',
-        description="Number of hours between checking for updates",
-        default=0,
-        min=0,
-        max=23
-    ) #type:ignore
-    updater_interval_minutes: bpy.props.IntProperty(
-        name='Minutes',
-        description="Number of minutes between checking for updates",
-        default=0,
-        min=0,
-        max=59
-    ) #type:ignore
-
-    def draw(self, context):
-        """Draw Method."""
-        addon_updater_ops.update_settings_ui(self, context)
-
 
 
 def AlxRegisterClassQueue():
