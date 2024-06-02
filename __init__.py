@@ -11,6 +11,7 @@ bl_info = {
     "description": "Import-Export XNALara/XPS",
     "warning": "full 4.x support is still in development",
     "category": "Import-Export",
+    "tracker_url": "https://github.com/Valery-AA/XNALaraMesh-BL4_X/issues"
 }
 
 
