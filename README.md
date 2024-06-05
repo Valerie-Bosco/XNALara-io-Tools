@@ -1,3 +1,5 @@
+THE 4.x PATCH IS EXTREMELY PRONE TO ERROR DUE TO LACK OF USER TESTING, PLEASE REPORT ANY UNEXPECTED BEHAVIOUR
+
 XPS Tools 
 =========
 Blender an addon to Export/Import Haydee assets.
