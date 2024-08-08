@@ -1,6 +1,8 @@
 import bpy
-from . import addon_updater_ops
 
+from . addon_updater_ops import make_annotations, update_settings_ui
+
+@make_annotations
 class XNAlaraMesh4X_AddonPreferences(bpy.types.AddonPreferences):
     """Updater Class."""
 
@@ -15,5 +17,4 @@ class XNAlaraMesh4X_AddonPreferences(bpy.types.AddonPreferences):
 
 
     def draw(self, context):
-        """Draw Method."""
-        addon_updater_ops.update_settings_ui(self, context)
+        update_settings_ui(self, context)

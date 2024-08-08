@@ -21,6 +21,8 @@
 Implements draw calls, popups, and operators that use the addon_updater.
 """
 
+update_path_fix = None
+
 import os
 import traceback
 
@@ -72,8 +74,7 @@ except Exception as e:
 # not match and have errors. Must be all lowercase and no spaces! Should also
 # be unique among any other addons that could exist (using this updater code),
 # to avoid clashes in operator registration.
-updater.addon = "xnalara_mesh_bl4x"
-
+updater.addon = "xnalara_mesh_io_bl4x"
 
 # -----------------------------------------------------------------------------
 # Blender version utils
@@ -1256,7 +1257,7 @@ def skip_tag_function(self, tag):
     #
     # # Filter out e.g. if 'beta' is in name of release
     # if 'beta' in tag.lower():
-    #     return True
+    # 	return True
     # ---- write any custom code above, return true to disallow version --- #
 
     if self.include_branches:
@@ -1299,19 +1300,19 @@ def select_link_function(self, tag):
 
     # -- Example: select the first (or only) asset instead source code --
     # if "assets" in tag and "browser_download_url" in tag["assets"][0]:
-    #     link = tag["assets"][0]["browser_download_url"]
+    # 	link = tag["assets"][0]["browser_download_url"]
 
     # -- Example: select asset based on OS, where multiple builds exist --
     # # not tested/no error checking, modify to fit your own needs!
     # # assume each release has three attached builds:
-    # #        release_windows.zip, release_OSX.zip, release_linux.zip
+    # #		release_windows.zip, release_OSX.zip, release_linux.zip
     # # This also would logically not be used with "branches" enabled
     # if platform.system() == "Darwin": # ie OSX
-    #     link = [asset for asset in tag["assets"] if 'OSX' in asset][0]
+    # 	link = [asset for asset in tag["assets"] if 'OSX' in asset][0]
     # elif platform.system() == "Windows":
-    #     link = [asset for asset in tag["assets"] if 'windows' in asset][0]
+    # 	link = [asset for asset in tag["assets"] if 'windows' in asset][0]
     # elif platform.system() == "Linux":
-    #     link = [asset for asset in tag["assets"] if 'linux' in asset][0]
+    # 	link = [asset for asset in tag["assets"] if 'linux' in asset][0]
 
     return link
 
@@ -1345,7 +1346,7 @@ def register(bl_info):
     # updater.engine = "GitLab"
     # updater.engine = "Bitbucket"
 
-    # If using private repository, indicate the token here
+    # If using private repository, indicate the token here.
     # Must be set after assigning the engine.
     # **WARNING** Depending on the engine, this token can act like a password!!
     # Only provide a token if the project is *non-public*, see readme for
@@ -1359,12 +1360,12 @@ def register(bl_info):
     # for GitLab use project ID (numbers only).
     updater.repo = "XNALaraMesh-BL4_X"
 
-    #updater.addon = # define at top of module, MUST be done first
+    # updater.addon = # define at top of module, MUST be done first
 
-    # Website for manual addon download, optional but recommended to set
+    # Website for manual addon download, optional but recommended to set.
     updater.website = "https://github.com/Valery-AA/XNALaraMesh-BL4_X"
 
-    # Addon subfolder path
+    # Addon subfolder path.
     # "sample/path/to/addon"
     # default is "" or None, meaning root
     updater.subfolder_path = ""
@@ -1384,8 +1385,10 @@ def register(bl_info):
     # essentially a staging folder used by the updater on its own
     # Needs to be within the same folder as the addon itself
     # Need to supply a full, absolute path to folder
-    # updater.updater_path = # set path of updater folder, by default:
-    #             /addons/{__package__}/{__package__}_updater
+    from pathlib import Path
+    updater._updater_path = str( Path.absolute( Path(update_path_fix[0]) ) )
+    # set path of updater folder, by default:
+    # 			/addons/{__package__}/{__package__}_updater
 
     # Auto create a backup of the addon when installing other versions.
     updater.backup_current = True  # True by default
@@ -1400,8 +1403,8 @@ def register(bl_info):
     # (ie if set to []), updates are installed in the same way as blender:
     # .py files are replaced, but other file types (e.g. json, txt, blend)
     # will NOT be overwritten if already present in current install. Thus
-    # if you want to automatically update resources/non py files, add them
-    # as a part of the pattern list below so they will always be overwritten by an
+    # if you want to automatically update resources/non py files, add them as a
+    # part of the pattern list below so they will always be overwritten by an
     # update. If a pattern file is not found in new update, no action is taken
     # NOTE: This does NOT delete anything proactively, rather only defines what
     # is allowed to be overwritten during an update execution.
@@ -1433,9 +1436,9 @@ def register(bl_info):
     # clean = True in the run_update method, ie the equivalent of a fresh,
     # new install. This would also delete any resources or user-made/modified
     # files setting ["__pycache__"] ensures the pycache folder always removed.
-    # The configuration of ["*.py","*.pyc"] is a safe option as this
+    # The configuration of ["*.py", "*.pyc"] is a safe option as this
     # will ensure no old python files/caches remain in event different addon
-    # versions have different filenames or structures
+    # versions have different filenames or structures.
 
     # Allow branches like 'master' as an option to update to, regardless
     # of release or version.
@@ -1485,8 +1488,8 @@ def register(bl_info):
     # Set the min and max versions allowed to install.
     # Optional, default None
     # min install (>=) will install this and higher
-    updater.version_min_update = (0,0,0)
-    # updater.version_min_update = None  # if not wanting to define a min
+    updater.version_min_update = None
+    # updater.version_min_update = None  # None or default for no minimum.
 
     # Max install (<) will install strictly anything lower than this version
     # number, useful to limit the max version a given user can install (e.g.
@@ -1504,7 +1507,7 @@ def register(bl_info):
     # Recommended false to encourage blender restarts on update completion
     # Setting this option to True is NOT as stable as false (could cause
     # blender crashes).
-    updater.auto_reload_post_update = False
+    updater.auto_reload_post_update = True
 
     # The register line items for all operators/panels.
     # If using bpy.utils.register_module(__name__) to register elsewhere
