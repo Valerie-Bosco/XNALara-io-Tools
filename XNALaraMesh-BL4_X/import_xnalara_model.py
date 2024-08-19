@@ -4,6 +4,9 @@ import operator
 import os
 import re
 
+from .xnal_bone_utilities import XnaL_AddRegisterBoneName, XnaL_ShowHideBones, XnaL_GetBoneNameByIndex
+
+
 from . import import_xnalara_pose
 from . import read_ascii_xps
 from . import read_bin_xps
@@ -12,27 +15,11 @@ from . import material_creator
 # from .timing import timing, profile
 from mathutils import Vector
 
+
 # imported XPS directory
 rootDir = ''
 blenderBoneNames = []
 MIN_BONE_LENGHT = 0.005
-
-
-def newBoneName():
-    global blenderBoneNames
-    blenderBoneNames = []
-
-
-def addBoneName(newName):
-    global blenderBoneNames
-    blenderBoneNames.append(newName)
-
-
-def getBoneName(originalIndex):
-    if originalIndex < len(blenderBoneNames):
-        return blenderBoneNames[originalIndex]
-    else:
-        return None
 
 
 def coordTransform(coords):
@@ -147,29 +134,29 @@ def xpsImport():
     active_collection.children.link(new_collection)
 
     # imports the armature
-    armature_ob = createArmature()
-    if armature_ob:
-        linkToCollection(new_collection, armature_ob)
-        importBones(armature_ob)
-        markSelected(armature_ob)
+    armature_object = createArmature()
+    if armature_object is not None:
+        linkToCollection(new_collection, armature_object)
+        XnaL_ImportModelBones(bpy.context, armature_object)
+        armature_object.select_set(True)
 
     # imports all the meshes
-    meshes_obs = importMeshesList(armature_ob)
+    meshes_obs = importMeshesList(armature_object)
     # link object to Collection
     for obj in meshes_obs:
         linkToCollection(new_collection, obj)
-        markSelected(obj)
+        obj.select_set(True)
 
-    if armature_ob:
-        armature_ob.pose.use_auto_ik = xpsSettings.autoIk
-        hideUnusedBones([armature_ob])
+    if armature_object:
+        armature_object.pose.use_auto_ik = xpsSettings.autoIk
+        hideUnusedBones([armature_object])
         # set tail to Children Middle Point
-        boneTailMiddleObject(armature_ob, xpsSettings.connectBones)
+        boneTailMiddleObject(armature_object, xpsSettings.connectBones)
 
     # Import default pose
-    if(xpsSettings.importDefaultPose and armature_ob):
+    if(xpsSettings.importDefaultPose and armature_object):
         if(xpsData.header and xpsData.header.pose):
-            import_xnalara_pose.setXpsPose(armature_ob, xpsData.header.pose)
+            import_xnalara_pose.setXpsPose(armature_object, xpsData.header.pose)
     return '{FINISHED}'
 
 
@@ -210,7 +197,7 @@ def hideBonesByName(armature_objs):
     for armature in armature_objs:
         for bone in armature.data.bones:
             if bone.name.lower().startswith('unused'):
-                hideBone(bone)
+                XnaL_ShowHideBones([bone], False)
 
 
 def hideBonesByVertexGroup(armature_objs):
@@ -242,43 +229,14 @@ def recurBones(bone, vertexgroups, name):
 
     visibleChain = bone.name in vertexgroups or visibleChild
     if not visibleChain:
-        hideBone(bone)
+        XnaL_ShowHideBones([bone], False)
     return visibleChain
 
 
-def hideBone(bone):
-    bone.layers[1] = True
-    bone.layers[0] = False
 
 
-def showBone(bone):
-    bone.layers[0] = True
-    bone.layers[1] = False
 
 
-def visibleBone(bone):
-    return True
-
-
-def showAllBones(armature_objs):
-    """Move all bones to layer 0."""
-    for armature in armature_objs:
-        for bone in armature.data.bones:
-            showBone(bone)
-
-
-def hideBoneChain(bone):
-    hideBone(bone)
-    parentBone = bone.parent
-    if parentBone:
-        hideBoneChain(parentBone)
-
-
-def showBoneChain(bone):
-    showBone(bone)
-    parentBone = bone.parent
-    if parentBone:
-        showBoneChain(parentBone)
 
 
 def hideUnusedBones(armature_objs):
@@ -323,32 +281,36 @@ def createArmature():
         return armature_ob
 
 
-def importBones(armature_ob):
-    bones = xpsData.bones
+def XnaL_ImportModelBones(context:  bpy.types.Context, armature_object: bpy.types.Object):
+    xps_bones = xpsData.bones
 
-    bpy.context.view_layer.objects.active = armature_ob
-    bpy.ops.object.mode_set(mode='EDIT')
+    if (armature_object is not None) and (armature_object.data is not None) and (armature_object.type == "ARMATURE"):
+        armature: bpy.types.Armature = armature_object.data
 
-    newBoneName()
-    # create all Bones
-    for bone in bones:
-        editBone = armature_ob.data.edit_bones.new(bone.name)
-        # Bone index change after parenting. This keeps original index
-        addBoneName(editBone.name)
+        bpy.context.view_layer.objects.active = armature_object
+        bpy.ops.object.mode_set(mode='EDIT')
 
-        transformedBone = coordTransform(bone.co)
-        editBone.head = Vector(transformedBone)
-        editBone.tail = Vector(editBone.head) + Vector((0, 0, -.1))
-        setMinimumLenght(editBone)
+        xps_bone: bpy.types.Bone
+        for xps_bone in xps_bones:
+            editBone = armature.edit_bones.new(xps_bone.name)
+            XnaL_AddRegisterBoneName(editBone.name)
 
-    # set all bone parents
-    for bone in bones:
-        if (bone.parentId >= 0):
-            editBone = armature_ob.data.edit_bones[bone.id]
-            editBone.parent = armature_ob.data.edit_bones[bone.parentId]
-    markSelected(armature_ob)
-    bpy.ops.object.mode_set(mode='OBJECT')
-    return armature_ob
+            transformedBone = coordTransform(xps_bone.co)
+            editBone.head = Vector(transformedBone)
+            editBone.tail = Vector(editBone.head) + Vector((0, 0, -.1))
+            setMinimumLenght(editBone)
+
+        for xps_bone in xps_bones:
+            try:
+                if (xps_bone.parentId >= 0):
+                    editBone = armature_object.data.edit_bones[xps_bone.id]
+                    editBone.parent = armature_object.data.edit_bones[xps_bone.parentId]
+            except:
+                pass
+   
+        armature_object.select_set(True)
+        bpy.ops.object.mode_set(mode='OBJECT')
+    return armature_object
 
 
 def boneTailMiddle(editBones, connectBones):
@@ -360,11 +322,8 @@ def boneTailMiddle(editBones, connectBones):
         # elif (bone.name.lower() == "root hips"):
         #    bone.tail = bone.head.xyz + Vector((0, .2, 0))
         else:
-            if visibleBone(bone):
-                childBones = [childBone for childBone in bone.children
-                              if visibleBone(childBone) and not (re.search(twistboneRegex, childBone.name))]
-            else:
-                childBones = [childBone for childBone in bone.children if not (re.search(twistboneRegex, childBone.name))]
+            childBones = [childBone for childBone in bone.children
+                if not (re.search(twistboneRegex, childBone.name))]
 
             if childBones:
                 # Set tail to children middle
@@ -386,10 +345,6 @@ def boneTailMiddle(editBones, connectBones):
 
     # Connect Bones to parent
     connectEditBones(editBones, connectBones)
-
-
-def markSelected(ob):
-    ob.select_set(state=True)
 
 
 def makeUvs(mesh_da, faces, uvData, vertColors):
@@ -737,7 +692,7 @@ def assignVertexGroup(vert, armature, mesh_ob):
         vertexWeight = vertBoneWeight.weight
         if vertexWeight != 0:
             # use original index to get current bone name in blender
-            boneName = getBoneName(boneIdx)
+            boneName = XnaL_GetBoneNameByIndex(boneIdx)
             if boneName:
                 vertGroup = mesh_ob.vertex_groups.get(boneName)
                 if not vertGroup:

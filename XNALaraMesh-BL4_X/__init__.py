@@ -1,7 +1,7 @@
 bl_info = {
     "name": "XNALara/XPS Import/Export",
     "author": "Valeria Bosco[Valy Arhal], johnzero7[Original Developer]",
-    "version": (1, 0, 3),
+    "version": (1, 0, 4),
     "blender": (4, 0, 0),
     "location": "File > Import-Export > XNALara/XPS",
     "description": "Import-Export XNALara/XPS",
