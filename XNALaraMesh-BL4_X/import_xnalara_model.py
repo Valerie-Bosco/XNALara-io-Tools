@@ -4,8 +4,7 @@ import operator
 import os
 import re
 
-from .xnal_bone_utilities import XnaL_AddRegisterBoneName, XnaL_ShowHideBones, XnaL_GetBoneNameByIndex
-
+from . xnal_bone_utilities import XnaL_AddRegisterBoneName, XnaL_ShowHideBones, XnaL_GetBoneNameByIndex, XnaL_CreateBoneCollection
 
 from . import import_xnalara_pose
 from . import read_ascii_xps
@@ -281,16 +280,17 @@ def createArmature():
         return armature_ob
 
 
-def XnaL_ImportModelBones(context:  bpy.types.Context, armature_object: bpy.types.Object):
+def XnaL_ImportModelBones(context: bpy.types.Context, armature_object: bpy.types.Object):
     xps_bones = xpsData.bones
 
     if (armature_object is not None) and (armature_object.data is not None) and (armature_object.type == "ARMATURE"):
         armature: bpy.types.Armature = armature_object.data
 
-        bpy.context.view_layer.objects.active = armature_object
+        context.view_layer.objects.active = armature_object
         bpy.ops.object.mode_set(mode='EDIT')
 
-        xps_bone: bpy.types.Bone
+
+        xps_bone: xps_types.XpsBone
         for xps_bone in xps_bones:
             editBone = armature.edit_bones.new(xps_bone.name)
             XnaL_AddRegisterBoneName(editBone.name)
@@ -301,14 +301,10 @@ def XnaL_ImportModelBones(context:  bpy.types.Context, armature_object: bpy.type
             setMinimumLenght(editBone)
 
         for xps_bone in xps_bones:
-            try:
-                if (xps_bone.parentId >= 0):
-                    editBone = armature_object.data.edit_bones[xps_bone.id]
-                    editBone.parent = armature_object.data.edit_bones[xps_bone.parentId]
-            except:
-                pass
-   
-        armature_object.select_set(True)
+            editBone : bpy.types.EditBone = armature.edit_bones[xps_bone.id]
+            editBone.parent = armature.edit_bones[xps_bone.parentId]
+
+        context.view_layer.objects.active = armature_object
         bpy.ops.object.mode_set(mode='OBJECT')
     return armature_object
 
@@ -469,7 +465,7 @@ def makeVertexDict(vertexDict, mergedVertList, uvLayers, vertColor, vertices):
         vertexDictAppend(vertexID)
 
 
-def importMesh(armature_ob, meshInfo):
+def importMesh(armature_object, meshInfo):
     # boneCount = len(xpsData.bones)
     useSeams = xpsSettings.markSeams
     # Create Mesh
@@ -485,7 +481,7 @@ def importMesh(armature_ob, meshInfo):
     textureCount = len(meshInfo.textures)
     print('Texture Count: {}'.format(str(textureCount)))
 
-    mesh_ob = None
+    mesh_object = None
     vertCount = len(meshInfo.vertices)
     if vertCount >= 3:
         vertexDict = []
@@ -529,8 +525,8 @@ def importMesh(armature_ob, meshInfo):
             facesList = meshInfo.faces
 
         # Create Mesh
-        mesh_ob = makeMesh(meshFullName)
-        mesh_da : bpy.types.Mesh = mesh_ob.data
+        mesh_object = makeMesh(meshFullName)
+        mesh_da : bpy.types.Mesh = mesh_object.data
 
         coords = []
         normals = []
@@ -566,15 +562,15 @@ def importMesh(armature_ob, meshInfo):
         # Make Material
         material_creator.makeMaterial(xpsSettings, rootDir, mesh_da, meshInfo, flags)
 
-        if armature_ob:
-            setArmatureModifier(armature_ob, mesh_ob)
-            setParent(armature_ob, mesh_ob)
+        if ( armature_object is not None) and (mesh_object is not None):
+            setArmatureModifier(armature_object, mesh_object)
+            setParent(armature_object, mesh_object)
 
-        makeVertexGroups(mesh_ob, vertices)
+        makeVertexGroups(mesh_object, vertices)
 
-        # makeBoneGroups
-        if armature_ob:
-            makeBoneGroups(armature_ob, mesh_ob)
+        if ( armature_object is not None) and (mesh_object is not None):
+            XnaL_CreateBoneCollection(armature_object, mesh_object)
+            
 
         # import custom normals
         verts_nor = xpsSettings.importNormals
@@ -592,7 +588,7 @@ def importMesh(armature_ob, meshInfo):
 
         print("Geometry Corrected:", meshCorrected)
 
-    return mesh_ob
+    return mesh_object
 
 
 def markSeams(mesh_da, seamEdgesDict):
@@ -700,20 +696,7 @@ def assignVertexGroup(vert, armature, mesh_ob):
                 vertGroup.add([vert.id], vertexWeight, 'REPLACE')
 
 
-def makeBoneGroups(armature_ob: bpy.types.Object, mesh_ob):
-    # Use current theme for selecte and active bone colors
-    # current_theme = C.user_preferences.themes.items()[0][0]
-    # theme = C.user_preferences.themes[current_theme]
 
-    # random bone surface color by mesh
-    color1 = material_creator.randomColor()
-    color2 = material_creator.randomColor()
-    color3 = material_creator.randomColor()
-    bone_pose_surface_color = (color1)
-    bone_pose_color = (color2)
-    bone_pose_active_color = (color3)
-
-    boneGroup = armature_ob.data.collections.new(name=mesh_ob.name)
 
 
 
