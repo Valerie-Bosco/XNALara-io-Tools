@@ -68,7 +68,7 @@ LIGHTMAP_COLOR = (1, 1, 1, 1)
 NORMAL_COLOR = (0.5, 0.5, 1, 1)
 GREY_COLOR = (0.5, 0.5, 0.5, 1)
 
-
+#TODO
 def makeMaterialOutputNode(node_tree):
     node = node_tree.nodes.new(OUTPUT_NODE)
     node.location = 600, 0
@@ -105,7 +105,7 @@ def randomColor():
     randomB = random.random()
     return (randomR, randomG, randomB)
 
-
+#TODO missing version check
 def setNodeScale(node, value):
     # Change from 2.80 to 2.81
     if 'Scale' in node.inputs:
@@ -119,11 +119,11 @@ def getNodeGroup(node_tree, group):
     node.node_tree = bpy.data.node_groups[group]
     return node
 
-
+#TODO make platform independent
 def makeImageFilepath(rootDir, textureFilename):
     return os.path.join(rootDir, textureFilename)
 
-
+#TODO make platform independent
 def loadImage(textureFilepath):
     textureFilename = os.path.basename(textureFilepath)
     fileRoot, fileExt = os.path.splitext(textureFilename)
@@ -200,6 +200,7 @@ def makeNodesMaterial(xpsSettings, materialData, rootDir, mesh_da, meshInfo, fla
     imagesPosX = -col_width * 6
     imagesPosY = 400
 
+#TODO make platform independent
     imageFilepath = None
     for texIndex, textureInfo in enumerate(textureFilepaths):
         textureFilename = textureInfo.file
@@ -338,6 +339,7 @@ def mix_normal_group():
     combineFinalNode = node_tree.nodes.new(SHADER_NODE_COMBINE_RGB)
     combineFinalNode.location = mainNormalSeparateNode.location + Vector((1000, -200))
 
+#TODO accidental node group wipes
     # Input/Output
     group_inputs = node_tree.nodes.new(NODE_GROUP_INPUT)
     group_inputs.location = mainNormalSeparateNode.location + Vector((-200, -100))
