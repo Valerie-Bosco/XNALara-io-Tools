@@ -1,22 +1,17 @@
-THE 4.x PATCH IS EXTREMELY PRONE TO ERROR DUE TO LACK OF USER TESTING, PLEASE REPORT ANY UNEXPECTED BEHAVIOUR
-
 XPS Tools 
 =========
-Blender an addon to Export/Import Haydee assets.
+**[ The Original version has been fully discontinued by it's developer ]**
 
-WORKS only with blender 4.x
+the addon has been patched to support blender 4.x, additional changes have been made to improve on the addon
 
-Blender Toolshelf, an addon for Blender to:
+<br>
 
-Import/Export XPS Models, Poses.
+### Features:
+- Import/Export for XPS/XNALara:
+  - meshes and skeletons
+  - animations and poses
+  - meshes with custom normals
+  - override skeletons rest pose
 
-Main Features:
-- Imports and Exports XPS/XNALara models with armature.
-- Imports and Exports Poses
-- Imports and Exports Custom Normals
-- Creates Materials on import
-- Easily set a new rest pose for the model
-
-more info at:
-http://johnzero7.github.io/XNALaraMesh/
-
+- Automatic On Import for XPS/XNALara:
+  - mesh materials will be translated into blender materials
