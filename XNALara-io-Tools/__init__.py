@@ -8,7 +8,7 @@ from . import xps_tools
 from . import addon_updater_ops
 
 bl_info = {
-    "name": "XNALara/XPS Import/Export",
+    "name": "XNALara-io-Tools",
     "author": "Valeria Bosco[Valy Arhal], johnzero7[Original Developer]",
     "version": (1, 0, 5),
     "blender": (4, 0, 0),
@@ -17,6 +17,7 @@ bl_info = {
     "warning": "full 4.x support is still in development",
     "category": "Import-Export",
 }
+
 
 module_loader = Alx_Module_Manager(__path__, globals())
 
