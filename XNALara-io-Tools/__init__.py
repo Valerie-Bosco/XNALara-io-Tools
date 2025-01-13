@@ -1,39 +1,37 @@
 import importlib
-from .Alx_module_manager import (
-    Alx_Module_Manager
-)
-
 
 from . import xps_tools
-from . import addon_updater_ops
+from .modules.addon_updater_system.addon_updater import Alx_Addon_Updater
+from .modules.module_manager import Alx_Module_Manager
 
 bl_info = {
     "name": "XNALara-io-Tools",
-    "author": "Valeria Bosco[Valy Arhal], johnzero7[Original Developer]",
-    "version": (1, 0, 5),
+    "author": "Valerie Bosco[Valy Arhal], johnzero7[Original Developer]",
+    "description": "Import-Export XNALara/XPS files",
+    "version": (1, 1, 0),
     "blender": (4, 0, 0),
-    "location": "File > Import-Export > XNALara/XPS",
-    "description": "Import-Export XNALara/XPS",
-    "warning": "full 4.x support is still in development",
     "category": "Import-Export",
+    "location": "File > Import-Export > XNALara/XPS",
+    "doc_url": "https://github.com/Valerie-Bosco/XNALara-io-Tools/wiki",
+    "tracker_url": "https://github.com/Valerie-Bosco/XNALara-io-Tools/issues",
 }
 
 
-module_loader = Alx_Module_Manager(__path__, globals())
+module_manager = Alx_Module_Manager(__path__, globals())
+addon_updater = Alx_Addon_Updater(__path__, bl_info, "Github", "Valerie-Bosco", "XNALara-io-Tools", "https://github.com/Valerie-Bosco/XNALara-io-Tools/releases/tag/main_branch_latest")
 
 
 def register():
-    addon_updater_ops.update_path_fix = __path__
-    addon_updater_ops.register(bl_info)
+    module_manager.developer_register_modules(True)
+    addon_updater.register_addon_updater(True)
 
-    module_loader.developer_register_modules()
     xps_tools.register()
 
 
 def unregister():
-    addon_updater_ops.unregister()
+    module_manager.developer_unregister_modules()
+    addon_updater.unregister_addon_updater()
 
-    module_loader.developer_unregister_modules()
     xps_tools.unregister()
 
 

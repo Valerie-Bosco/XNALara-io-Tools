@@ -1,21 +1,12 @@
-from . import export_xnalara_model
-from . import export_xnalara_pose
-from . import import_xnalara_model
-from . import import_xnalara_pose
-from . import material_creator
-from . import xps_types
-import bpy
 import os
 
-from bpy_extras.io_utils import (
-    ImportHelper,
-    ExportHelper,
-    orientation_helper,
-    path_reference_mode,
-    axis_conversion,
-    _check_axis_conversion,
-)
+import bpy
+from bpy_extras.io_utils import (ExportHelper, ImportHelper,
+                                 _check_axis_conversion, axis_conversion,
+                                 orientation_helper, path_reference_mode)
 
+from . import (export_xnalara_model, export_xnalara_pose, import_xnalara_model,
+               import_xnalara_pose, material_creator, xps_types)
 
 uv_x_displace = 0
 uv_y_displace = 0
@@ -70,67 +61,67 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.ascii;*.mesh;*.xps",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     uvDisplX: bpy.props.IntProperty(
         name="X",
         description="Displace UV X axis",
         default=uv_x_displace,
-    )
+    )  # type:ignore
 
     uvDisplY: bpy.props.IntProperty(
         name="Y",
         description="Displace UV Y axis",
         default=uv_y_displace,
-    )
+    )  # type:ignore
 
     impDefPose: bpy.props.BoolProperty(
         name="Default Pose",
         description="Import Default Pose",
         default=False,
-    )
+    )  # type:ignore
 
     markSeams: bpy.props.BoolProperty(
         name="Mark Seams",
         description="Mark as Seams the edged merged by the addon",
         default=True,
-    )
+    )  # type:ignore
 
     vColors: bpy.props.BoolProperty(
         name="Vertex Colors",
         description="Import Vertex Colors",
         default=True,
-    )
+    )  # type:ignore
 
     joinMeshRips: bpy.props.BoolProperty(
         name="Merge Doubles by Normal",
         description="Merge vertices with the same position and normal",
         default=True,
-    )
+    )  # type:ignore
 
     joinMeshParts: bpy.props.BoolProperty(
         name="Join MeshParts",
         description="Join MeshParts (meshes that contain 'nPart!' in the name)",
         default=True,
-    )
+    )  # type:ignore
 
     connectBones: bpy.props.BoolProperty(
         name="Connect Bones",
         description="Connect Bones all bones",
         default=True,
-    )
+    )  # type:ignore
 
     autoIk: bpy.props.BoolProperty(
         name="AutoIK",
         description="Set AutoIK",
         default=True,
-    )
+    )  # type:ignore
 
     importNormals: bpy.props.BoolProperty(
         name="Import Normals",
         description="Import Custom Normals",
         default=True,
-    )
+    )  # type:ignore
 
     # Only needed if you want to add into a dynamic menu
     def menu_func(self, context):
@@ -213,7 +204,7 @@ class Export_Xps_Model_Op(bpy.types.Operator, CustomExportHelper):
             ('.ascii', 'ASCII', 'Export as XnaLara/XPS Ascii format (.ascii)'),
         ),
         default='.xps',
-    )
+    )  # type:ignore
 
     xps_version_mayor: bpy.props.EnumProperty(
         name='FormatVersion',
@@ -223,7 +214,7 @@ class Export_Xps_Model_Op(bpy.types.Operator, CustomExportHelper):
             ('2', 'V2', 'Supports 4 Bone Weights'),
         ),
         default='3',
-    )
+    )  # type:ignore
 
     xps_version_minor: bpy.props.EnumProperty(
         name='FormatVersionMinor',
@@ -233,7 +224,7 @@ class Export_Xps_Model_Op(bpy.types.Operator, CustomExportHelper):
         ),
         default='15',
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     # List of operator properties, the attributes will be assigned
     # to the class instance from the operator settings before calling.
@@ -242,49 +233,49 @@ class Export_Xps_Model_Op(bpy.types.Operator, CustomExportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.ascii;*.mesh;*.xps",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     uvDisplX: bpy.props.IntProperty(
         name="X",
         description="Displace UV X axis",
         default=uv_x_displace,
-    )
+    )  # type:ignore
 
     uvDisplY: bpy.props.IntProperty(
         name="Y",
         description="Displace UV Y axis",
         default=uv_y_displace,
-    )
+    )  # type:ignore
 
     expDefPose: bpy.props.BoolProperty(
         name="Default Pose",
         description="Export Default Pose",
         default=False,
-    )
+    )  # type:ignore
 
     exportOnlySelected: bpy.props.BoolProperty(
         name="Export Only Selected",
         description="Export only selected objects",
         default=True,
-    )
+    )  # type:ignore
 
     exportNormals: bpy.props.BoolProperty(
         name="Export Normals",
         description="Export Custom Normals",
         default=True,
-    )
+    )  # type:ignore
 
     preserveSeams: bpy.props.BoolProperty(
         name="Preserve Seams",
         description="Split Edges marked as seams. They are marked as seams when imported back",
         default=True,
-    )
+    )  # type:ignore
 
     vColors: bpy.props.BoolProperty(
         name="Vertex Colors",
         description="Export Vertex Colors",
         default=True,
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -352,7 +343,7 @@ class Import_Xps_Pose_Op(bpy.types.Operator, ImportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.pose",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -381,7 +372,7 @@ class Export_Xps_Pose_Op(bpy.types.Operator, ExportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.pose",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -410,7 +401,7 @@ class Import_Poses_To_Keyframes_Op(bpy.types.Operator, ImportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.pose",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -439,7 +430,7 @@ class Export_Frames_To_Poses_Op(bpy.types.Operator, CustomExportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.pose",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -470,13 +461,13 @@ class ArmatureBoneDictGenerate_Op(bpy.types.Operator):
         description="Bone Dictionary File",
         maxlen=1024,
         subtype='FILE_PATH',
-    )
+    )  # type:ignore
 
     # filter File Extension
     filter_glob: bpy.props.StringProperty(
         default="*.txt",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -532,13 +523,13 @@ class ArmatureBoneDictRename_Op(bpy.types.Operator):
         description="Bone Dictionary File",
         maxlen=1024,
         subtype='FILE_PATH',
-    )
+    )  # type:ignore
 
     # filter File Extension
     filter_glob: bpy.props.StringProperty(
         default="*.txt",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -596,13 +587,13 @@ class ArmatureBoneDictRestore_Op(bpy.types.Operator):
         description="Bone Dictionary File",
         maxlen=1024,
         subtype='FILE_PATH',
-    )
+    )  # type:ignore
 
     # filter File Extension
     filter_glob: bpy.props.StringProperty(
         default="*.txt",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     @classmethod
     def poll(cls, context):
@@ -654,44 +645,44 @@ class ImportXpsNgff(bpy.types.Operator, ImportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.obj;*.mtl;*.arl",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     use_edges: bpy.props.BoolProperty(
         name="Lines",
         description="Import lines and faces with 2 verts as edge",
         default=True,
-    )
+    )  # type:ignore
 
     use_smooth_groups: bpy.props.BoolProperty(
         name="Smooth Groups",
         description="Surround smooth groups by sharp edges",
         default=True,
-    )
+    )  # type:ignore
 
     use_split_objects: bpy.props.BoolProperty(
         name="Object",
         description="Import OBJ Objects into Blender Objects",
         default=True,
-    )
+    )  # type:ignore
 
     use_split_groups: bpy.props.BoolProperty(
         name="Group",
         description="Import OBJ Groups into Blender Objects",
         default=True,
-    )
+    )  # type:ignore
 
     use_groups_as_vgroups: bpy.props.BoolProperty(
         name="Poly Groups",
         description="Import OBJ groups as vertex groups",
         default=False,
-    )
+    )  # type:ignore
 
     use_image_search: bpy.props.BoolProperty(
         name="Image Search",
         description="Search subdirs for any associated images "
                     "(Warning, may be slow)",
         default=True,
-    )
+    )  # type:ignore
 
     split_mode: bpy.props.EnumProperty(
         name="Split",
@@ -699,7 +690,7 @@ class ImportXpsNgff(bpy.types.Operator, ImportHelper):
             ('ON', "Split", "Split geometry, omits unused verts"),
             ('OFF', "Keep Vert Order", "Keep vertex order from file"),
         )
-    )
+    )  # type:ignore
 
     global_clamp_size: bpy.props.FloatProperty(
         name="Clamp Size",
@@ -707,7 +698,7 @@ class ImportXpsNgff(bpy.types.Operator, ImportHelper):
         min=0.0, max=1000.0,
         soft_min=0.0, soft_max=1000.0,
         default=0.0,
-    )
+    )  # type:ignore
 
     def execute(self, context):
         # print("Selected: " + context.active_object.name)
@@ -775,116 +766,116 @@ class ExportXpsNgff(bpy.types.Operator, ExportHelper):
     filter_glob: bpy.props.StringProperty(
         default="*.obj;*.mtl;*.arl",
         options={'HIDDEN'},
-    )
+    )  # type:ignore
 
     # context group
     use_selection: bpy.props.BoolProperty(
         name="Selection Only",
         description="Export selected objects only",
         default=False,
-    )
+    )  # type:ignore
     use_animation: bpy.props.BoolProperty(
         name="Animation",
         description="Write out an OBJ for each frame",
         default=False,
-    )
+    )  # type:ignore
 
     # object group
     use_mesh_modifiers: bpy.props.BoolProperty(
         name="Apply Modifiers",
         description="Apply modifiers (preview resolution)",
         default=True,
-    )
+    )  # type:ignore
 
     # extra data group
     use_edges: bpy.props.BoolProperty(
         name="Include Edges",
         description="",
         default=True,
-    )
+    )  # type:ignore
     use_smooth_groups: bpy.props.BoolProperty(
         name="Smooth Groups",
         description="Write sharp edges as smooth groups",
         default=False,
-    )
+    )  # type:ignore
     use_smooth_groups_bitflags: bpy.props.BoolProperty(
         name="Bitflag Smooth Groups",
         description="Same as 'Smooth Groups', but generate smooth groups IDs as bitflags "
                     "(produces at most 32 different smooth groups, usually much less)",
         default=False,
-    )
+    )  # type:ignore
     use_normals: bpy.props.BoolProperty(
         name="Write Normals",
         description="Export one normal per vertex and per face, to represent flat faces and sharp edges",
         default=True,
-    )
+    )  # type:ignore
     use_vcolors: bpy.props.BoolProperty(
         name="Write Vert Colors",
         description="Export Vertex Color",
         default=True,
-    )
+    )  # type:ignore
     use_uvs: bpy.props.BoolProperty(
         name="Include UVs",
         description="Write out the active UV coordinates",
         default=True,
-    )
+    )  # type:ignore
     use_materials: bpy.props.BoolProperty(
         name="Write Materials",
         description="Write out the MTL file",
         default=True,
-    )
+    )  # type:ignore
     use_triangles: bpy.props.BoolProperty(
         name="Triangulate Faces",
         description="Convert all faces to triangles",
         default=False,
-    )
+    )  # type:ignore
     use_nurbs: bpy.props.BoolProperty(
         name="Write Nurbs",
         description="Write nurbs curves as OBJ nurbs rather than "
                     "converting to geometry",
         default=False,
-    )
+    )  # type:ignore
     use_vertex_groups: bpy.props.BoolProperty(
         name="Polygroups",
         description="",
         default=False,
-    )
+    )  # type:ignore
 
     # grouping group
     use_blen_objects: bpy.props.BoolProperty(
         name="Objects as OBJ Objects",
         description="",
         default=True,
-    )
+    )  # type:ignore
     group_by_object: bpy.props.BoolProperty(
         name="Objects as OBJ Groups ",
         description="",
         default=False,
-    )
+    )  # type:ignore
     group_by_material: bpy.props.BoolProperty(
         name="Material Groups",
         description="",
         default=False,
-    )
+    )  # type:ignore
     keep_vertex_order: bpy.props.BoolProperty(
         name="Keep Vertex Order",
         description="",
         default=False,
-    )
+    )  # type:ignore
     global_scale: bpy.props.FloatProperty(
         name="Scale",
         min=0.01, max=1000.0,
         default=1.0,
-    )
+    )  # type:ignore
 
     path_mode = path_reference_mode
 
     check_extension = True
 
     def execute(self, context):
-        from . import export_obj
-
         from mathutils import Matrix
+
+        from . import export_obj
         keywords = self.as_keywords(ignore=("axis_forward",
                                             "axis_up",
                                             "global_scale",
