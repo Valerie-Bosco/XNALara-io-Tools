@@ -1,8 +1,12 @@
-# Windows image file caches
+*/update_staging
+*/source
+*/backup
+XNALara-io-Tools_updater_status.json
+
 Thumbs.db
 ehthumbs.db
 
-# Folder config file
+
 Desktop.ini
 
 # Recycle Bin used on file shares
