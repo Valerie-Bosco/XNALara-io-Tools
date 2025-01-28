@@ -1,7 +1,6 @@
 import bpy
 
-from . import import_xnalara_model
-from . import import_xnalara_pose
+from . import import_xnalara_model, import_xnalara_pose
 
 
 class ArmatureBonesHideByName_Op(bpy.types.Operator):
@@ -133,7 +132,7 @@ class ArmatureBonesConnect_Op(bpy.types.Operator):
     bl_description = 'Set Bones Connection'
     bl_options = {'PRESET'}
 
-    connectBones: bpy.props.BoolProperty()
+    connectBones: bpy.props.BoolProperty()  # type:ignore
 
     @classmethod
     def poll(cls, context):
