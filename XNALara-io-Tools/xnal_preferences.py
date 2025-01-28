@@ -18,4 +18,5 @@ class XNAlaraMesh4X_AddonPreferences(bpy.types.AddonPreferences):
     updater_interval_minutes: bpy.props.IntProperty(name='Minutes', description="Number of minutes between checking for updates", default=0, min=0, max=59)  # type:ignore
 
     def draw(self, context):
-        update_settings_ui(context, self)
+        layout = self.layout
+        update_settings_ui(context, layout)
