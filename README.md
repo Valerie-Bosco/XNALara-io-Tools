@@ -15,3 +15,8 @@ the addon has been patched to support blender 4.x, additional changes have been 
 
 - Automatic On Import for XPS/XNALara:
   - mesh materials will be translated into blender materials
+
+- New Features:
+  - repaired the addon updater **|** re-written functionality to work again and be less error prone
+  - repaired armature import/export **|** now bones keep the correct structure
+  - repaired material import **|** now material code uses the correct api calls based on the blender version it's running in
