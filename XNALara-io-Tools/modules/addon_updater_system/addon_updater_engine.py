@@ -1,4 +1,3 @@
-
 import errno
 import fnmatch
 import json
