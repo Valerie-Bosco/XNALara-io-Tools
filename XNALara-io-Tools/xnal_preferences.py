@@ -1,12 +1,9 @@
 import bpy
 
-from .modules.addon_updater_system.addon_updater import (make_annotations,
-                                                         update_settings_ui)
+from .modules.addon_updater_system.addon_updater import update_settings_ui
 
 
-@make_annotations
 class XNAlaraMesh4X_AddonPreferences(bpy.types.AddonPreferences):
-    """Updater Class."""
 
     bl_idname = __package__
 

@@ -1,10 +1,11 @@
 import os
+import re
 
 import bpy
 
 from .addon_updater_utils import get_addon_preferences, ui_refresh
 
-addon_name = str.lower(__package__).split(".")[0]
+addon_name = re.sub(r"\\|\/|-|\.", "_", str.lower(__package__).split(".")[0])
 addon_updater = None
 
 
