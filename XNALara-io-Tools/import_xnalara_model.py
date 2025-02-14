@@ -1,23 +1,21 @@
-import bpy
 import copy
 import operator
 import os
 import re
 
-from . xnal_bone_utilities import XnaL_AddRegisterBoneName, XnaL_ShowHideBones, XnaL_GetBoneNameByIndex, XnaL_CreateBoneCollection
-
-from . import import_xnalara_pose
-from . import read_ascii_xps
-from . import read_bin_xps
-from . import xps_types
-from . import material_creator
-# from .timing import timing, profile
+import bpy
 from mathutils import Vector
 
+from . import (import_xnalara_pose, material_creator, read_ascii_xps,
+               read_bin_xps, xps_types)
+from .armature_tools.xnal_armature_utilities import (XnaL_AddRegisterBoneName,
+                                                     Xnal_CreateArmatureObject,
+                                                     XnaL_CreateBoneCollection,
+                                                     XnaL_GetBoneNameByIndex,
+                                                     XnaL_ShowHideBones)
 
 # imported XPS directory
 rootDir = ''
-blenderBoneNames = []
 MIN_BONE_LENGHT = 0.005
 
 
@@ -86,7 +84,7 @@ def loadXpsFile(filename):
     basename, ext = os.path.splitext(file)
     if ext.lower() in ('.mesh', '.xps'):
         xpsData = read_bin_xps.readXpsModel(filename)
-    elif ext.lower() in('.ascii'):
+    elif ext.lower() in ('.ascii'):
         xpsData = read_ascii_xps.readXpsModel(filename)
     else:
         xpsData = None
@@ -95,13 +93,13 @@ def loadXpsFile(filename):
 
 
 def makeMesh(meshFullName):
-    mesh_da = bpy.data.meshes.new(meshFullName)
-    mesh_ob = bpy.data.objects.new(mesh_da.name, mesh_da)
-    print('Created Mesh: {}'.format(meshFullName))
-    print('New Mesh = {}'.format(mesh_da.name))
+    mesh_data = bpy.data.meshes.new(meshFullName)
+    mesh_object = bpy.data.objects.new(mesh_data.name, mesh_data)
+    print(f"Created Mesh: {meshFullName}")
+    print(f"New Mesh = {mesh_data.name}")
     # bpy.context.scene.update()
     # mesh_da.update()
-    return mesh_ob
+    return mesh_object
 
 
 def linkToCollection(collection, obj):
@@ -133,7 +131,7 @@ def xpsImport():
     active_collection.children.link(new_collection)
 
     # imports the armature
-    armature_object = createArmature()
+    armature_object = Xnal_CreateArmatureObject()
     if armature_object is not None:
         linkToCollection(new_collection, armature_object)
         XnaL_ImportModelBones(bpy.context, armature_object)
@@ -153,8 +151,8 @@ def xpsImport():
         boneTailMiddleObject(armature_object, xpsSettings.connectBones)
 
     # Import default pose
-    if(xpsSettings.importDefaultPose and armature_object):
-        if(xpsData.header and xpsData.header.pose):
+    if (xpsSettings.importDefaultPose and armature_object):
+        if (xpsData.header and xpsData.header.pose):
             import_xnalara_pose.setXpsPose(armature_object, xpsData.header.pose)
     return '{FINISHED}'
 
@@ -232,12 +230,6 @@ def recurBones(bone, vertexgroups, name):
     return visibleChain
 
 
-
-
-
-
-
-
 def hideUnusedBones(armature_objs):
     hideBonesByVertexGroup(armature_objs)
     hideBonesByName(armature_objs)
@@ -265,21 +257,6 @@ def renameBonesUsingDict(armatureObj, boneDict):
                 boneOriginal.name = value
 
 
-def createArmature():
-    bones = xpsData.bones
-    armature_ob = None
-    if bones:
-        boneCount = len(bones)
-        print('Importing Armature', str(boneCount), 'bones')
-
-        armature_da = bpy.data.armatures.new("Armature")
-        armature_da.display_type = 'STICK'
-        armature_ob = bpy.data.objects.new("Armature", armature_da)
-        armature_ob.show_in_front = True
-        # armature_ob.pose.use_auto_ik = autoIk
-        return armature_ob
-
-
 def XnaL_ImportModelBones(context: bpy.types.Context, armature_object: bpy.types.Object):
     xps_bones = xpsData.bones
 
@@ -288,7 +265,6 @@ def XnaL_ImportModelBones(context: bpy.types.Context, armature_object: bpy.types
 
         context.view_layer.objects.active = armature_object
         bpy.ops.object.mode_set(mode='EDIT')
-
 
         xps_bone: xps_types.XpsBone
         for xps_bone in xps_bones:
@@ -301,7 +277,7 @@ def XnaL_ImportModelBones(context: bpy.types.Context, armature_object: bpy.types
             setMinimumLenght(editBone)
 
         for xps_bone in xps_bones:
-            editBone : bpy.types.EditBone = armature.edit_bones[xps_bone.id]
+            editBone: bpy.types.EditBone = armature.edit_bones[xps_bone.id]
             editBone.parent = armature.edit_bones[xps_bone.parentId]
 
         context.view_layer.objects.active = armature_object
@@ -319,7 +295,7 @@ def boneTailMiddle(editBones, connectBones):
         #    bone.tail = bone.head.xyz + Vector((0, .2, 0))
         else:
             childBones = [childBone for childBone in bone.children
-                if not (re.search(twistboneRegex, childBone.name))]
+                          if not (re.search(twistboneRegex, childBone.name))]
 
             if childBones:
                 # Set tail to children middle
@@ -526,7 +502,7 @@ def importMesh(armature_object, meshInfo):
 
         # Create Mesh
         mesh_object = makeMesh(meshFullName)
-        mesh_da : bpy.types.Mesh = mesh_object.data
+        mesh_da: bpy.types.Mesh = mesh_object.data
 
         coords = []
         normals = []
@@ -562,15 +538,14 @@ def importMesh(armature_object, meshInfo):
         # Make Material
         material_creator.makeMaterial(xpsSettings, rootDir, mesh_da, meshInfo, flags)
 
-        if ( armature_object is not None) and (mesh_object is not None):
+        if (armature_object is not None) and (mesh_object is not None):
             setArmatureModifier(armature_object, mesh_object)
             setParent(armature_object, mesh_object)
 
         makeVertexGroups(mesh_object, vertices)
 
-        if ( armature_object is not None) and (mesh_object is not None):
+        if (armature_object is not None) and (mesh_object is not None):
             XnaL_CreateBoneCollection(armature_object, mesh_object)
-            
 
         # import custom normals
         verts_nor = xpsSettings.importNormals
@@ -581,7 +556,7 @@ def importMesh(armature_object, meshInfo):
             meshCorrected = mesh_da.validate(clean_customdata=False)  # *Very* important to not remove nors!
             mesh_da.update(calc_edges=use_edges)
             mesh_da.normals_split_custom_set_from_vertices(normals)
-            if (bpy.app.version[:2] in [(4,0), (3,6), (3,3)]):
+            if (bpy.app.version[:2] in [(4, 0), (3, 6), (3, 3)]):
                 mesh_da.use_auto_smooth = True
         else:
             meshCorrected = mesh_da.validate()
@@ -694,10 +669,6 @@ def assignVertexGroup(vert, armature, mesh_ob):
                 if not vertGroup:
                     vertGroup = mesh_ob.vertex_groups.new(name=boneName)
                 vertGroup.add([vert.id], vertexWeight, 'REPLACE')
-
-
-
-
 
 
 if __name__ == "__main__":
