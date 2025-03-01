@@ -1,18 +1,13 @@
 import os
-from . import import_xnalara_pose
-from . import export_xnalara_pose
-from . import mock_xps_data
-from . import write_ascii_xps
-from . import write_bin_xps
-from . import bin_ops
-from . import xps_material
-from . import xps_types
-from . import node_shader_utils
-from .timing import timing
+from collections import Counter
 
 import bpy
 from mathutils import Vector
-from collections import Counter
+
+from . import (bin_ops, export_xnalara_pose, import_xnalara_pose,
+               mock_xps_data, node_shader_utils, write_ascii_xps,
+               write_bin_xps, xps_material, xps_types)
+from .timing import timing
 
 # imported XPS directory
 rootDir = ''
@@ -87,7 +82,7 @@ def saveXpsFile(filename, xpsData):
     basename, ext = os.path.splitext(file)
     if ext.lower() in ('.mesh', '.xps'):
         write_bin_xps.writeXpsModel(xpsSettings, filename, xpsData)
-    elif ext.lower() in('.ascii'):
+    elif ext.lower() in ('.ascii'):
         write_ascii_xps.writeXpsModel(xpsSettings, filename, xpsData)
 
 
@@ -112,7 +107,7 @@ def xpsExport():
     xpsMeshes = exportMeshes(selectedArmature, selectedMeshes)
 
     poseString = ''
-    if(xpsSettings.expDefPose):
+    if (xpsSettings.expDefPose):
         xpsPoseData = export_xnalara_pose.xpsPoseData(selectedArmature)
         poseString = write_ascii_xps.writePose(xpsPoseData).read()
 
@@ -312,7 +307,8 @@ def getXpsVertices(selectedArmature, mesh):
     verts_nor = xpsSettings.exportNormals
 
     # Calculates tesselated faces and normal split to make them available for export
-    mesh.data.calc_normals_split()
+    if (bpy.app.version[0:2] in [(3, 6), (4, 0)]):
+        mesh.data.calc_normals_split()
     mesh.data.calc_loop_triangles()
     mesh.data.update(calc_edges=True)
     mesh.data.calc_loop_triangles()

@@ -16,17 +16,14 @@
 #
 # ##### END GPL LICENSE BLOCK #####
 
+import operator
 import os
 
 import bpy
-import mathutils
-import operator
 import bpy_extras.io_utils
-
-from bpy_extras.wm_utils.progress_report import (
-    ProgressReport,
-    ProgressReportSubstep,
-)
+import mathutils
+from bpy_extras.wm_utils.progress_report import (ProgressReport,
+                                                 ProgressReportSubstep)
 
 
 def name_compat(name):
@@ -472,8 +469,9 @@ def write_file(filepath, objects, scene,
                             bpy.data.meshes.remove(me)
                             continue  # dont bother with this mesh.
 
-                        if EXPORT_NORMALS and face_index_pairs:
-                            me.calc_normals_split()
+                        if (bpy.app.version[0:2] in [(3, 6), (4, 0)]):
+                            if EXPORT_NORMALS and face_index_pairs:
+                                me.calc_normals_split()
                             # No need to call me.free_normals_split later, as this mesh is deleted anyway!
 
                         loops = me.loops
@@ -503,26 +501,26 @@ def write_file(filepath, objects, scene,
                         else:
                             if faceuv:
                                 if smooth_groups:
-                                    sort_func = lambda a: (a[0].material_index,
-                                                           hash(uv_texture[a[1]].image),
-                                                           smooth_groups[a[1]] if a[0].use_smooth else False)
+                                    def sort_func(a): return (a[0].material_index,
+                                                              hash(uv_texture[a[1]].image),
+                                                              smooth_groups[a[1]] if a[0].use_smooth else False)
                                 else:
-                                    sort_func = lambda a: (a[0].material_index,
-                                                           hash(uv_texture[a[1]].image),
-                                                           a[0].use_smooth)
+                                    def sort_func(a): return (a[0].material_index,
+                                                              hash(uv_texture[a[1]].image),
+                                                              a[0].use_smooth)
                             elif len(materials) > 1:
                                 if smooth_groups:
-                                    sort_func = lambda a: (a[0].material_index,
-                                                           smooth_groups[a[1]] if a[0].use_smooth else False)
+                                    def sort_func(a): return (a[0].material_index,
+                                                              smooth_groups[a[1]] if a[0].use_smooth else False)
                                 else:
-                                    sort_func = lambda a: (a[0].material_index,
-                                                           a[0].use_smooth)
+                                    def sort_func(a): return (a[0].material_index,
+                                                              a[0].use_smooth)
                             else:
                                 # no materials
                                 if smooth_groups:
-                                    sort_func = lambda a: smooth_groups[a[1] if a[0].use_smooth else False]
+                                    def sort_func(a): return smooth_groups[a[1] if a[0].use_smooth else False]
                                 else:
-                                    sort_func = lambda a: a[0].use_smooth
+                                    def sort_func(a): return a[0].use_smooth
 
                             face_index_pairs.sort(key=sort_func)
 
@@ -631,7 +629,7 @@ def write_file(filepath, objects, scene,
                         if EXPORT_ARL and armature:
                             for v in me_verts:
                                 weights = [[armature_data.bones.find(vweights[g.group].name), g.weight] for g in v.groups]
-                                weights += [[0, 0]] * (4-len(weights))
+                                weights += [[0, 0]] * (4 - len(weights))
                                 weights.sort(key=operator.itemgetter(1), reverse=True)
                                 fw('bw [%s]\n' % ', '.join('[%i,%g]' % tuple(pair) for pair in weights))
 
