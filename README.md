@@ -23,3 +23,6 @@ the addon has been patched to support blender 4.x, additional changes have been 
   
 ### Feedback:
 for any feedback you can create an issue with one of these three tags `feedback` | `improvement` | `feature request`
+
+### Language:
+Adicionalmente, lo idioma español es permitido para reportar problemas y para pedir mejoramientos
