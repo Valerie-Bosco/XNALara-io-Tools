@@ -1,10 +1,10 @@
-import bpy
 import os
 import random
-from mathutils import Vector
-from . import xps_material
-from . import xps_const
 
+import bpy
+from mathutils import Vector
+
+from . import xps_const, xps_material
 
 ALPHA_MODE_CHANNEL = 'CHANNEL_PACKED'
 # Nodes Layout
@@ -68,7 +68,9 @@ LIGHTMAP_COLOR = (1, 1, 1, 1)
 NORMAL_COLOR = (0.5, 0.5, 1, 1)
 GREY_COLOR = (0.5, 0.5, 0.5, 1)
 
-#TODO
+# TODO
+
+
 def makeMaterialOutputNode(node_tree):
     node = node_tree.nodes.new(OUTPUT_NODE)
     node.location = 600, 0
@@ -105,7 +107,9 @@ def randomColor():
     randomB = random.random()
     return (randomR, randomG, randomB)
 
-#TODO missing version check
+# TODO missing version check
+
+
 def setNodeScale(node, value):
     # Change from 2.80 to 2.81
     if 'Scale' in node.inputs:
@@ -119,11 +123,15 @@ def getNodeGroup(node_tree, group):
     node.node_tree = bpy.data.node_groups[group]
     return node
 
-#TODO make platform independent
+# TODO make platform independent
+
+
 def makeImageFilepath(rootDir, textureFilename):
     return os.path.join(rootDir, textureFilename)
 
-#TODO make platform independent
+# TODO make platform independent
+
+
 def loadImage(textureFilepath):
     textureFilename = os.path.basename(textureFilepath)
     fileRoot, fileExt = os.path.splitext(textureFilename)
@@ -162,20 +170,20 @@ def makeMaterial(xpsSettings, rootDir, mesh_da, meshInfo, flags):
     makeNodesMaterial(xpsSettings, materialData, rootDir, mesh_da, meshInfo, flags)
 
 
-def makeNodesMaterial(xpsSettings, materialData, rootDir, mesh_da, meshInfo, flags):
+def makeNodesMaterial(xpsSettings, material: bpy.types.Material, rootDir, mesh_da, meshInfo, flags):
     textureFilepaths = meshInfo.textures
-    materialData.use_nodes = True
-    node_tree = materialData.node_tree
+    material.use_nodes = True
+    node_tree = material.node_tree
     node_tree.nodes.clear()
 
-    meshFullName = materialData.name
+    meshFullName = material.name
     renderType = xps_material.makeRenderType(meshFullName)
     renderGroup = xps_material.RenderGroup(renderType)
     param1 = renderType.texRepeater1
     param2 = renderType.texRepeater2
     strengthFac = renderType.specularity
 
-    useAlpha = renderGroup.rgAlpha
+    bUseAlpha = renderGroup.rgAlpha
 
     # Nodes
     ouputNode = makeMaterialOutputNode(node_tree)
@@ -184,8 +192,11 @@ def makeNodesMaterial(xpsSettings, materialData, rootDir, mesh_da, meshInfo, fla
     coordNode = node_tree.nodes.new(COORD_NODE)
     coordNode.location = xpsShadeNode.location + Vector((-2500, 400))
 
-    if useAlpha:
-        materialData.blend_method = 'BLEND'
+    if (bUseAlpha == True):
+        if (bpy.app.version[:2] in [(4, 0), (4, 1)]):
+            material.blend_method = "HASHED"
+        if (bpy.app.version[:2] in [(4, 2), (4, 3), (4, 4)]):
+            material.surface_render_method = "DITHERED"
 
     node_tree.links.new(xpsShadeNode.outputs['Shader'], ouputNode.inputs['Surface'])
 
@@ -200,7 +211,7 @@ def makeNodesMaterial(xpsSettings, materialData, rootDir, mesh_da, meshInfo, fla
     imagesPosX = -col_width * 6
     imagesPosY = 400
 
-#TODO make platform independent
+# TODO make platform independent
     imageFilepath = None
     for texIndex, textureInfo in enumerate(textureFilepaths):
         textureFilename = textureInfo.file
@@ -228,7 +239,7 @@ def makeNodesMaterial(xpsSettings, materialData, rootDir, mesh_da, meshInfo, fla
             imageNode.location = xpsShadeNode.location + Vector((imagesPosX, imagesPosY * 1))
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
             diffuseImgNode = imageNode
-            if useAlpha:
+            if (bUseAlpha == True):
                 node_tree.links.new(imageNode.outputs['Alpha'], xpsShadeNode.inputs['Alpha'])
         elif (texType == xps_material.TextureType.LIGHT):
             imageNode.label = 'Light Map'
@@ -339,7 +350,7 @@ def mix_normal_group():
     combineFinalNode = node_tree.nodes.new(SHADER_NODE_COMBINE_RGB)
     combineFinalNode.location = mainNormalSeparateNode.location + Vector((1000, -200))
 
-#TODO accidental node group wipes
+# TODO accidental node group wipes
     # Input/Output
     group_inputs = node_tree.nodes.new(NODE_GROUP_INPUT)
     group_inputs.location = mainNormalSeparateNode.location + Vector((-200, -100))
