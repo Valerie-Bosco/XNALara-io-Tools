@@ -123,6 +123,12 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
         default=True,
     )  # type:ignore
 
+    separate_optional_objects: bpy.props.BoolProperty(
+        name="Separate Optional Objects",
+        description="Separate into collection object marked as optional",
+        default=True
+    )  # type:ignore
+
     # Only needed if you want to add into a dynamic menu
     def menu_func(self, context):
         self.layout.operator_context = 'INVOKE_DEFAULT'
@@ -147,7 +153,8 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
             self.vColors,
             self.connectBones,
             self.autoIk,
-            self.importNormals
+            self.importNormals,
+            self.separate_optional_objects
         )
         material_creator.create_group_nodes()
         status = import_xnalara_model.getInputFilename(xpsSettings)
@@ -171,9 +178,11 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
         col.label(text='Mesh')
         col.prop(self, "joinMeshParts")
         col.prop(self, "joinMeshRips")
+        col.prop(self, "separate_optional_objects")
+
         sub = col.row()
-        sub.prop(self, "markSeams")
         col.prop(self, "importNormals")
+        sub.prop(self, "markSeams")
         col.prop(self, "vColors")
 
         sub.enabled = self.joinMeshRips

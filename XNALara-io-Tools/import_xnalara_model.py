@@ -125,24 +125,42 @@ def xpsImport():
 
     # Create New Collection
     fname, fext = os.path.splitext(file)
-    new_collection = bpy.data.collections.new(fname)
+    import_target_collection = bpy.data.collections.new(fname)
     view_layer = bpy.context.view_layer
-    active_collection = view_layer.active_layer_collection.collection
-    active_collection.children.link(new_collection)
+    scene_collection = view_layer.layer_collection
+    scene_collection.children.link(import_target_collection)
+    optional_objects_collection = bpy.data.collections.new(f"{fname} | OPTIONAL")
+    import_target_collection.children.link(optional_objects_collection)
 
     # imports the armature
     armature_object = Xnal_CreateArmatureObject()
     if armature_object is not None:
-        linkToCollection(new_collection, armature_object)
+        linkToCollection(import_target_collection, armature_object)
         XnaL_ImportModelBones(bpy.context, armature_object)
         armature_object.select_set(True)
 
     # imports all the meshes
     meshes_obs = importMeshesList(armature_object)
-    # link object to Collection
-    for obj in meshes_obs:
-        linkToCollection(new_collection, obj)
-        obj.select_set(True)
+
+    if (xpsSettings.separate_optional_objects):
+        for mesh_object in meshes_obs:
+            object_name = re.split(r"[1234567890]+_", mesh_object.name, 1)[1]
+            if (object_name[0] in ["+", "-"]):
+                if ("|" in mesh_object.name):
+                    optional_collection_name = re.split(r"(\|)(?!.*\1)", object_name[1:])[0]
+                    if (optional_collection_name not in bpy.data.collections.keys()):
+                        op_col = bpy.data.collections.new(optional_collection_name)
+                        optional_objects_collection.children.link(op_col)
+
+                    linkToCollection(bpy.data.collections[optional_collection_name], mesh_object)
+                else:
+                    linkToCollection(optional_objects_collection, mesh_object)
+            linkToCollection(import_target_collection, mesh_object)
+            mesh_object.select_set(True)
+    else:
+        for mesh_object in meshes_obs:
+            linkToCollection(import_target_collection, mesh_object)
+            mesh_object.select_set(True)
 
     if armature_object:
         armature_object.pose.use_auto_ik = xpsSettings.autoIk
@@ -683,9 +701,10 @@ if __name__ == "__main__":
     connectBones = True
     autoIk = True
     importNormals = True
+    separate_optional_objects = True
 
     xpsSettings = xps_types.XpsImportSettings(
         readfilename, uvDisplX, uvDisplY, impDefPose, joinMeshRips,
         markSeams, vColors,
-        joinMeshParts, connectBones, autoIk, importNormals)
+        joinMeshParts, connectBones, autoIk, importNormals, separate_optional_objects)
     getInputFilename(xpsSettings)
