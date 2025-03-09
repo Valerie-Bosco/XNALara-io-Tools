@@ -9,7 +9,9 @@ class XpsBone:
         self.co = co
         self.parentId = parentId
 
-#change name, too confusing
+# change name, too confusing
+
+
 class XpsBonePose:
 
     def __init__(self, boneName, coordDelta, rotDelta, scale):
@@ -57,7 +59,9 @@ class XpsVertex:
             self.boneWeights
         )
 
-#change file to filepath
+# change file to filepath
+
+
 class XpsTexture:
 
     def __init__(self, id, file, uvLayer):
@@ -65,7 +69,9 @@ class XpsTexture:
         self.file = file
         self.uvLayer = uvLayer
 
-#change type, to explicit typing
+# change type, to explicit typing
+
+
 class XpsData:
 
     def __init__(self, header='', bones=[], meshes=[]):
@@ -73,7 +79,9 @@ class XpsData:
         self.bones = bones
         self.meshes = meshes
 
-#rename to XPS file definition 
+# rename to XPS file definition
+
+
 class XpsHeader:
 
     def __init__(
@@ -114,7 +122,8 @@ class XpsImportSettings:
             vColors,
             connectBones,
             autoIk,
-            importNormals):
+            importNormals,
+            separate_optional_objects):
         self.filename = filename
         self.uvDisplX = uvDisplX
         self.uvDisplY = uvDisplY
@@ -126,6 +135,7 @@ class XpsImportSettings:
         self.connectBones = connectBones
         self.autoIk = autoIk
         self.importNormals = importNormals
+        self.separate_optional_objects = separate_optional_objects
 
 
 class XpsExportSettings:

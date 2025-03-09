@@ -1,8 +1,6 @@
-import random
 from typing import Iterable
 
 import bpy
-import utilities
 
 from ..utilities.color_utilities import random_color_rgb
 

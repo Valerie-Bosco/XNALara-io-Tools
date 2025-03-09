@@ -126,9 +126,8 @@ def xpsImport():
     # Create New Collection
     fname, fext = os.path.splitext(file)
     import_target_collection = bpy.data.collections.new(fname)
-    view_layer = bpy.context.view_layer
-    scene_collection = view_layer.layer_collection
-    scene_collection.children.link(import_target_collection)
+    xps_collection = bpy.context.view_layer.active_layer_collection.collection
+    xps_collection.children.link(import_target_collection)
     optional_objects_collection = bpy.data.collections.new(f"{fname} | OPTIONAL")
     import_target_collection.children.link(optional_objects_collection)
 
