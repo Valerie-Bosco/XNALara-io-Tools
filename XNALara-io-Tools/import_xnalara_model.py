@@ -13,6 +13,7 @@ from .armature_tools.xnal_armature_utilities import (XnaL_AddRegisterBoneName,
                                                      XnaL_CreateBoneCollection,
                                                      XnaL_GetBoneNameByIndex,
                                                      XnaL_ShowHideBones)
+from .utilities.mesh_utilities import create_split_normals
 
 # imported XPS directory
 rootDir = ''
@@ -519,7 +520,7 @@ def importMesh(armature_object, meshInfo):
 
         # Create Mesh
         mesh_object = makeMesh(meshFullName)
-        mesh_da: bpy.types.Mesh = mesh_object.data
+        mesh_data: bpy.types.Mesh = mesh_object.data
 
         coords = []
         normals = []
@@ -535,17 +536,17 @@ def importMesh(armature_object, meshInfo):
 
         # Create Faces
         faces = list(faceTransformList(facesList))
-        mesh_da.from_pydata(coords, [], faces)
-        mesh_da.polygons.foreach_set(
-            "use_smooth", [True] * len(mesh_da.polygons))
+        mesh_data.from_pydata(coords, [], faces)
+        mesh_data.polygons.foreach_set(
+            "use_smooth", [True] * len(mesh_data.polygons))
 
         # speedup!!!!
         if xpsSettings.markSeams:
-            markSeams(mesh_da, seamEdgesDict)
+            markSeams(mesh_data, seamEdgesDict)
 
         # Make UVLayers
         origFaces = faceTransformList(meshInfo.faces)
-        makeUvs(mesh_da, origFaces, uvLayers, vertColors)
+        makeUvs(mesh_data, origFaces, uvLayers, vertColors)
 
         if (xpsData.header):
             flags = xpsData.header.flags
@@ -553,7 +554,7 @@ def importMesh(armature_object, meshInfo):
             flags = read_bin_xps.flagsDefault()
 
         # Make Material
-        material_creator.makeMaterial(xpsSettings, rootDir, mesh_da, meshInfo, flags)
+        material_creator.makeMaterial(xpsSettings, rootDir, mesh_data, meshInfo, flags)
 
         if (armature_object is not None) and (mesh_object is not None):
             setArmatureModifier(armature_object, mesh_object)
@@ -565,20 +566,14 @@ def importMesh(armature_object, meshInfo):
             XnaL_CreateBoneCollection(armature_object, mesh_object)
 
         # import custom normals
-        verts_nor = xpsSettings.importNormals
-        use_edges = True
+        b_import_vertex_normals = xpsSettings.importNormals
+
         # unique_smooth_groups = True
 
-        if verts_nor:
-            meshCorrected = mesh_da.validate(clean_customdata=False)  # *Very* important to not remove nors!
-            mesh_da.update(calc_edges=use_edges)
-            mesh_da.normals_split_custom_set_from_vertices(normals)
-            if (bpy.app.version[:2] in [(4, 0), (3, 6), (3, 3)]):
-                mesh_da.use_auto_smooth = True
-        else:
-            meshCorrected = mesh_da.validate()
+        if (b_import_vertex_normals):
+            b_mesh_was_corrected = create_split_normals(mesh_object)
 
-        print("Geometry Corrected:", meshCorrected)
+        print("Geometry Corrected:", b_mesh_was_corrected)
 
     return mesh_object
 
