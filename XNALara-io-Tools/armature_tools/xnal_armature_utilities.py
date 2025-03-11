@@ -48,15 +48,20 @@ def XnaL_CreateBoneCollection(armature_object: bpy.types.Object, mesh_object: bp
         bone_group.colors.active = pose_bone_active_color
 
         for bone_vertex_group_name in mesh_object.vertex_groups.keys():
-            armature.pose.bones.get(bone_vertex_group_name).bone_group = bone_group
+            pose_bone = armature.pose.bones.get(bone_vertex_group_name)
 
-    if (bpy.app.version[0:2] in [(4, 0), (4, 2), (4, 3), (4, 4)]):
+            if (pose_bone is not None):
+                pose_bone.bone_group = bone_group
+
+    if (bpy.app.version[0:2] in [(4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]):
         bone_collection = armature.collections.new(name=mesh_object.name)
 
         for bone_vertex_group_name in mesh_object.vertex_groups.keys():
             pose_bone = armature_object.pose.bones.get(bone_vertex_group_name)
-            bone_collection.assign(pose_bone)
-            pose_bone.color.palette = "CUSTOM"
-            pose_bone.color.custom.normal = pose_bone_normal_color
-            pose_bone.color.custom.select = pose_bone_select_color
-            pose_bone.color.custom.active = pose_bone_active_color
+
+            if (pose_bone is not None):
+                bone_collection.assign(pose_bone)
+                pose_bone.color.palette = "CUSTOM"
+                pose_bone.color.custom.normal = pose_bone_normal_color
+                pose_bone.color.custom.select = pose_bone_select_color
+                pose_bone.color.custom.active = pose_bone_active_color
