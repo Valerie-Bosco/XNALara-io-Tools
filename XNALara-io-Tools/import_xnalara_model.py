@@ -571,7 +571,7 @@ def importMesh(armature_object, meshInfo):
         # unique_smooth_groups = True
 
         if (b_import_vertex_normals):
-            b_mesh_was_corrected = create_split_normals(mesh_object)
+            b_mesh_was_corrected = create_split_normals(mesh_object, normals)
 
         print("Geometry Corrected:", b_mesh_was_corrected)
 
