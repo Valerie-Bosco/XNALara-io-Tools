@@ -1,0 +1,22 @@
+schema_version = "1.0.0"
+
+id = "xnalara_io_tools"
+version = "1.1.7" 
+name = "XNALara-io-Tools"
+tagline = "Import-Export for XNALara/XPS files"
+maintainer = "Valerie-Bosco <valyarhalatbusiness@gmail.com>"
+type = "add-on"
+
+website = "https://github.com/Valerie-Bosco/XNALara-io-Tools"
+
+# https://docs.blender.org/manual/en/dev/advanced/extensions/tags.html
+tags = ["Import-Export", "Pipeline"]
+
+blender_version_min = "4.2.0"
+blender_version_max = "4.4.0"
+
+license = ['SPDX:GPL-3.0-or-later']
+
+[permissions]
+network = "Required for Additional On Request Self-Updating Feature"
+files = "Import/export FBX from/to disk"

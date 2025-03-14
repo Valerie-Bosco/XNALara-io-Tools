@@ -7,7 +7,7 @@ from .modules.module_manager import Alx_Module_Manager
 bl_info = {
     "name": "XNALara-io-Tools",
     "author": "Valerie Bosco[Valy Arhal], johnzero7[Original Developer]",
-    "description": "Import-Export XNALara/XPS files",
+    "description": "Import-Export for XNALara/XPS files",
     "version": (1, 1, 7),
     "blender": (4, 0, 0),
     "category": "Import-Export",

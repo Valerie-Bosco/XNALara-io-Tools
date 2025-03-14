@@ -20,7 +20,7 @@ class Alx_Module_Manager():
     __folder_blacklist: set[str] = set()
     __folder_blacklist.update({"__pycache__"})
     __file_blacklist: set[str] = set()
-    __file_blacklist.update({"__init__.py", "Alx_Module_Manager"})
+    __file_blacklist.update({"__init__.py"})
 
     def __init__(self, path: str, globals: dict[str, Any]):
         self.__module_path = path[0]
