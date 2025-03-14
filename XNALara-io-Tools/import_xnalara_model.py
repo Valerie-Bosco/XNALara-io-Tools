@@ -150,12 +150,6 @@ def xpsImport():
         for mesh_object in meshe_objects:
             object_name = re.split(r"[1234567890]+_", mesh_object.name, 1)[1]
             if (object_name[0] in ["+", "-"]) or ("|" in mesh_object.name):
-                # optional_collection_name = re.split(r"(\|)(?!.*\1)", object_name[1:])[0]
-                # if (optional_collection_name not in bpy.data.collections.keys()):
-                #     op_col = bpy.data.collections.new(optional_collection_name)
-                #     optional_objects_collection.children.link(op_col)
-
-                # optional_collection = bpy.data.collections[optional_collection_name]
                 linkToCollection(xps_model_optional_objects_collection, mesh_object)
             else:
                 linkToCollection(xps_model_collection, mesh_object)
@@ -172,7 +166,6 @@ def xpsImport():
     if armature_object:
         armature_object.pose.use_auto_ik = xpsSettings.autoIk
         hideUnusedBones([armature_object])
-        # set tail to Children Middle Point
         boneTailMiddleObject(armature_object, xpsSettings.connectBones)
 
     # Import default pose
