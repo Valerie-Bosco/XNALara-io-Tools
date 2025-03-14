@@ -126,40 +126,47 @@ def xpsImport():
 
     # Create New Collection
     fname, fext = os.path.splitext(file)
-    import_target_collection = bpy.data.collections.new(fname)
-    xps_collection = bpy.context.view_layer.active_layer_collection.collection
-    xps_collection.children.link(import_target_collection)
-    optional_objects_collection = bpy.data.collections.new(f"{fname} | OPTIONAL")
-    import_target_collection.children.link(optional_objects_collection)
+    xps_collection = bpy.data.collections.get("XPS IMPORT") if (bpy.data.collections.get("XPS IMPORT") is not None) else bpy.data.collections.new("XPS IMPORT")
+    if (xps_collection.name not in bpy.context.scene.collection.children):
+        bpy.context.scene.collection.children.link(xps_collection)
+
+    xps_model_collection = bpy.data.collections.new(fname)
+    xps_model_optional_objects_collection = bpy.data.collections.new(f"{fname} | OPTIONAL")
+
+    xps_collection.children.link(xps_model_collection)
+    xps_model_collection.children.link(xps_model_optional_objects_collection)
 
     # imports the armature
     armature_object = Xnal_CreateArmatureObject()
     if armature_object is not None:
-        linkToCollection(import_target_collection, armature_object)
+        linkToCollection(xps_model_collection, armature_object)
         XnaL_ImportModelBones(bpy.context, armature_object)
         armature_object.select_set(True)
 
     # imports all the meshes
-    meshes_obs = importMeshesList(armature_object)
+    meshe_objects = importMeshesList(armature_object)
 
     if (xpsSettings.separate_optional_objects):
-        for mesh_object in meshes_obs:
+        for mesh_object in meshe_objects:
             object_name = re.split(r"[1234567890]+_", mesh_object.name, 1)[1]
-            if (object_name[0] in ["+", "-"]):
-                if ("|" in mesh_object.name):
-                    optional_collection_name = re.split(r"(\|)(?!.*\1)", object_name[1:])[0]
-                    if (optional_collection_name not in bpy.data.collections.keys()):
-                        op_col = bpy.data.collections.new(optional_collection_name)
-                        optional_objects_collection.children.link(op_col)
+            if (object_name[0] in ["+", "-"]) or ("|" in mesh_object.name):
+                # optional_collection_name = re.split(r"(\|)(?!.*\1)", object_name[1:])[0]
+                # if (optional_collection_name not in bpy.data.collections.keys()):
+                #     op_col = bpy.data.collections.new(optional_collection_name)
+                #     optional_objects_collection.children.link(op_col)
 
-                    linkToCollection(bpy.data.collections[optional_collection_name], mesh_object)
-                else:
-                    linkToCollection(optional_objects_collection, mesh_object)
-            linkToCollection(import_target_collection, mesh_object)
+                # optional_collection = bpy.data.collections[optional_collection_name]
+                linkToCollection(xps_model_optional_objects_collection, mesh_object)
+            else:
+                linkToCollection(xps_model_collection, mesh_object)
             mesh_object.select_set(True)
+        else:
+            for mesh_object in meshe_objects:
+                if (mesh_object.name in xps_model_optional_objects_collection.objects) and (mesh_object.name in xps_model_collection.objects):
+                    xps_model_collection.objects.unlink(mesh_object)
     else:
-        for mesh_object in meshes_obs:
-            linkToCollection(import_target_collection, mesh_object)
+        for mesh_object in meshe_objects:
+            linkToCollection(xps_model_collection, mesh_object)
             mesh_object.select_set(True)
 
     if armature_object:
