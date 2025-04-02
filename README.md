@@ -1,8 +1,13 @@
-XPS Tools 
-=========
-**[ The Original version has been fully discontinued by it's developer ]**
+# XPS Tools 
 
-the addon has been patched to support blender 4.x, additional changes have been made to improve on the addon
+
+### Patched and improved to support 3.6 - 4.4 <br>
+**[ The Original version has been fully discontinued by it's developer ]** <br>
+**[Only Blender Releases are supported, alpha/beta versions of Blender are not and will not be supported]**
+
+<br>
+
+Check out [Issues](https://github.com/Valerie-Bosco/XNALara-io-Tools/issues) and [Discussions](https://github.com/Valerie-Bosco/XNALara-io-Tools/discussions) for bug reports or feedback/feature requests
 
 <br>
 
