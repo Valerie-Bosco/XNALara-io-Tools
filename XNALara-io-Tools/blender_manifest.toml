@@ -13,7 +13,7 @@ website = "https://github.com/Valerie-Bosco/XNALara-io-Tools"
 tags = ["Import-Export", "Pipeline"]
 
 blender_version_min = "4.2.0"
-blender_version_max = "4.4.0"
+blender_version_max = "4.5.0"
 
 license = ['SPDX:GPL-3.0-or-later']
 
