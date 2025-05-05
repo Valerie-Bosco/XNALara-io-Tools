@@ -336,11 +336,11 @@ class AddonUpdaterEngine:
             self._remove_pre_update_patterns = value
 
     @property
-    def repo(self):
+    def engine_repo_name(self):
         return self._engine_repo_name
 
-    @repo.setter
-    def repo(self, value):
+    @engine_repo_name.setter
+    def engine_repo_name(self, value):
         try:
             self._engine_repo_name = str(value)
         except:
@@ -423,11 +423,11 @@ class AddonUpdaterEngine:
             raise ValueError("use_releases must be a boolean value")
 
     @property
-    def user(self):
+    def engine_user_name(self):
         return self._engine_user_name
 
-    @user.setter
-    def user(self, value):
+    @engine_user_name.setter
+    def engine_user_name(self, value):
         try:
             self._engine_user_name = str(value)
         except:
@@ -1594,24 +1594,23 @@ class GithubEngine:
         self.token = None
         self.name = "github"
 
-    def form_repo_url(self, updater):
-        return "{}/repos/{}/{}".format(
-            self.api_url, updater.user, updater.repo)
+    def form_repo_url(self, updater: AddonUpdaterEngine):
+        return f"{self.api_url}/repos/{updater.engine_user_name}/{updater.engine_repo_name}"
 
-    def form_tags_url(self, updater):
-        if updater.use_releases:
-            return "{}/releases".format(self.form_repo_url(updater))
+    def form_tags_url(self, updater: AddonUpdaterEngine):
+        if (updater.use_releases == True):
+            return f"{self.form_repo_url(updater)}/releases"
         else:
-            return "{}/tags".format(self.form_repo_url(updater))
+            return f"{self.form_repo_url(updater)}/tags"
 
-    def form_branch_list_url(self, updater):
-        return "{}/branches".format(self.form_repo_url(updater))
+    def form_branch_list_url(self, updater: AddonUpdaterEngine):
+        return f"{self.form_repo_url(updater)}/branches"
 
-    def form_branch_url(self, branch, updater):
-        return "{}/zipball/{}".format(self.form_repo_url(updater), branch)
+    def form_branch_url(self, branch, updater: AddonUpdaterEngine):
+        return f"{self.form_repo_url(updater)}/zipball/{branch}"
 
-    def parse_tags(self, response, updater):
-        if response is None:
+    def parse_tags(self, response):
+        if (response is None):
             return list()
         return response
 
@@ -1624,39 +1623,31 @@ class GitlabEngine:
         self.token = None
         self.name = "gitlab"
 
-    def form_repo_url(self, updater):
-        return "{}/api/v4/projects/{}".format(self.api_url, updater.repo)
+    def form_repo_url(self, updater: AddonUpdaterEngine):
+        return f"{self.api_url}/api/v4/projects/{updater.engine_repo_name}"
 
-    def form_tags_url(self, updater):
-        return "{}/repository/tags".format(self.form_repo_url(updater))
+    def form_tags_url(self, updater: AddonUpdaterEngine):
+        return f"{self.form_repo_url(updater)}/repository/tags"
 
-    def form_branch_list_url(self, updater):
-        # does not validate branch name.
-        return "{}/repository/branches".format(
-            self.form_repo_url(updater))
+    def form_branch_list_url(self, updater: AddonUpdaterEngine):
+        return f"{self.form_repo_url(updater)}/repository/branches"
 
-    def form_branch_url(self, branch, updater):
-        # Could clash with tag names and if it does, it will download TAG zip
-        # instead of branch zip to get direct path, would need.
-        return "{}/repository/archive.zip?sha={}".format(
-            self.form_repo_url(updater), branch)
+    def form_branch_url(self, branch, updater: AddonUpdaterEngine):
+        return f"{self.form_repo_url(updater)}/repository/archive.zip?sha={branch}"
 
-    def get_zip_url(self, sha, updater):
-        return "{base}/repository/archive.zip?sha={sha}".format(
-            base=self.form_repo_url(updater),
-            sha=sha)
+    def get_zip_url(self, sha, updater: AddonUpdaterEngine):
+        return f"{self.form_repo_url(updater)}/repository/archive.zip?sha={sha}"
 
-    # def get_commit_zip(self, id, updater):
-    # 	return self.form_repo_url(updater)+"/repository/archive.zip?sha:"+id
-
-    def parse_tags(self, response, updater):
-        if response is None:
+    def parse_tags(self, response, updater: AddonUpdaterEngine):
+        if (response is None):
             return list()
         return [
             {
                 "name": tag["name"],
                 "zipball_url": self.get_zip_url(tag["commit"]["id"], updater)
-            } for tag in response]
+            }
+            for tag in response
+        ]
 
 
 class BitbucketEngine:
@@ -1667,23 +1658,19 @@ class BitbucketEngine:
         self.token = None
         self.name = "bitbucket"
 
-    def form_repo_url(self, updater):
-        return "{}/2.0/repositories/{}/{}".format(
-            self.api_url, updater.user, updater.repo)
+    def form_repo_url(self, updater: AddonUpdaterEngine):
+        return f"{self.api_url}/2.0/repositories/{updater.engine_user_name}/{updater.engine_repo_name}"
 
-    def form_tags_url(self, updater):
-        return self.form_repo_url(updater) + "/refs/tags?sort=-name"
+    def form_tags_url(self, updater: AddonUpdaterEngine):
+        return f"{self.form_repo_url(updater)}/refs/tags?sort=-name"
 
-    def form_branch_url(self, branch, updater):
+    def form_branch_url(self, branch, updater: AddonUpdaterEngine):
         return self.get_zip_url(branch, updater)
 
-    def get_zip_url(self, name, updater):
-        return "https://bitbucket.org/{user}/{repo}/get/{name}.zip".format(
-            user=updater.user,
-            repo=updater.repo,
-            name=name)
+    def get_zip_url(self, name, updater: AddonUpdaterEngine):
+        return f"https://bitbucket.org/{updater.engine_user_name}/{updater.engine_repo_name}/get/{name}.zip"
 
-    def parse_tags(self, response, updater):
+    def parse_tags(self, response, updater: AddonUpdaterEngine):
         if response is None:
             return list()
         return [

@@ -425,49 +425,9 @@ def select_link_function(self, tag):
     return link
 
 
-# class SingletonUpdaterNone(object):
-#     """Fake, bare minimum fields and functions for the updater object."""
-
-#     def __init__(self):
-#         self.invalid_updater = True  # Used to distinguish bad install.
-
-#         self.addon = None
-#         self.verbose = False
-#         self.use_print_traces = True
-#         self.error = None
-#         self.error_msg = None
-#         self.async_checking = None
-
-#     def clear_state(self):
-#         self.addon = None
-#         self.verbose = False
-#         self.invalid_updater = True
-#         self.error = None
-#         self.error_msg = None
-#         self.async_checking = None
-
-#     def run_update(self, force, callback, clean):
-#         pass
-
-#     def check_for_update(self, now):
-#         pass
-
-# updater = SingletonUpdaterNone()
-# updater.error = "Error initializing updater module"
-# updater.error_msg = str(e)
-
-# Must declare this before classes are loaded, otherwise the bl_idname's will
-# not match and have errors. Must be all lowercase and no spaces! Should also
-# be unique among any other addons that could exist (using this updater code),
-# to avoid clashes in operator registration.
-# updater.addon = ""
-
-
 # -----------------------------------------------------------------------------
 # Updater operators
 # -----------------------------------------------------------------------------
-
-
 ran_auto_check_install_popup = False
 ran_update_success_popup = False
 
@@ -510,161 +470,53 @@ addon_updater_classes = (
 class Alx_Addon_Updater():
     """"""
 
-    bl_info = None
-    engine: str = "Github"
-    engine_user_name: str = ""
-    engine_repo_name: str = ""
-    manual_download_website: str = ""
-
-    __addon_minimum_update_version: tuple[int, int, int] = None
-
     def __init__(self, path=None,
-                 bl_info=None, addon_name="",
+                 bl_info=None,
                  engine="Github", engine_user_name="", engine_repo_name="",
                  minimum_version: Optional[tuple[int, int, int]] = None,
+                 maximum_version: Optional[tuple[int, int, int]] = None,
                  manual_download_website=""):
-        # [DO NOT COPYPASTE] doc string has additional characters for proper in-ide display
-        # [USE INSTEAD] re.sub(r"[^\w_]", "_", __package__).lower()
-        """
-        [addon_name] requires the following specifications:\n
-        -> [EXPECTED VALUE] re.sub(r"[^\\\w\_]", "_", __package__).lower()\n
-        -> [SHOULD MATCH] AddonPreferences bl_idname\n
-        """
 
-        addon_updater.addon_name
-        addon_name
-
-        engine
-
-        self.__addon_minimum_update_version = bl_info["version"]
-
-        self.bl_info = bl_info
-        self.init_updater()
-
-    def init_updater(self):
-        global addon_updater
-
-        if addon_updater.error:
+        if (addon_updater.error is not None):
             print(f"Exiting updater registration, {addon_updater.error}")
             return
         addon_updater.clear_state()
 
-        addon_updater.verbose = True
-        addon_updater.use_print_traces = False
+        addon_updater.addon_name = bl_info["name"]
+        addon_updater.current_version = bl_info["version"]
 
-        # updater settings
-        addon_updater.addon_name = self.bl_info["name"]
-        addon_updater.current_version = self.bl_info["version"]
-
-        addon_updater.engine = self.engine
+        addon_updater.engine = engine
         addon_updater.private_token = None
+        addon_updater.engine_user_name = engine_user_name
+        addon_updater.engine_repo_name = engine_repo_name
 
-        addon_updater.user = self.engine_user_name
-        addon_updater.repo = self.engine_repo_name
+        if (minimum_version is not None):
+            addon_updater.version_min_update = minimum_version
+        if (maximum_version is not None):
+            addon_updater.version_max_update = maximum_version
 
-        addon_updater.manual_download_website = self.manual_download_website
+        if (manual_download_website != ""):
+            addon_updater.manual_download_website = manual_download_website
+
+        addon_updater.show_popups = True
 
         addon_updater.backup_current = True
 
-        addon_updater.remove_pre_update_patterns = ["*.py", "*.pyc"]
-        addon_updater.overwrite_patterns = ["*.png", "*.jpg", "README.md", "LICENSE.txt"]
-        addon_updater.backup_ignore_patterns = [".git", "__pycache__", "*.bat", ".gitignore", "*.exe"]
-
-        addon_updater.show_popups = True
+        addon_updater.manual_only = False
 
         addon_updater.include_branches = False
         addon_updater.include_branch_list = None
         addon_updater.use_releases = True
 
+        addon_updater.remove_pre_update_patterns = ["*.py", "*.pyc"]
+        addon_updater.overwrite_patterns = ["*.png", "*.jpg", "README.md", "LICENSE.txt"]
+        addon_updater.backup_ignore_patterns = [".git", "__pycache__", "*.bat", ".gitignore", "*.exe"]
+
+        addon_updater.auto_reload_post_update = True
+
+        addon_updater.verbose = True
+        addon_updater.use_print_traces = False
         addon_updater.fake_install = False
-        addon_updater.manual_only = False
-
-        addon_updater.version_min_update = (0, 0, 0)
-        addon_updater.version_max_update = None
-
-        addon_updater.auto_reload_post_update = False
-
-        # updater.subfolder_path = ""
-        # updater.set_check_interval(enabled=False, months=0, days=0, hours=0, minutes=2)
-        # updater.updater_path = # set path of updater folder, by default:
-        # 			/addons/{__package__}/{__package__}_updater
-
-    # Function defined above, customize as appropriate per repository
-    # updater.skip_tag = skip_tag_function  # min and max used in this function
-
-    # # Function defined above, optionally customize as needed per repository.
-    # updater.select_link = select_link_function
-
-    # Special situation: we just updated the addon, show a popup to tell the
-    # user it worked. Could enclosed in try/catch in case other issues arise.
-
-    # self.__addon_minimum_update_version = None
-    # self.__addon_maximum_update_version = None
-
-    # self.__engine = engine
-    # self.__engine_private_token = None
-    # self.__engine_user_name = engine_user_name
-    # self.__engine_repo_name = engine_repo_name
-
-    # self.__manual_download_website = manual_download_website
-
-    # self.__updater_data_path
-
-    # self.__verbose = False
-    # self.__backup_current = True
-
-    # self.__backup_ignore_patterns = ["__pycache__"]
-    # # self.backup_ignore_patterns = [".git", "__pycache__", "*.bat", ".gitignore", "*.exe"]
-
-    # # updater.backup_ignore_patterns = [".git", "__pycache__", "*.bat", ".gitignore", "*.exe"]
-
-    # updater.overwrite_patterns = ["*.png", "*.jpg", "README.md", "LICENSE.txt"]
-    # updater.remove_pre_update_patterns = ["*.py", "*.pyc"]
-    # updater.use_releases = True
-    # updater.include_branches = False
-
-    # def init_updater(self):
-    #     updater = self.__internal_updater
-
-    #     updater.addon = self.__addon_name
-    #     updater.current_version = self.__addon_current_version
-    #     updater.version_min_update = self.__addon_minimum_update_version
-    #     updater.version_max_update = self.__addon_maximum_update_version
-
-    #     updater.engine = self.__engine
-    #     updater.user = self.__engine_user_name
-    #     updater.repo = self.__engine_repo_name
-    #     updater.private_token = self.__engine_private_token
-
-    #     updater.website = self.__manual_download_website
-
-    #     updater.subfolder_path = ""
-
-    #     updater.verbose = False
-    #     updater.show_popups = True
-    #     updater.manual_only = False
-    #     updater.fake_install = False
-    #     updater.backup_current = True
-    #     updater.overwrite_patterns = ["*.png", "*.jpg", "README.md", "LICENSE.txt"]
-    #     updater.remove_pre_update_patterns = ["*.py", "*.pyc"]
-    #     updater.backup_ignore_patterns = [".git", "__pycache__", "*.bat", ".gitignore", "*.exe"]
-    #     updater.set_check_interval(enabled=False, months=0, days=1, hours=0, minutes=0)
-
-    #     updater.use_releases = True
-    #     updater.include_branches = False
-    #     updater.include_branch_list = ['master']
-
-    #     updater.auto_reload_post_update = True
-
-    # def set_version_target(self, minimum_version: Optional[tuple[int, int, int]] = None, maximum_version: Optional[tuple[int, int, int]] = None):
-    #     if (minimum_version is not None):
-    #         self.__addon_minimum_update_version = minimum_version
-    #     if (maximum_version is not None):
-    #         self.__addon_maximum_update_version = maximum_version
-
-    # def set_check_interval(self, enabled=False, months=0, days=0, hours=0, minutes=2):
-    #     updater = self.__internal_updater
-    #     updater.set_check_interval(enabled, months, days, hours, minutes)
 
     def register_addon_updater(self, mute: Optional[bool] = True):
         global addon_updater_classes
