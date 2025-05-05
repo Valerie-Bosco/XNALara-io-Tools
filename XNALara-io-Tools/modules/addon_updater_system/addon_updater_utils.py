@@ -19,7 +19,7 @@ def ui_refresh(update_status):
                 area.tag_redraw()
 
 
-def verify_url(url: str):
+def is_url(url: str):
     if (re.search(pattern=r"^(http\:\/\/[\S]+)$|^(https\:\/\/[\S]+)$", string=url, flags=re.IGNORECASE) is not None):
         return True
 

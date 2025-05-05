@@ -15,7 +15,7 @@ from datetime import datetime, timedelta
 import addon_utils
 import bpy
 
-from .addon_updater_utils import verify_url
+from .addon_updater_utils import is_url
 
 
 class AddonUpdaterEngine:
@@ -128,9 +128,8 @@ class AddonUpdaterEngine:
 
     @api_url.setter
     def api_url(self, value):
-        if (verify_url(value) == False):
-            raise ValueError("Not a valid URL: " + value)
-        self._engine.api_url = value
+        if (is_url(value) == True):
+            self._engine.api_url = value
 
     @property
     def async_checking(self):
@@ -495,9 +494,8 @@ class AddonUpdaterEngine:
 
     @manual_download_website.setter
     def manual_download_website(self, value):
-        if (verify_url(value) == False):
-            raise ValueError("Not a valid URL: " + value)
-        self._manual_download_website = value
+        if (is_url(value) == True):
+            self._manual_download_website = value
 
     # -------------------------------------------------------------------------
     # Parameter validation related functions

@@ -1,4 +1,5 @@
 import os
+import types
 from contextlib import redirect_stdout
 from inspect import getmembers, isclass
 from os import sep as os_separator
@@ -18,11 +19,12 @@ class Alx_Module_Manager():
     __module_classes: set[str] = set()
 
     __folder_blacklist: set[str] = set()
-    __folder_blacklist.update({"__pycache__"})
     __file_blacklist: set[str] = set()
-    __file_blacklist.update({"__init__.py"})
 
     def __init__(self, path: str, globals: dict[str, Any]):
+        self.__folder_blacklist.update({"__pycache__"})
+        self.__file_blacklist.update({"__init__"})
+
         self.__module_path = path[0]
         self.__init_globals = globals
 
@@ -42,7 +44,7 @@ class Alx_Module_Manager():
     def developer_blacklist_file(self, files: set[str]):
         self.__file_blacklist.add(*files)
 
-    def __gather_addon_folders(self, path: str, folder_blacklist: set[str] = {"__pycache__"}):
+    def __gather_addon_folders(self, path: str, folder_blacklist: set[str] = {}):
         """
         IN path: __path__[0] from __init__ \n
         IN folder_blacklist: set[str] \n
@@ -67,7 +69,7 @@ class Alx_Module_Manager():
 
         return addon_folders
 
-    def __gather_addon_files(self, folder_paths: set[Path], file_blacklist: set[str] = {"__init__.py"}):
+    def __gather_addon_files(self, folder_paths: set[Path], file_blacklist: set[str] = {}):
         """
         IN folder_paths: set[Path] \n
         IN file_blacklist: set[str] \n
@@ -88,16 +90,19 @@ class Alx_Module_Manager():
         addon_classes: set[str] = set()
 
         for file_name in addon_files.keys():
-
-            for addon_class in getmembers(eval(file_name, self.__init_globals), isclass):
-                addon_classes.add(addon_class[1])
+            if (file_name != __file__) and (file_name not in self.__file_blacklist):
+                for addon_class in getmembers(eval(file_name, self.__init_globals), isclass):
+                    addon_classes.add(addon_class[1])
 
         return addon_classes
 
     def __execute_locals_update(self, path: str, addon_files: dict[str, Path]):
         for file_name in addon_files.keys():
-            if (file_name != __file__):
+            if (file_name != __name__.split(".")[-1]) and (file_name not in self.__file_blacklist):
                 try:
+                    if ("importlib" not in self.__init_globals):
+                        exec("import importlib", self.__init_globals)
+
                     if (file_name not in self.__init_globals):
                         relative_path = str(addon_files.get(file_name).relative_to(path)).replace(os_separator, ".")
 
@@ -107,7 +112,7 @@ class Alx_Module_Manager():
                         reload_line = f"{file_name} = importlib.reload({file_name})"
                         exec(reload_line, self.__init_globals)
                 except Exception as error:
-                    print(error)
+                    print(f"[{file_name}] {error}")
 
     def __register_addon_classes(self, addon_classes: list[object], mute: Optional[bool] = True):
         for addon_class in addon_classes:
@@ -132,7 +137,8 @@ class Alx_Module_Manager():
                         bpy.utils.register_class(addon_class)
 
             except Exception as error:
-                print(error)
+                if (mute == False):
+                    print(error)
 
     def __unregister_addon_classes(self, addon_classes: list[object]):
         for addon_class in addon_classes:

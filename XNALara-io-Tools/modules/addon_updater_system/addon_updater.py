@@ -524,10 +524,10 @@ class Alx_Addon_Updater():
                  minimum_version: Optional[tuple[int, int, int]] = None,
                  manual_download_website=""):
         # [DO NOT COPYPASTE] doc string has additional characters for proper in-ide display
-        # [USE INSTEAD] re.sub(r"[^\w_]", "_", bl_info["name"]).lower()
+        # [USE INSTEAD] re.sub(r"[^\w_]", "_", __package__).lower()
         """
         [addon_name] requires the following specifications:\n
-        -> [EXPECTED VALUE] re.sub(r"[^\\\w\_]", "_", bl_info["name"]).lower()\n
+        -> [EXPECTED VALUE] re.sub(r"[^\\\w\_]", "_", __package__).lower()\n
         -> [SHOULD MATCH] AddonPreferences bl_idname\n
         """
 
