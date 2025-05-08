@@ -1,11 +1,9 @@
 import io
 import ntpath
 
-from . import ascii_ops
-from . import xps_const
-from . import xps_types
-
 from mathutils import Vector
+
+from . import ascii_ops, xps_const, xps_types
 
 
 def readUvVert(file):
@@ -20,6 +18,7 @@ def readUvVert(file):
 def readXYZ(file):
     line = ascii_ops.readline(file)
     values = ascii_ops.splitValues(line)
+
     x = (ascii_ops.getFloat(values[0]))  # X pos
     y = (ascii_ops.getFloat(values[1]))  # Y pos
     z = (ascii_ops.getFloat(values[2]))  # Z pos

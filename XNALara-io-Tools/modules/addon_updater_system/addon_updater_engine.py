@@ -1609,7 +1609,7 @@ class GithubEngine:
     def form_branch_url(self, branch, updater: AddonUpdaterEngine):
         return f"{self.form_repo_url(updater)}/zipball/{branch}"
 
-    def parse_tags(self, response):
+    def parse_tags(self, response, updater):
         if (response is None):
             return list()
         return response
