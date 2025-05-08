@@ -12,6 +12,13 @@ Discord Server: https://discord.gg/44fSbYrzZd
 
 <br>
 
+### Installation:
+- Download the [XNALara-io-Tools.zip ](https://github.com/Valerie-Bosco/XNALara-io-Tools/releases/download/main_branch_latest/XNALara-io-Tools.zip) available from the [releases](https://github.com/Valerie-Bosco/XNALara-io-Tools/releases/tag/main_branch_latest) page, 
+- In blender [4.1-]: preferences -> addons -> install addon -> select the [XNALara-io-Tools.zip] -> click install 
+- In blender [4.2+]: preferences -> addons -> top right dropdown -> install from disk -> select the [XNALara-io-Tools.zip] -> click install from disk
+
+<br>
+
 ### Features:
 - Import/Export for XPS/XNALara:
   - meshes and skeletons
