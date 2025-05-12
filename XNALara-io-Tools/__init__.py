@@ -1,5 +1,3 @@
-import bpy
-
 from . import xps_tools
 from .modules.addon_updater_system import addon_updater
 from .modules.module_manager import Alx_Module_Manager

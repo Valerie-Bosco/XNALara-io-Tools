@@ -1,0 +1,6 @@
+[submodule "XNALara-io-Tools/modules/ALXModuleManager"]
+	path = XNALara-io-Tools/modules/ALXModuleManager
+	url = https://github.com/Valerie-Bosco/ALXModuleManager.git
+[submodule "XNALara-io-Tools/modules/ALXAddonUpdater"]
+	path = XNALara-io-Tools/modules/ALXAddonUpdater
+	url = https://github.com/Valerie-Bosco/ALXAddonUpdater.git
