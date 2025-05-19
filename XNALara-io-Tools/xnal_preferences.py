@@ -1,6 +1,7 @@
 import bpy
 
-from .modules.addon_updater_system import addon_updater_ui
+from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdaterUI import \
+    update_settings_ui
 
 
 class XNAlaraMesh4X_AddonPreferences(bpy.types.AddonPreferences):
@@ -17,4 +18,4 @@ class XNAlaraMesh4X_AddonPreferences(bpy.types.AddonPreferences):
     def draw(self, context: bpy.types.Context):
         layout = self.layout
 
-        addon_updater_ui.update_settings_ui(context, layout)
+        update_settings_ui(context, layout)

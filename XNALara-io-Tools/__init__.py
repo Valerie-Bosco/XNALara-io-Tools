@@ -1,6 +1,8 @@
 from . import xps_tools
-from .modules.addon_updater_system import addon_updater
-from .modules.module_manager import Alx_Module_Manager
+from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdater import \
+    Alx_Addon_Updater
+from .modules.ALXModuleManager.ALXModuleManager.ALX_ModuleManager import \
+    Alx_Module_Manager
 
 bl_info = {
     "name": "XNALara-io-Tools",
@@ -17,9 +19,10 @@ bl_info = {
 
 module_manager = Alx_Module_Manager(
     path=__path__,
-    globals=globals()
+    globals=globals(),
+    mute=True
 )
-addon_updater = addon_updater.Alx_Addon_Updater(
+addon_updater = Alx_Addon_Updater(
     path=__path__,
     bl_info=bl_info,
     engine="Github",
@@ -30,7 +33,7 @@ addon_updater = addon_updater.Alx_Addon_Updater(
 
 
 def register():
-    module_manager.developer_register_modules(True)
+    module_manager.developer_register_modules()
     addon_updater.register_addon_updater(True)
 
     xps_tools.register()
