@@ -1,5 +1,7 @@
 # XPS Tools 
 
+** THERE IS ONLY ONE RELEASE, IT'S DATE DOES NOT REFLECT THE VERSION AND FILES ARE BEING UPDATED OVER IT TO KEEP LINK INTEGRITY OUTSIDE OF GITHUB**
+
 
 ### Patched and improved to support 3.6 - 4.4 <br>
 **[ The Original version has been fully discontinued by it's developer ]** <br>
