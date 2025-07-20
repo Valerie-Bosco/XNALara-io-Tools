@@ -1,9 +1,11 @@
 # XPS Tools 
 
-ℹ️**THERE IS ONLY ONE RELEASE, IT'S DATE DOES NOT REFLECT THE VERSION AND FILES ARE BEING UPDATED OVER IT TO KEEP LINK INTEGRITY OUTSIDE OF GITHUB**ℹ️
+ℹ️NOTE: <br>
+**THERE IS ONLY ONE RELEASE <br>
+IT'S DATE DOES NOT REFLECT THE VERSION AND FILES ARE BEING UPDATED OVER IT TO KEEP LINK INTEGRITY OUTSIDE OF GITHUB**
 
 
-### Patched and improved to support 3.6 - 4.4 <br>
+### Patched and improved to support 3.6 - 4.5 <br>
 **[ The Original version has been fully discontinued by it's developer ]** <br>
 **[Only Blender Releases are supported, alpha/beta versions of Blender are not and will not be supported]**
 
