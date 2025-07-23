@@ -1,6 +1,7 @@
 import os
 
 import bpy
+import bpy.utils.previews as previews
 from bpy_extras.io_utils import (ExportHelper, ImportHelper,
                                  _check_axis_conversion, axis_conversion,
                                  orientation_helper, path_reference_mode)
@@ -943,8 +944,8 @@ custom_icons = {}
 
 
 def registerCustomIcon():
-    import bpy.utils.previews
-    pcoll = bpy.utils.previews.new()
+
+    pcoll = previews.new()
     script_path = os.path.dirname(__file__)
     icons_dir = os.path.join(script_path, "icons")
     pcoll.load("xps_icon", os.path.join(icons_dir, "icon.png"), 'IMAGE')
@@ -953,7 +954,7 @@ def registerCustomIcon():
 
 def unregisterCustomIcon():
     for pcoll in custom_icons.values():
-        bpy.utils.previews.remove(pcoll)
+        previews.remove(pcoll)
     custom_icons.clear()
 
 
