@@ -3,6 +3,8 @@ import bpy
 
 def create_split_normals(mesh_object: bpy.types.Object, normals: list[tuple[float, float, float]]):
     mesh_data: bpy.types.Mesh = mesh_object.data
+    b_mesh_was_corrected = False
+
     if (bpy.app.version[:2] in [(3, 6), (4, 0)]):
         mesh_data.create_normals_split()
         b_mesh_was_corrected = mesh_data.validate(clean_customdata=False)
