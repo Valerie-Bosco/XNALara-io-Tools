@@ -148,7 +148,12 @@ def xpsImport():
 
     if (xpsSettings.separate_optional_objects):
         for mesh_object in meshe_objects:
-            object_name = re.split(r"[1234567890]+_", mesh_object.name, 1)[1]
+            object_name = mesh_object.name
+            object_name_regions = re.split(r"[1234567890]+_", mesh_object.name, 1)
+
+            if (len(object_name_regions) > 1):
+                object_name = object_name_regions[1]
+
             if (object_name[0] in ["+", "-"]) or ("|" in mesh_object.name):
                 linkToCollection(xps_model_optional_objects_collection, mesh_object)
             else:
