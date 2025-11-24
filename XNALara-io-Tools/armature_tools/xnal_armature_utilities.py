@@ -3,6 +3,7 @@ from typing import Iterable
 import bpy
 
 from ..utilities.color_utilities import random_color_rgb
+from ..XPS_Constants import BLENDER_VERSION
 
 xnal_model_bone_names = []
 
@@ -40,7 +41,7 @@ def XnaL_CreateBoneCollection(armature_object: bpy.types.Object, mesh_object: bp
     pose_bone_select_color = random_color_rgb()
     pose_bone_active_color = random_color_rgb()
 
-    if (bpy.app.version[0:2] in [(3, 6)]):
+    if (BLENDER_VERSION <= 36):
         bone_group = armature.pose.bone_groups.new(name=mesh_object.name)
         bone_group.color_set = "CUSTOM"
         bone_group.colors.normal = pose_bone_normal_color
@@ -53,7 +54,7 @@ def XnaL_CreateBoneCollection(armature_object: bpy.types.Object, mesh_object: bp
             if (pose_bone is not None):
                 pose_bone.bone_group = bone_group
 
-    if (bpy.app.version[0:2] in [(4, 0), (4, 1), (4, 2), (4, 3), (4, 4)]):
+    elif (BLENDER_VERSION >= 40):
         bone_collection = armature.collections.new(name=mesh_object.name)
 
         for bone_vertex_group_name in mesh_object.vertex_groups.keys():
