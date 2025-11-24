@@ -1,12 +1,13 @@
-from math import radians
+from .XPS_Constants import BLENDER_VERSION
 import os
 import re
+from math import radians
 
-from . import read_ascii_xps
-from .timing import timing
 import bpy
 from mathutils import Euler, Matrix, Vector
 
+from . import read_ascii_xps
+from .timing import timing
 
 PLACE_HOLDER = r'*side*'
 RIGHT_BLENDER_SUFFIX = r'.R'
@@ -32,10 +33,12 @@ def renameBoneToBlender(oldName):
     newName = oldName
     if PLACE_HOLDER not in oldName.lower():
         if re.search(LEFT_XPS_SUFFIX, oldName, flags=re.I):
-            newName = changeBoneNameToBlender(oldName, LEFT_XPS_SUFFIX, LEFT_BLENDER_SUFFIX)
+            newName = changeBoneNameToBlender(
+                oldName, LEFT_XPS_SUFFIX, LEFT_BLENDER_SUFFIX)
 
         if re.search(RIGHT_XPS_SUFFIX, oldName, flags=re.I):
-            newName = changeBoneNameToBlender(oldName, RIGHT_XPS_SUFFIX, RIGHT_BLENDER_SUFFIX)
+            newName = changeBoneNameToBlender(
+                oldName, RIGHT_XPS_SUFFIX, RIGHT_BLENDER_SUFFIX)
 
     return newName
 
@@ -49,7 +52,8 @@ def renameBonesToBlender(armatures_obs):
 
 def changeBoneNameToXps(oldName, blenderSuffix, xpsSuffix):
     # remove '.R' '.L' from the end of the name
-    newName = re.sub('{0}{1}'.format(re.escape(blenderSuffix), '$'), '', oldName, flags=re.I)
+    newName = re.sub('{0}{1}'.format(
+        re.escape(blenderSuffix), '$'), '', oldName, flags=re.I)
     # remove doble spaces
     newName = re.sub(r'\s+', ' ', newName, flags=re.I)
     # replcace place holder
@@ -61,10 +65,12 @@ def renameBoneToXps(oldName):
     newName = oldName
     if PLACE_HOLDER in oldName.lower():
         if re.search(re.escape(LEFT_BLENDER_SUFFIX), oldName, re.I):
-            newName = changeBoneNameToXps(oldName, LEFT_BLENDER_SUFFIX, LEFT_XPS_SUFFIX)
+            newName = changeBoneNameToXps(
+                oldName, LEFT_BLENDER_SUFFIX, LEFT_XPS_SUFFIX)
 
         if re.search(re.escape(RIGHT_BLENDER_SUFFIX), oldName, re.I):
-            newName = changeBoneNameToXps(oldName, RIGHT_BLENDER_SUFFIX, RIGHT_XPS_SUFFIX)
+            newName = changeBoneNameToXps(
+                oldName, RIGHT_BLENDER_SUFFIX, RIGHT_XPS_SUFFIX)
 
     return newName.strip()
 
@@ -172,13 +178,16 @@ def setXpsPose(armature, xpsData):
     for boneData in xpsData.items():
         xpsBoneData = boneData[1]
         boneName = xpsBoneData.boneName
-        poseBone = rigobj.pose.bones.get(boneName)
-        if poseBone is None:
+        poseBone: bpy.types.PoseBone = rigobj.pose.bones.get(boneName)
+        if (poseBone is None):
             poseBone = rigobj.pose.bones.get(renameBoneToBlender(boneName))
 
-        if poseBone:
+        if (poseBone is not None):
             xpsPoseBone(poseBone, xpsBoneData)
-            poseBone.bone.select = True
+            if (BLENDER_VERSION < 50):
+                poseBone.bone.select = True
+            else:
+                poseBone.select = True
 
     bpy.ops.anim.keyframe_insert(type='LocRotScale')
     bpy.ops.object.posemode_toggle()
