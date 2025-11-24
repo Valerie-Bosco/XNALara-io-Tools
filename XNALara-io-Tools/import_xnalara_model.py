@@ -60,7 +60,7 @@ def getInputFilename(xpsSettingsAux):
     blenderImportSetup()
     status = xpsImport()
     blenderImportFinalize()
-    return status
+    return {"FINISHED"}
 
 
 def blenderImportSetup():
@@ -109,75 +109,87 @@ def linkToCollection(collection, obj):
 
 
 def xpsImport():
-    global rootDir
-    global xpsData
+    try:
+        global rootDir
+        global xpsData
 
-    print("------------------------------------------------------------")
-    print("---------------EXECUTING XPS PYTHON IMPORTER----------------")
-    print("------------------------------------------------------------")
-    print("Importing file: ", xpsSettings.filename)
+        print(
+            """
+------------------------------------------------------------\n
+---------------EXECUTING XPS PYTHON IMPORTER----------------\n
+------------------------------------------------------------\n
+"""
+        )
 
-    rootDir, file = os.path.split(xpsSettings.filename)
-    print('rootDir: {}'.format(rootDir))
+        print("Importing file: ", xpsSettings.filename)
 
-    xpsData = loadXpsFile(xpsSettings.filename)
-    if not xpsData:
-        return '{NONE}'
+        rootDir, file = os.path.split(xpsSettings.filename)
+        print('rootDir: {}'.format(rootDir))
 
-    # Create New Collection
-    fname, fext = os.path.splitext(file)
-    xps_collection = bpy.data.collections.get("XPS IMPORT") if (bpy.data.collections.get("XPS IMPORT") is not None) else bpy.data.collections.new("XPS IMPORT")
-    if (xps_collection.name not in bpy.context.scene.collection.children):
-        bpy.context.scene.collection.children.link(xps_collection)
+        xpsData = loadXpsFile(xpsSettings.filename)
+        if not xpsData:
+            return '{NONE}'
 
-    xps_model_collection = bpy.data.collections.new(fname)
-    xps_model_optional_objects_collection = bpy.data.collections.new(f"{fname} | OPTIONAL")
+        # Create New Collection
+        fname, fext = os.path.splitext(file)
+        xps_collection = bpy.data.collections.get("XPS IMPORT") if (bpy.data.collections.get("XPS IMPORT") is not None) else bpy.data.collections.new("XPS IMPORT")
+        if (xps_collection.name not in bpy.context.scene.collection.children):
+            bpy.context.scene.collection.children.link(xps_collection)
 
-    xps_collection.children.link(xps_model_collection)
-    xps_model_collection.children.link(xps_model_optional_objects_collection)
+        xps_model_collection = bpy.data.collections.new(fname)
+        xps_model_optional_objects_collection = bpy.data.collections.new(f"{fname} | OPTIONAL")
 
-    # imports the armature
-    armature_object = Xnal_CreateArmatureObject()
-    if armature_object is not None:
-        linkToCollection(xps_model_collection, armature_object)
-        XnaL_ImportModelBones(bpy.context, armature_object)
-        armature_object.select_set(True)
+        xps_collection.children.link(xps_model_collection)
+        xps_model_collection.children.link(xps_model_optional_objects_collection)
 
-    # imports all the meshes
-    meshe_objects = importMeshesList(armature_object)
+        # region import armature
+        armature_object = Xnal_CreateArmatureObject()
+        if (armature_object is not None):
+            linkToCollection(xps_model_collection, armature_object)
+            XnaL_ImportModelBones(bpy.context, armature_object)
+            armature_object.select_set(True)
 
-    if (xpsSettings.separate_optional_objects):
-        for mesh_object in meshe_objects:
-            object_name = mesh_object.name
-            object_name_regions = re.split(r"[1234567890]+_", mesh_object.name, 1)
+            armature_object.pose.use_auto_ik = xpsSettings.autoIk
+            hideUnusedBones([armature_object])
+            boneTailMiddleObject(armature_object, xpsSettings.connectBones)
+        # endregion
 
-            if (len(object_name_regions) > 1):
-                object_name = object_name_regions[1]
+        # region import meshes
+        meshe_objects = importMeshesList(armature_object)
 
-            if (object_name[0] in ["+", "-"]) or ("|" in mesh_object.name):
-                linkToCollection(xps_model_optional_objects_collection, mesh_object)
+        if (xpsSettings.separate_optional_objects):
+            for mesh_object in meshe_objects:
+                object_name = mesh_object.name
+                object_name_regions = re.split(r"[1234567890]+_", mesh_object.name, 1)
+
+                if (len(object_name_regions) > 1):
+                    object_name = object_name_regions[1]
+
+                if (object_name[0] in ["+", "-"]) or ("|" in mesh_object.name):
+                    linkToCollection(xps_model_optional_objects_collection, mesh_object)
+                else:
+                    linkToCollection(xps_model_collection, mesh_object)
+                mesh_object.select_set(True)
             else:
-                linkToCollection(xps_model_collection, mesh_object)
-            mesh_object.select_set(True)
+                for mesh_object in meshe_objects:
+                    if (mesh_object.name in xps_model_optional_objects_collection.objects) and (mesh_object.name in xps_model_collection.objects):
+                        xps_model_collection.objects.unlink(mesh_object)
         else:
             for mesh_object in meshe_objects:
-                if (mesh_object.name in xps_model_optional_objects_collection.objects) and (mesh_object.name in xps_model_collection.objects):
-                    xps_model_collection.objects.unlink(mesh_object)
-    else:
-        for mesh_object in meshe_objects:
-            linkToCollection(xps_model_collection, mesh_object)
-            mesh_object.select_set(True)
+                linkToCollection(xps_model_collection, mesh_object)
+                mesh_object.select_set(True)
+        # endregion
 
-    if armature_object:
-        armature_object.pose.use_auto_ik = xpsSettings.autoIk
-        hideUnusedBones([armature_object])
-        boneTailMiddleObject(armature_object, xpsSettings.connectBones)
+        # Import default pose
+        if (xpsSettings.importDefaultPose and armature_object):
+            if (xpsData.header and xpsData.header.pose):
+                import_xnalara_pose.setXpsPose(armature_object, xpsData.header.pose)
 
-    # Import default pose
-    if (xpsSettings.importDefaultPose and armature_object):
-        if (xpsData.header and xpsData.header.pose):
-            import_xnalara_pose.setXpsPose(armature_object, xpsData.header.pose)
-    return '{FINISHED}'
+        return True
+
+    except Exception as error:
+        print(error)
+        return False
 
 
 def setMinimumLenght(bone):

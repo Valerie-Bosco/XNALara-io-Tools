@@ -1,3 +1,4 @@
+from .XPS_Constants import BLENDER_VERSION
 import os
 from collections import Counter
 
@@ -307,7 +308,7 @@ def getXpsVertices(selectedArmature, mesh):
     verts_nor = xpsSettings.exportNormals
 
     # Calculates tesselated faces and normal split to make them available for export
-    if (bpy.app.version[0:2] in [(3, 6), (4, 0)]):
+    if (BLENDER_VERSION <= 40):
         mesh.data.calc_normals_split()
     mesh.data.calc_loop_triangles()
     mesh.data.update(calc_edges=True)
@@ -340,7 +341,8 @@ def getXpsVertices(selectedArmature, mesh):
     preserveSeams = xpsSettings.preserveSeams
     if (preserveSeams and hasSeams):
         # Count edges for faces
-        tessEdgeCount = Counter(tessEdgeKey for tessFace in tessFaces for tessEdgeKey in tessFace.edge_keys)
+        tessEdgeCount = Counter(
+            tessEdgeKey for tessFace in tessFaces for tessEdgeKey in tessFace.edge_keys)
 
         # create dictionary. faces for each edge
         for tessface in tessFaces:
@@ -382,7 +384,8 @@ def getXpsVertices(selectedArmature, mesh):
                 faceSeams = [edge for edge in faceEdges if edge.use_seam]
 
                 if (len(faceSeams) >= 1):
-                    vertIsBorder = any(tessEdgeCount[edge.index] != 2 for edge in faceEdges)
+                    vertIsBorder = any(
+                        tessEdgeCount[edge.index] != 2 for edge in faceEdges)
                     if (len(faceSeams) > 1) or (len(faceSeams) == 1 and vertIsBorder):
 
                         oldFacesList = set()
@@ -391,17 +394,22 @@ def getXpsVertices(selectedArmature, mesh):
 
                             oldFacesList = connectedFaces
 
-                            allEdgeKeys = set(connEdgeKey for connface in connectedFaces for connEdgeKey in connface.edge_keys)
+                            allEdgeKeys = set(
+                                connEdgeKey for connface in connectedFaces for connEdgeKey in connface.edge_keys)
                             connEdgesKeys = [edge.key for edge in faceEdges]
-                            connEdgesNotSeamsKeys = [seam.key for seam in faceSeams]
+                            connEdgesNotSeamsKeys = [
+                                seam.key for seam in faceSeams]
 
-                            connectedEdges = allEdgeKeys.intersection(connEdgesKeys).difference(connEdgesNotSeamsKeys)
-                            connectedFaces = set(tessFaces[connFace] for connEdge in connectedEdges for connFace in tessEdgeFaces[connEdge])
+                            connectedEdges = allEdgeKeys.intersection(
+                                connEdgesKeys).difference(connEdgesNotSeamsKeys)
+                            connectedFaces = set(
+                                tessFaces[connFace] for connEdge in connectedEdges for connFace in tessEdgeFaces[connEdge])
 
                             connectedFaces.add(face)
 
                 faceIndices = [face.index for face in connectedFaces]
-                seamSideId = '|'.join(str(faceIdx) for faceIdx in sorted(faceIndices))
+                seamSideId = '|'.join(str(faceIdx)
+                                      for faceIdx in sorted(faceIndices))
 
             uvs = getUvs(tessface_uv_tex, faceUvIndices[vertEnum])
             vertexKey = generateVertexKey(vertex, uvs, seamSideId)
@@ -415,7 +423,8 @@ def getXpsVertices(selectedArmature, mesh):
                 else:
                     normal = vertex.normal
                 norm = coordTransform(rotQuaternion @ normal)
-                vColor = getVertexColor(exportVertColors, tessface_vert_color, faceUvIndices[vertEnum])
+                vColor = getVertexColor(
+                    exportVertColors, tessface_vert_color, faceUvIndices[vertEnum])
                 boneId, boneWeight = getBoneWeights(mesh, vertex, armature)
 
                 boneWeights = []
@@ -489,7 +498,8 @@ def getXpsFace(faceVerts):
 
 
 def boneDictGenerate(filepath, armatureObj):
-    boneNames = sorted([import_xnalara_pose.renameBoneToXps(name) for name in armatureObj.data.bones.keys()])
+    boneNames = sorted([import_xnalara_pose.renameBoneToXps(name)
+                       for name in armatureObj.data.bones.keys()])
     boneDictList = '\n'.join(';'.join((name,) * 2) for name in boneNames)
     write_ascii_xps.writeBoneDict(filepath, boneDictList)
 
