@@ -466,34 +466,34 @@ def mix_normal_group():
     # Links Input
     links = node_tree.links
     links.new(group_inputs.outputs['Main'],
-              mainNormalSeparateNode.inputs['Image'])
+              mainNormalSeparateNode.inputs['Color'])
     links.new(group_inputs.outputs['Detail'],
-              detailNormalSeparateNode.inputs['Image'])
+              detailNormalSeparateNode.inputs['Color'])
 
     links.new(
-        mainNormalSeparateNode.outputs['R'], mainNormalCombineNode.inputs['R'])
+        mainNormalSeparateNode.outputs['Red'], mainNormalCombineNode.inputs['Red'])
     links.new(
-        mainNormalSeparateNode.outputs['G'], mainNormalCombineNode.inputs['G'])
-    links.new(mainNormalSeparateNode.outputs['B'], multiplyBlueNode.inputs[0])
+        mainNormalSeparateNode.outputs['Green'], mainNormalCombineNode.inputs['Green'])
+    links.new(mainNormalSeparateNode.outputs['Blue'], multiplyBlueNode.inputs[0])
     links.new(
-        detailNormalSeparateNode.outputs['R'], detailNormalCombineNode.inputs['R'])
+        detailNormalSeparateNode.outputs['Red'], detailNormalCombineNode.inputs['Red'])
     links.new(
-        detailNormalSeparateNode.outputs['G'], detailNormalCombineNode.inputs['G'])
+        detailNormalSeparateNode.outputs['Green'], detailNormalCombineNode.inputs['Green'])
     links.new(
-        detailNormalSeparateNode.outputs['B'], multiplyBlueNode.inputs[1])
+        detailNormalSeparateNode.outputs['Blue'], multiplyBlueNode.inputs[1])
 
-    links.new(mainNormalCombineNode.outputs['Image'], addRGBNode.inputs[1])
-    links.new(detailNormalCombineNode.outputs['Image'], addRGBNode.inputs[2])
+    links.new(mainNormalCombineNode.outputs['Color'], addRGBNode.inputs[1])
+    links.new(detailNormalCombineNode.outputs['Color'], addRGBNode.inputs[2])
     links.new(addRGBNode.outputs['Color'], subsRGBNode.inputs[1])
 
     links.new(subsRGBNode.outputs['Color'],
-              separateRedBlueNode.inputs['Image'])
+              separateRedBlueNode.inputs['Color'])
 
-    links.new(separateRedBlueNode.outputs['R'], combineFinalNode.inputs['R'])
-    links.new(separateRedBlueNode.outputs['G'], combineFinalNode.inputs['G'])
-    links.new(multiplyBlueNode.outputs['Value'], combineFinalNode.inputs['B'])
+    links.new(separateRedBlueNode.outputs['Red'], combineFinalNode.inputs['Red'])
+    links.new(separateRedBlueNode.outputs['Green'], combineFinalNode.inputs['Green'])
+    links.new(multiplyBlueNode.outputs['Value'], combineFinalNode.inputs['Blue'])
 
-    links.new(combineFinalNode.outputs['Image'], group_outputs.inputs['Color'])
+    links.new(combineFinalNode.outputs['Color'], group_outputs.inputs['Color'])
 
     return node_tree
 
@@ -589,9 +589,9 @@ def invert_channel_group():
     links.new(separateRgbNode.outputs['Green'], invertGNode.inputs['Color'])
     links.new(separateRgbNode.outputs['Blue'], invertBNode.inputs['Color'])
 
-    links.new(invertRNode.outputs['Color'], combineRgbNode.inputs['R'])
-    links.new(invertGNode.outputs['Color'], combineRgbNode.inputs['G'])
-    links.new(invertBNode.outputs['Color'], combineRgbNode.inputs['B'])
+    links.new(invertRNode.outputs['Color'], combineRgbNode.inputs['Red'])
+    links.new(invertGNode.outputs['Color'], combineRgbNode.inputs['Green'])
+    links.new(invertBNode.outputs['Color'], combineRgbNode.inputs['Blue'])
 
     links.new(combineRgbNode.outputs['Color'], group_outputs.inputs['Color'])
 
@@ -777,25 +777,25 @@ def xps_shader_group():
     # Normals
     normal_invert_channel = getNodeGroup(shader, INVERT_CHANNEL_NODE)
     normal_invert_channel.location += Vector((-800, -500))
-    # normal_invert_channel.inputs['R'].default_value = flags[xps_const.TANGENT_SPACE_RED]
-    # normal_invert_channel.inputs['G'].default_value = flags[xps_const.TANGENT_SPACE_GREEN]
-    # normal_invert_channel.inputs['B'].default_value = flags[xps_const.TANGENT_SPACE_BLUE]
+    # normal_invert_channel.inputs['Red'].default_value = flags[xps_const.TANGENT_SPACE_RED]
+    # normal_invert_channel.inputs['Green'].default_value = flags[xps_const.TANGENT_SPACE_GREEN]
+    # normal_invert_channel.inputs['Blue'].default_value = flags[xps_const.TANGENT_SPACE_BLUE]
     shader.links.new(
         group_input.outputs['Bump Map'], normal_invert_channel.inputs['Color'])
 
     microbump1_invert_channel = getNodeGroup(shader, INVERT_CHANNEL_NODE)
     microbump1_invert_channel.location += Vector((-800, -700))
-    # microbump1_invert_channel.inputs['R'].default_value = flags[xps_const.TANGENT_SPACE_RED]
-    # microbump1_invert_channel.inputs['G'].default_value = flags[xps_const.TANGENT_SPACE_GREEN]
-    # microbump1_invert_channel.inputs['B'].default_value = flags[xps_const.TANGENT_SPACE_BLUE]
+    # microbump1_invert_channel.inputs['Red'].default_value = flags[xps_const.TANGENT_SPACE_RED]
+    # microbump1_invert_channel.inputs['Green'].default_value = flags[xps_const.TANGENT_SPACE_GREEN]
+    # microbump1_invert_channel.inputs['Blue'].default_value = flags[xps_const.TANGENT_SPACE_BLUE]
     shader.links.new(
         group_input.outputs['MicroBump 1'], microbump1_invert_channel.inputs['Color'])
 
     microbump2_invert_channel = getNodeGroup(shader, INVERT_CHANNEL_NODE)
     microbump2_invert_channel.location += Vector((-800, -900))
-    # microbump2_invert_channel.inputs['R'].default_value = flags[xps_const.TANGENT_SPACE_RED]
-    # microbump2_invert_channel.inputs['G'].default_value = flags[xps_const.TANGENT_SPACE_GREEN]
-    # microbump2_invert_channel.inputs['B'].default_value = flags[xps_const.TANGENT_SPACE_BLUE]
+    # microbump2_invert_channel.inputs['Red'].default_value = flags[xps_const.TANGENT_SPACE_RED]
+    # microbump2_invert_channel.inputs['Green'].default_value = flags[xps_const.TANGENT_SPACE_GREEN]
+    # microbump2_invert_channel.inputs['Blue'].default_value = flags[xps_const.TANGENT_SPACE_BLUE]
     shader.links.new(
         group_input.outputs['MicroBump 2'], microbump2_invert_channel.inputs['Color'])
 
