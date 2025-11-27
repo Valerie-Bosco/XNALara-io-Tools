@@ -581,7 +581,7 @@ def invert_channel_group():
 
     # Links Input
     links = node_tree.links
-    links.new(group_inputs.outputs['Color'], separateRgbNode.inputs['Image'])
+    links.new(group_inputs.outputs['Color'], separateRgbNode.inputs['Color'])
     links.new(group_inputs.outputs['R'], invertRNode.inputs['Fac'])
     links.new(group_inputs.outputs['G'], invertGNode.inputs['Fac'])
     links.new(group_inputs.outputs['B'], invertBNode.inputs['Fac'])
@@ -593,7 +593,7 @@ def invert_channel_group():
     links.new(invertGNode.outputs['Color'], combineRgbNode.inputs['G'])
     links.new(invertBNode.outputs['Color'], combineRgbNode.inputs['B'])
 
-    links.new(combineRgbNode.outputs['Image'], group_outputs.inputs['Color'])
+    links.new(combineRgbNode.outputs['Color'], group_outputs.inputs['Color'])
 
     return node_tree
 
@@ -642,9 +642,9 @@ def normal_mask_group():
     normalMixNode.location = maskSeparateNode.location + Vector((600, 0))
 
     node_tree.links.new(
-        maskSeparateNode.outputs['R'], maskRedPowerNode.inputs[0])
+        maskSeparateNode.outputs['Red'], maskRedPowerNode.inputs[0])
     node_tree.links.new(
-        maskSeparateNode.outputs['G'], maskGreenPowerNode.inputs[0])
+        maskSeparateNode.outputs['Green'], maskGreenPowerNode.inputs[0])
     node_tree.links.new(
         maskRedPowerNode.outputs['Value'], maskMixRedNode.inputs[0])
     node_tree.links.new(
@@ -802,7 +802,7 @@ def xps_shader_group():
     normal_mask = getNodeGroup(shader, NORMAL_MASK_NODE)
     normal_mask.location += Vector((-600, -600))
     shader.links.new(
-        group_input.outputs['Bump Mask'], normal_mask.inputs['Mask'])
+        group_input.outputs['Bump Mask'], normal_mask.inputs['Fac'])
 
     normal_mix = getNodeGroup(shader, MIX_NORMAL_NODE)
     normal_mix.location += Vector((-400, -500))
