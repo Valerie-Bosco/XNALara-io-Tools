@@ -70,11 +70,13 @@ class XPSToolsBonesPanel(_XpsPanels, bpy.types.Panel):
         col.label(text='BoneDict:')
         c = col.column(align=True)
         r = c.row(align=True)
-        r.operator('xps_tools.bones_dictionary_generate', text='Generate BoneDict')
+        r.operator('xps_tools.bones_dictionary_generate',
+                   text='Generate BoneDict')
         r = c.row(align=True)
         r.operator('xps_tools.bones_dictionary_rename', text='Rename Bones')
         r = c.row(align=True)
-        r.operator('xps_tools.bones_dictionary_restore_name', text='Restore Names')
+        r.operator('xps_tools.bones_dictionary_restore_name',
+                   text='Restore Names')
 
         # col.separator()
         col = layout.column()

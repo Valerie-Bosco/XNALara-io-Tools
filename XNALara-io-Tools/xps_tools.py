@@ -1,4 +1,3 @@
-from .XPS_Import import Import_Xps_Model_Op
 import os
 
 import bpy
@@ -9,6 +8,7 @@ from bpy_extras.io_utils import (ExportHelper, ImportHelper,
 
 from . import (export_xnalara_model, export_xnalara_pose, import_xnalara_model,
                import_xnalara_pose, xps_types)
+from .XPS_Import import Import_Xps_Model_Op
 
 uv_x_displace = 0
 uv_y_displace = 0
@@ -398,7 +398,8 @@ class ArmatureBoneDictRename_Op(bpy.types.Operator):
                 None))
 
     def execute(self, context):
-        armatureObj = next((obj for obj in context.selected_objects if obj.type == 'ARMATURE'), None)
+        armatureObj = next(
+            (obj for obj in context.selected_objects if obj.type == 'ARMATURE'), None)
         import_xnalara_model.boneDictRename(self.filepath, armatureObj)
         return {'FINISHED'}
 
@@ -462,7 +463,8 @@ class ArmatureBoneDictRestore_Op(bpy.types.Operator):
                 None))
 
     def execute(self, context):
-        armatureObj = next((obj for obj in context.selected_objects if obj.type == 'ARMATURE'), None)
+        armatureObj = next(
+            (obj for obj in context.selected_objects if obj.type == 'ARMATURE'), None)
         import_xnalara_model.boneDictRestore(self.filepath, armatureObj)
         return {'FINISHED'}
 
@@ -757,8 +759,10 @@ class XpsImportSubMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator(Import_Xps_Model_Op.bl_idname, text="XNALara/XPS Model (.ascii/.mesh/.xps)")
-        layout.operator(Import_Xps_Pose_Op.bl_idname, text="XNALara/XPS Pose (.pose)")
+        layout.operator(Import_Xps_Model_Op.bl_idname,
+                        text="XNALara/XPS Model (.ascii/.mesh/.xps)")
+        layout.operator(Import_Xps_Pose_Op.bl_idname,
+                        text="XNALara/XPS Pose (.pose)")
         layout.operator(ImportXpsNgff.bl_idname, text="XPS NGFF (.obj)")
 
 
@@ -768,8 +772,10 @@ class XpsExportSubMenu(bpy.types.Menu):
 
     def draw(self, context):
         layout = self.layout
-        layout.operator(Export_Xps_Model_Op.bl_idname, text="XNALara/XPS Model (.ascii/.mesh/.xps)")
-        layout.operator(Export_Xps_Pose_Op.bl_idname, text="XNALara/XPS Pose (.pose)")
+        layout.operator(Export_Xps_Model_Op.bl_idname,
+                        text="XNALara/XPS Model (.ascii/.mesh/.xps)")
+        layout.operator(Export_Xps_Pose_Op.bl_idname,
+                        text="XNALara/XPS Pose (.pose)")
         layout.operator(ExportXpsNgff.bl_idname, text="XPS NGFF (.obj)")
 
 

@@ -165,13 +165,15 @@ class NewRestPose_Op(bpy.types.Operator):
                 and bool(next((obj for obj in context.selected_objects if obj.type == 'MESH'), None)))
 
     def action_common(self, context):
-        meshes_obs = filter(lambda obj: obj.type == 'MESH', context.selected_objects)
+        meshes_obs = filter(lambda obj: obj.type == 'MESH',
+                            context.selected_objects)
         activeArmature = context.active_object
         for obj in meshes_obs:
             if (obj.find_armature() == activeArmature):
                 sourceModif = obj.modifiers[-1]
                 if (sourceModif and sourceModif.type == 'ARMATURE'):
-                    destModif = obj.modifiers.new(sourceModif.name, sourceModif.type)
+                    destModif = obj.modifiers.new(
+                        sourceModif.name, sourceModif.type)
 
                     # collect names of writable properties
                     properties = [p.identifier for p in destModif.bl_rna.properties
