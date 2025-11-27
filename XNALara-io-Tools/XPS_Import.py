@@ -11,9 +11,9 @@ uv_y_displace = 0
 
 
 class XPS_ImportStatus(Enum):
-    NotRunning: 0
-    Running: 1
-    Completed: 2
+    NotRunning = 0
+    Running = 1
+    Completed = 2
 
 
 class XPS_OT_ImportModal(bpy.types.Operator, ImportHelper):
