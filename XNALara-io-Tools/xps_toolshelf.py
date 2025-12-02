@@ -17,7 +17,7 @@ class ArmatureBonesHideByName_Op(bpy.types.Operator):
                 None))
 
     def execute(self, context):
-        import_xnalara_model.hideBonesByName(self.armature_objs)
+        import_xnalara_model.XNA_BoneHideUnused(self.armature_objs)
         return {'FINISHED'}
 
     def invoke(self, context, event):

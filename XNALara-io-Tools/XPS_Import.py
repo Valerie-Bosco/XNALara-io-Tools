@@ -1,4 +1,3 @@
-
 from enum import Enum
 
 import bpy
@@ -19,7 +18,7 @@ class XPS_ImportStatus(Enum):
 class XPS_OT_ImportModal(bpy.types.Operator, ImportHelper):
     """"""
 
-    bl_lable = "Import XNALara/XPS"
+    bl_label = "Import XNALara/XPS"
     bl_idname = "xnal.operator_modal_import_xps"
 
     bl_space_type = "PROPERTIES"
@@ -36,72 +35,72 @@ class XPS_OT_ImportModal(bpy.types.Operator, ImportHelper):
     filename_ext = ".mesh"
 
     # filter File Extension
-    filter_glob: bpy.props.StringProperty(
+    filter_glob: bpy.props.StringProperty(  # type:ignore
         default="*.ascii;*.mesh;*.xps",
         options={'HIDDEN'},
     )  # type:ignore
 
-    uvDisplX: bpy.props.IntProperty(
+    uvDisplX: bpy.props.IntProperty(  # type:ignore
         name="X",
         description="Displace UV X axis",
         default=uv_x_displace,
     )  # type:ignore
 
-    uvDisplY: bpy.props.IntProperty(
+    uvDisplY: bpy.props.IntProperty(  # type:ignore
         name="Y",
         description="Displace UV Y axis",
         default=uv_y_displace,
     )  # type:ignore
 
-    impDefPose: bpy.props.BoolProperty(
+    impDefPose: bpy.props.BoolProperty(  # type:ignore
         name="Default Pose",
         description="Import Default Pose",
         default=False,
-    )  # type:ignore
+    )
 
-    markSeams: bpy.props.BoolProperty(
+    markSeams: bpy.props.BoolProperty(  # type:ignore
         name="Mark Seams",
         description="Mark as Seams the edged merged by the addon",
         default=True,
     )  # type:ignore
 
-    vColors: bpy.props.BoolProperty(
+    vColors: bpy.props.BoolProperty(  # type:ignore
         name="Vertex Colors",
         description="Import Vertex Colors",
         default=True,
     )  # type:ignore
 
-    joinMeshRips: bpy.props.BoolProperty(
+    joinMeshRips: bpy.props.BoolProperty(  # type:ignore
         name="Merge Doubles by Normal",
         description="Merge vertices with the same position and normal",
         default=True,
     )  # type:ignore
 
-    joinMeshParts: bpy.props.BoolProperty(
+    joinMeshParts: bpy.props.BoolProperty(  # type:ignore
         name="Join MeshParts",
         description="Join MeshParts (meshes that contain 'nPart!' in the name)",
         default=True,
     )  # type:ignore
 
-    connectBones: bpy.props.BoolProperty(
+    connectBones: bpy.props.BoolProperty(  # type:ignore
         name="Connect Bones",
         description="Connect Bones all bones",
         default=True,
     )  # type:ignore
 
-    autoIk: bpy.props.BoolProperty(
+    autoIk: bpy.props.BoolProperty(  # type:ignore
         name="AutoIK",
         description="Set AutoIK",
         default=True,
     )  # type:ignore
 
-    importNormals: bpy.props.BoolProperty(
+    importNormals: bpy.props.BoolProperty(  # type:ignore
         name="Import Normals",
         description="Import Custom Normals",
         default=True,
     )  # type:ignore
 
-    separate_optional_objects: bpy.props.BoolProperty(
+    separate_optional_objects: bpy.props.BoolProperty(  # type:ignore
         name="Separate Optional Objects",
         description="Separate into collection object marked as optional",
         default=True
@@ -191,72 +190,72 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
     # to the class instance from the operator settings before calling.
 
     # filter File Extension
-    filter_glob: bpy.props.StringProperty(
+    filter_glob: bpy.props.StringProperty(  # type:ignore
         default="*.ascii;*.mesh;*.xps",
         options={'HIDDEN'},
     )  # type:ignore
 
-    uvDisplX: bpy.props.IntProperty(
+    uvDisplX: bpy.props.IntProperty(  # type:ignore
         name="X",
         description="Displace UV X axis",
         default=uv_x_displace,
     )  # type:ignore
 
-    uvDisplY: bpy.props.IntProperty(
+    uvDisplY: bpy.props.IntProperty(  # type:ignore
         name="Y",
         description="Displace UV Y axis",
         default=uv_y_displace,
     )  # type:ignore
 
-    impDefPose: bpy.props.BoolProperty(
+    impDefPose: bpy.props.BoolProperty(  # type:ignore
         name="Default Pose",
         description="Import Default Pose",
         default=False,
     )  # type:ignore
 
-    markSeams: bpy.props.BoolProperty(
+    markSeams: bpy.props.BoolProperty(  # type:ignore
         name="Mark Seams",
         description="Mark as Seams the edged merged by the addon",
         default=True,
     )  # type:ignore
 
-    vColors: bpy.props.BoolProperty(
+    vColors: bpy.props.BoolProperty(  # type:ignore
         name="Vertex Colors",
         description="Import Vertex Colors",
         default=True,
     )  # type:ignore
 
-    joinMeshRips: bpy.props.BoolProperty(
+    joinMeshRips: bpy.props.BoolProperty(  # type:ignore
         name="Merge Doubles by Normal",
         description="Merge vertices with the same position and normal",
         default=True,
     )  # type:ignore
 
-    joinMeshParts: bpy.props.BoolProperty(
+    joinMeshParts: bpy.props.BoolProperty(  # type:ignore
         name="Join MeshParts",
         description="Join MeshParts (meshes that contain 'nPart!' in the name)",
         default=True,
     )  # type:ignore
 
-    connectBones: bpy.props.BoolProperty(
+    connectBones: bpy.props.BoolProperty(  # type:ignore
         name="Connect Bones",
         description="Connect Bones all bones",
         default=True,
     )  # type:ignore
 
-    autoIk: bpy.props.BoolProperty(
+    autoIk: bpy.props.BoolProperty(  # type:ignore
         name="AutoIK",
         description="Set AutoIK",
         default=True,
     )  # type:ignore
 
-    importNormals: bpy.props.BoolProperty(
+    importNormals: bpy.props.BoolProperty(  # type:ignore
         name="Import Normals",
         description="Import Custom Normals",
         default=True,
     )  # type:ignore
 
-    separate_optional_objects: bpy.props.BoolProperty(
+    separate_optional_objects: bpy.props.BoolProperty(  # type:ignore
         name="Separate Optional Objects",
         description="Separate into collection object marked as optional",
         default=True

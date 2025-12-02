@@ -1,7 +1,6 @@
 from . import xps_tools
 from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdater import \
     Alx_Addon_Updater
-from .modules.ALXInfoSystem.ALXInfoSystem import ALX_InfoSystem
 from .modules.ALXModuleManager.ALXModuleManager.ALX_ModuleManager import \
     Alx_Module_Manager
 

@@ -2,17 +2,18 @@ import copy
 import operator
 import os
 import re
+from typing import Iterable
 
 import bpy
 from mathutils import Vector
 
 from . import (import_xnalara_pose, material_creator, read_ascii_xps,
                read_bin_xps, xps_types)
-from .armature_tools.xnal_armature_utilities import (XnaL_AddRegisterBoneName,
+from .armature_tools.xnal_armature_utilities import (XNA_SET_BoneVisibility,
+                                                     XnaL_AddRegisterBoneName,
                                                      Xnal_CreateArmatureObject,
                                                      XnaL_CreateBoneCollection,
-                                                     XnaL_GetBoneNameByIndex,
-                                                     XnaL_ShowHideBones)
+                                                     XnaL_GetBoneNameByIndex)
 from .utilities.mesh_utilities import create_split_normals
 
 # imported XPS directory
@@ -132,19 +133,22 @@ def xpsImport():
 
         # Create New Collection
         fname, fext = os.path.splitext(file)
-        xps_collection = bpy.data.collections.get("XPS IMPORT") if (bpy.data.collections.get("XPS IMPORT") is not None) else bpy.data.collections.new("XPS IMPORT")
+        xps_collection = bpy.data.collections.get("XPS IMPORT") if (bpy.data.collections.get(
+            "XPS IMPORT") is not None) else bpy.data.collections.new("XPS IMPORT")
         if (xps_collection.name not in bpy.context.scene.collection.children):
             bpy.context.scene.collection.children.link(xps_collection)
 
         xps_model_collection = bpy.data.collections.new(fname)
-        xps_model_optional_objects_collection = bpy.data.collections.new(f"{fname} | OPTIONAL")
+        xps_model_optional_objects_collection = bpy.data.collections.new(
+            f"{fname} | OPTIONAL")
 
         xps_collection.children.link(xps_model_collection)
-        xps_model_collection.children.link(xps_model_optional_objects_collection)
+        xps_model_collection.children.link(
+            xps_model_optional_objects_collection)
 
         # region import armature
         armature_object = Xnal_CreateArmatureObject()
-        if (armature_object is not None):
+        if armature_object is not None:
             linkToCollection(xps_model_collection, armature_object)
             XnaL_ImportModelBones(bpy.context, armature_object)
             armature_object.select_set(True)
@@ -155,27 +159,29 @@ def xpsImport():
         # endregion
 
         # region import meshes
-        meshe_objects = importMeshesList(armature_object)
+        mesh_objects = importMeshesList(armature_object)
 
-        if (xpsSettings.separate_optional_objects):
-            for mesh_object in meshe_objects:
+        if xpsSettings.separate_optional_objects:
+            for mesh_object in mesh_objects:
                 object_name = mesh_object.name
-                object_name_regions = re.split(r"[1234567890]+_", mesh_object.name, 1)
+                object_name_regions = re.split(
+                    r"[1234567890]+_", mesh_object.name, 1)
 
-                if (len(object_name_regions) > 1):
+                if len(object_name_regions) > 1:
                     object_name = object_name_regions[1]
 
                 if (object_name[0] in ["+", "-"]) or ("|" in mesh_object.name):
-                    linkToCollection(xps_model_optional_objects_collection, mesh_object)
+                    linkToCollection(
+                        xps_model_optional_objects_collection, mesh_object)
                 else:
                     linkToCollection(xps_model_collection, mesh_object)
                 mesh_object.select_set(True)
             else:
-                for mesh_object in meshe_objects:
+                for mesh_object in mesh_objects:
                     if (mesh_object.name in xps_model_optional_objects_collection.objects) and (mesh_object.name in xps_model_collection.objects):
                         xps_model_collection.objects.unlink(mesh_object)
         else:
-            for mesh_object in meshe_objects:
+            for mesh_object in mesh_objects:
                 linkToCollection(xps_model_collection, mesh_object)
                 mesh_object.select_set(True)
         # endregion
@@ -183,7 +189,8 @@ def xpsImport():
         # Import default pose
         if (xpsSettings.importDefaultPose and armature_object):
             if (xpsData.header and xpsData.header.pose):
-                import_xnalara_pose.setXpsPose(armature_object, xpsData.header.pose)
+                import_xnalara_pose.setXpsPose(
+                    armature_object, xpsData.header.pose)
 
         return True
 
@@ -224,59 +231,71 @@ def connectEditBones(editBones, connectBones):
                 bone.use_connect = connectBones
 
 
-def hideBonesByName(armature_objs):
-    """Hide bones that do not affect any mesh."""
-    for armature in armature_objs:
-        for bone in armature.data.bones:
-            if bone.name.lower().startswith('unused'):
-                XnaL_ShowHideBones([bone], False)
+def XNA_BoneHideUnused(armature_object: Iterable[bpy.types.Object]):
+    for armature in armature_object:
+        XNA_SET_BoneVisibility(
+            armature_object,
+            [
+                bone.name
+                for bone in armature.data.bones
+                if bone.name.lower().startswith('unused')
+            ],
+            "ALL",
+            False
+        )
 
 
-def hideBonesByVertexGroup(armature_objs):
+def hideBonesByVertexGroup(armature_objects):
     """Hide bones that do not affect any mesh."""
-    for armature in armature_objs:
-        objs = [obj for obj in armature.children
+    for armature_object in armature_objects:
+        objs = [obj for obj in armature_object.children
                 if obj.type == 'MESH' and obj.modifiers and [
                     modif for modif in obj.modifiers if modif
-                    and modif.type == 'ARMATURE' and modif.object == armature]]
+                    and modif.type == 'ARMATURE' and modif.object == armature_object]]
 
         # cycle objects and get all vertex groups
         vertexgroups = set(
             [vg.name for obj in objs if obj.type == 'MESH'
                 for vg in obj.vertex_groups])
 
-        bones = armature.data.bones
+        bones = armature_object.data.bones
         # leafBones = [bone for bone in bones if not bone.children]
         rootBones = [bone for bone in bones if not bone.parent]
 
         for bone in rootBones:
-            recurBones(bone, vertexgroups, '')
+            XNA_BoneChainRecurse(
+                armature_object=armature_object, bone=bone,
+                vertexgroups=vertexgroups,
+                name='')
 
 
-def recurBones(bone, vertexgroups, name):
+def XNA_BoneChainRecurse(armature_object, bone, vertexgroups, name):
     visibleChild = False
     for childBone in bone.children:
-        aux = recurBones(childBone, vertexgroups, '{} '.format(name))
+        aux = XNA_BoneChainRecurse(
+            armature_object, childBone, vertexgroups, f"{name} ")
         visibleChild = visibleChild or aux
 
     visibleChain = bone.name in vertexgroups or visibleChild
-    if not visibleChain:
-        XnaL_ShowHideBones([bone], False)
+    if (not visibleChain):
+        XNA_SET_BoneVisibility(armature_object, [bone.name], "ALL", False)
     return visibleChain
 
 
 def hideUnusedBones(armature_objs):
     hideBonesByVertexGroup(armature_objs)
-    hideBonesByName(armature_objs)
+    XNA_BoneHideUnused(armature_objs)
 
 
 def boneDictRename(filepath, armatureObj):
-    boneDictDataRename, boneDictDataRestore = read_ascii_xps.readBoneDict(filepath)
+    boneDictDataRename, boneDictDataRestore = read_ascii_xps.readBoneDict(
+        filepath)
     renameBonesUsingDict(armatureObj, boneDictDataRename)
 
 
 def boneDictRestore(filepath, armatureObj):
-    boneDictDataRename, boneDictDataRestore = read_ascii_xps.readBoneDict(filepath)
+    boneDictDataRename, boneDictDataRestore = read_ascii_xps.readBoneDict(
+        filepath)
     renameBonesUsingDict(armatureObj, boneDictDataRestore)
 
 
@@ -334,7 +353,8 @@ def boneTailMiddle(editBones, connectBones):
 
             if childBones:
                 # Set tail to children middle
-                bone.tail = Vector(map(sum, zip(*(childBone.head.xyz for childBone in childBones)))) / len(childBones)
+                bone.tail = Vector(map(
+                    sum, zip(*(childBone.head.xyz for childBone in childBones)))) / len(childBones)
             else:
                 # if no child, set tail acording to parent
                 if bone.parent is not None:
@@ -499,7 +519,8 @@ def importMesh(armature_object, meshInfo):
         mergedVertList = []
         uvLayers = []
         vertColors = []
-        makeVertexDict(vertexDict, mergedVertList, uvLayers, vertColors, meshInfo.vertices)
+        makeVertexDict(vertexDict, mergedVertList, uvLayers,
+                       vertColors, meshInfo.vertices)
 
         # new ID to riginal ID
         vertexOrig = [[] for x in range(len(mergedVertList))]
@@ -524,7 +545,8 @@ def importMesh(armature_object, meshInfo):
                         or mergedVertList[v2New].merged
                         or mergedVertList[v3New].merged):
 
-                    findMergedEdges(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace)
+                    findMergedEdges(seamEdgesDict, vertexDict,
+                                    mergedVertList, mergedVertices, oldFace)
 
         # merge Vertices of same coord and normal?
         mergeByNormal = True
@@ -571,7 +593,8 @@ def importMesh(armature_object, meshInfo):
             flags = read_bin_xps.flagsDefault()
 
         # Make Material
-        material_creator.makeMaterial(xpsSettings, rootDir, mesh_data, meshInfo, flags)
+        material_creator.makeMaterial(
+            xpsSettings, rootDir, mesh_data, meshInfo, flags)
 
         if (armature_object is not None) and (mesh_object is not None):
             setArmatureModifier(armature_object, mesh_object)
@@ -611,9 +634,12 @@ def markSeams(mesh_da, seamEdgesDict):
 
 
 def findMergedEdges(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace):
-    findMergedVert(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace, oldFace[0])
-    findMergedVert(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace, oldFace[1])
-    findMergedVert(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace, oldFace[2])
+    findMergedVert(seamEdgesDict, vertexDict, mergedVertList,
+                   mergedVertices, oldFace, oldFace[0])
+    findMergedVert(seamEdgesDict, vertexDict, mergedVertList,
+                   mergedVertices, oldFace, oldFace[1])
+    findMergedVert(seamEdgesDict, vertexDict, mergedVertList,
+                   mergedVertices, oldFace, oldFace[2])
 
 
 def findMergedVert(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace, mergedVert):
@@ -638,11 +664,14 @@ def findMergedVert(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, ol
             while not matchV1 and i < 3:
                 if ((vertX == vertexDict[facesList[i]]) and mergedVert != facesList[i]):
                     if (mergedVert != v1Old):
-                        checkEdgePairForSeam(i, seamEdgesDict, vertexDict, vertX, v1Old, facesList)
+                        checkEdgePairForSeam(
+                            i, seamEdgesDict, vertexDict, vertX, v1Old, facesList)
                     if (mergedVert != v2Old):
-                        checkEdgePairForSeam(i, seamEdgesDict, vertexDict, vertX, v2Old, facesList)
+                        checkEdgePairForSeam(
+                            i, seamEdgesDict, vertexDict, vertX, v2Old, facesList)
                     if (mergedVert != v3Old):
-                        checkEdgePairForSeam(i, seamEdgesDict, vertexDict, vertX, v3Old, facesList)
+                        checkEdgePairForSeam(
+                            i, seamEdgesDict, vertexDict, vertX, v3Old, facesList)
                     matchV1 = True
                 i = i + 1
 
@@ -652,11 +681,14 @@ def findMergedVert(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, ol
 
 def checkEdgePairForSeam(i, seamEdgesDict, vertexDict, mergedVert, vert, facesList):
     if (i != 0):
-        makeSeamEdgeDict(0, seamEdgesDict, vertexDict, mergedVert, vert, facesList)
+        makeSeamEdgeDict(0, seamEdgesDict, vertexDict,
+                         mergedVert, vert, facesList)
     if (i != 1):
-        makeSeamEdgeDict(1, seamEdgesDict, vertexDict, mergedVert, vert, facesList)
+        makeSeamEdgeDict(1, seamEdgesDict, vertexDict,
+                         mergedVert, vert, facesList)
     if (i != 2):
-        makeSeamEdgeDict(2, seamEdgesDict, vertexDict, mergedVert, vert, facesList)
+        makeSeamEdgeDict(2, seamEdgesDict, vertexDict,
+                         mergedVert, vert, facesList)
 
 
 def makeSeamEdgeDict(i, seamEdgesDict, vertexDict, mergedVert, vert, facesList):
