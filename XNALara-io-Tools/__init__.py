@@ -1,14 +1,14 @@
 from . import xps_tools
-from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdater import \
-    Alx_Addon_Updater
-from .modules.ALXModuleManager.ALXModuleManager.ALX_ModuleManager import \
-    Alx_Module_Manager
+from .modules.ALXAddonUpdater.ALXAddonUpdater.ALX_AddonUpdater import Alx_Addon_Updater
+from .modules.ALXModuleManager.ALXModuleManager.ALX_ModuleManager import (
+    Alx_Module_Manager,
+)
 
 bl_info = {
     "name": "XNALara-io-Tools",
     "author": "Valerie Bosco[Valy Arhal], johnzero7[Original Developer]",
     "description": "Import-Export for XNALara/XPS files",
-    "version": (1, 3, 0),
+    "version": (1, 3, 1),
     "blender": (3, 6, 0),
     "category": "Import-Export",
     "location": "File > Import-Export > XNALara/XPS",
@@ -16,18 +16,14 @@ bl_info = {
     "tracker_url": "https://github.com/Valerie-Bosco/XNALara-io-Tools/issues",
 }
 
-module_manager = Alx_Module_Manager(
-    path=__path__,
-    globals=globals(),
-    mute=True
-)
+module_manager = Alx_Module_Manager(path=__path__, globals=globals(), mute=True)
 addon_updater = Alx_Addon_Updater(
     path=__path__,
     bl_info=bl_info,
     engine="Github",
     engine_user_name="Valerie-Bosco",
     engine_repo_name="XNALara-io-Tools",
-    manual_download_website="https://github.com/Valerie-Bosco/XNALara-io-Tools/releases/tag/main_branch_latest"
+    manual_download_website="https://github.com/Valerie-Bosco/XNALara-io-Tools/releases/tag/main_branch_latest",
 )
 
 
