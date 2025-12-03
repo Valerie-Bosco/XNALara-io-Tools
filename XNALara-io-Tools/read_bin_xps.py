@@ -4,7 +4,6 @@ import ntpath
 from . import bin_ops
 from . import read_ascii_xps
 from . import xps_const
-from . import xps_types
 
 
 def flagName(flag):
@@ -49,24 +48,30 @@ def flagValue(flag, value):
     # 04: Y space
     # 05: Z space
     elif flag in (3, 4, 5):
-        return (value % 2)
+        return value % 2
     else:
         return value
 
 
 def intToCoords(flag):
     flagValue = {
-        0: '+',
-        1: '-',
+        0: "+",
+        1: "-",
     }
-    return flagValue.get(flag, 'Uk')
+    return flagValue.get(flag, "Uk")
 
 
 def printNormalMapSwizzel(tangentSpaceRed, tangentSpaceGreen, tangentSpaceBlue):
     # Default XPS NormalMapTangentSpace == 0 1 0 == X+ Y- Z+
-    print('Tangent Space Normal Map Swizzel Coordinates:')
-    print('X{} Y{} Z{}'.format(intToCoords(tangentSpaceRed), intToCoords(tangentSpaceGreen), intToCoords(tangentSpaceBlue)))
-    print('')
+    print("Tangent Space Normal Map Swizzel Coordinates:")
+    print(
+        "X{} Y{} Z{}".format(
+            intToCoords(tangentSpaceRed),
+            intToCoords(tangentSpaceGreen),
+            intToCoords(tangentSpaceBlue),
+        )
+    )
+    print("")
 
 
 def readFilesString(file):
@@ -74,7 +79,7 @@ def readFilesString(file):
 
     lengthByte1 = bin_ops.readByte(file)
 
-    if (lengthByte1 >= xps_const.LIMIT):
+    if lengthByte1 >= xps_const.LIMIT:
         lengthByte2 = bin_ops.readByte(file)
     length = (lengthByte1 % xps_const.LIMIT) + (lengthByte2 * xps_const.LIMIT)
 
@@ -155,7 +160,7 @@ def readHeader(file):
 
     # print('*'*80)
     hasTangent = bin_ops.hasTangentVersion(version_mayor, version_minor)
-    if (hasTangent):
+    if hasTangent:
         # print('OLD Format')
         settingsStream = io.BytesIO(file.read(settingsLen * 4))
     else:
@@ -182,16 +187,16 @@ def readHeader(file):
             # print('optcount',optcount)
             # print('optInfo',optInfo)
 
-            if (optType == 0):
+            if optType == 0:
                 # print('Read None')
                 readNone(file, optcount)
                 valuesRead += optcount * 2
-            elif (optType == 1):
+            elif optType == 1:
                 # print('Read Pose')
                 xpsPoseData = readDefaultPose(file, optcount, optInfo)
                 readCount = bin_ops.roundToMultiple(optcount, xps_const.ROUND_MULTIPLE)
                 valuesRead += readCount
-            elif (optType == 2):
+            elif optType == 2:
                 # print('Read Flags')
                 flags = readFlags(file, optcount)
                 valuesRead += optcount * 2 * 4
@@ -224,8 +229,8 @@ def findHeader(file):
     number = bin_ops.readUInt32(file)
     file.seek(0)
 
-    if (number == xps_const.MAGIC_NUMBER):
-        print('Header Found')
+    if number == xps_const.MAGIC_NUMBER:
+        print("Header Found")
         header = readHeader(file)
 
     # logHeader(header)
@@ -249,15 +254,15 @@ def readFlags(file, optcount):
 
 def logHeader(xpsHeader):
     print("MAGIX:", xpsHeader.magic_number)
-    print('VER MAYOR:', xpsHeader.version_mayor)
-    print('VER MINOR:', xpsHeader.version_minor)
-    print('NAME:', xpsHeader.xna_aral)
-    print('SETTINGS LEN:', xpsHeader.settingsLen)
-    print('MACHINE:', xpsHeader.machine)
-    print('USR:', xpsHeader.user)
-    print('FILES:', xpsHeader.files)
-    print('SETTING:', xpsHeader.settings)
-    print('DEFAULT POSE:', xpsHeader.pose)
+    print("VER MAYOR:", xpsHeader.version_mayor)
+    print("VER MINOR:", xpsHeader.version_minor)
+    print("NAME:", xpsHeader.xna_aral)
+    print("SETTINGS LEN:", xpsHeader.settingsLen)
+    print("MACHINE:", xpsHeader.machine)
+    print("USR:", xpsHeader.user)
+    print("FILES:", xpsHeader.files)
+    print("SETTING:", xpsHeader.settings)
+    print("DEFAULT POSE:", xpsHeader.pose)
 
 
 def readBones(file, header):
@@ -275,60 +280,70 @@ def readBones(file, header):
     return bones
 
 
-def readMeshes(file, xpsHeader, hasBones):
+from . import xps_types
+
+
+def readMeshes(file, xps_header: xps_types.XpsHeader, b_has_bones):
     meshes = []
-    meshCount = bin_ops.readUInt32(file)
+    mesh_count = bin_ops.readUInt32(file)
 
-    hasHeader = bool(xpsHeader)
+    b_has_header = bool(xps_header)
 
-    verMayor = xpsHeader.version_mayor if hasHeader else 0
-    verMinor = xpsHeader.version_minor if hasHeader else 0
+    version_major = xps_header.version_mayor if b_has_header else 0
+    version_minor = xps_header.version_minor if b_has_header else 0
 
-    hasTangent = bin_ops.hasTangentVersion(verMayor, verMinor, hasHeader)
-    hasVariableWeights = bin_ops.hasVariableWeights(verMayor, verMinor, hasHeader)
+    b_has_tangent = bin_ops.hasTangentVersion(
+        version_major, version_minor, b_has_header
+    )
+    b_has_variable_weights = bin_ops.hasVariableWeights(
+        version_major, version_minor, b_has_header
+    )
 
-    for meshId in range(meshCount):
+    print("-" * 10 + "Reading Meshes" + "-" * 10)
+
+    for mesh_id in range(mesh_count):
         # Name
-        meshName = readFilesString(file)
-        if not meshName:
-            meshName = 'unnamed'
-        # print('Mesh Name:', meshName)
+        mesh_name = readFilesString(file)
+        if not mesh_name:
+            mesh_name = "unnamed"
+        print(f"Reading Mesh {mesh_name}.")
+
         # uv Count
-        uvLayerCount = bin_ops.readUInt32(file)
+        uv_layer_count = bin_ops.readUInt32(file)
         # Textures
         textures = []
-        textureCount = bin_ops.readUInt32(file)
-        for texId in range(textureCount):
-            textureFile = ntpath.basename(readFilesString(file))
+        texture_count = bin_ops.readUInt32(file)
+        for texId in range(texture_count):
+            texture_file = ntpath.basename(readFilesString(file))
             # print('Texture file', textureFile)
-            uvLayerId = bin_ops.readUInt32(file)
+            uv_layer_id = bin_ops.readUInt32(file)
 
-            xpsTexture = xps_types.XpsTexture(texId, textureFile, uvLayerId)
-            textures.append(xpsTexture)
+            xps_texture = xps_types.XpsTexture(texId, texture_file, uv_layer_id)
+            textures.append(xps_texture)
 
         # Vertices
         vertex = []
-        vertexCount = bin_ops.readUInt32(file)
+        vertex_count = bin_ops.readUInt32(file)
 
-        for vertexId in range(vertexCount):
+        for vertexId in range(vertex_count):
             coord = readXYZ(file)
             normal = readXYZ(file)
             vertexColor = readVertexColor(file)
 
             uvs = []
-            for uvLayerId in range(uvLayerCount):
+            for uv_layer_id in range(uv_layer_count):
                 uvVert = readUvVert(file)
                 uvs.append(uvVert)
-                if hasTangent:
+                if b_has_tangent:
                     tangent = read4Float(file)
 
             boneWeights = []
-            if hasBones:
+            if b_has_bones:
                 # if cero bones dont have weights to read
 
                 boneIdx = []
                 boneWeight = []
-                if hasVariableWeights:
+                if b_has_variable_weights:
                     weightsCount = bin_ops.readInt16(file)
                 else:
                     weightsCount = 4
@@ -340,9 +355,11 @@ def readMeshes(file, xpsHeader, hasBones):
 
                 for idx in range(len(boneIdx)):
                     boneWeights.append(
-                        xps_types.BoneWeight(boneIdx[idx], boneWeight[idx]))
+                        xps_types.BoneWeight(boneIdx[idx], boneWeight[idx])
+                    )
             xpsVertex = xps_types.XpsVertex(
-                vertexId, coord, normal, vertexColor, uvs, boneWeights)
+                vertexId, coord, normal, vertexColor, uvs, boneWeights
+            )
             vertex.append(xpsVertex)
 
         # Faces
@@ -351,9 +368,12 @@ def readMeshes(file, xpsHeader, hasBones):
         for i in range(triCount):
             triIdxs = readTriIdxs(file)
             faces.append(triIdxs)
-        xpsMesh = xps_types.XpsMesh(
-            meshName, textures, vertex, faces, uvLayerCount)
+        xpsMesh = xps_types.XpsMesh(mesh_name, textures, vertex, faces, uv_layer_count)
         meshes.append(xpsMesh)
+
+    print(
+        f"{'-' * 10} Reading Meshes Complete {'-' * 10}\n{'-' * 10} Found {len(meshes)} Meshes {'-' * 10}\n\n"
+    )
     return meshes
 
 
@@ -364,32 +384,31 @@ def readIoStream(filename):
 
 
 def readXpsModel(filename):
-    print('File:', filename)
+    print("File:", filename)
 
     ioStream = readIoStream(filename)
-    print('Reading Header')
+    print("Reading Header")
     xpsHeader = findHeader(ioStream)
-    print('Reading Bones')
+    print("Reading Bones")
     bones = readBones(ioStream, xpsHeader)
     hasBones = bool(bones)
-    print('Read', len(bones), 'Bones')
-    print('Reading Meshes')
-    meshes = readMeshes(ioStream, xpsHeader, hasBones)
-    print('Read', len(meshes), 'Meshes')
+    print("Read", len(bones), "Bones")
+    print("Reading Meshes")
 
-    xpsData = xps_types.XpsData(xpsHeader, bones, meshes)
-    return xpsData
+    meshes = readMeshes(ioStream, xpsHeader, hasBones)
+
+    xps_data = xps_types.XpsData(xpsHeader, bones, meshes)
+    return xps_data
 
 
 def readDefaultPose(file, poseLenghtUnround, poseBones):
     # print('Import Pose')
-    poseBytes = b''
+    poseBytes = b""
     if poseLenghtUnround:
         for i in range(0, poseBones):
             poseBytes += file.readline()
 
-    poseLenght = bin_ops.roundToMultiple(
-        poseLenghtUnround, xps_const.ROUND_MULTIPLE)
+    poseLenght = bin_ops.roundToMultiple(poseLenghtUnround, xps_const.ROUND_MULTIPLE)
     emptyBytes = poseLenght - poseLenghtUnround
     file.read(emptyBytes)
     poseString = bin_ops.decodeBytes(poseBytes)
@@ -398,8 +417,8 @@ def readDefaultPose(file, poseLenghtUnround, poseBones):
 
 
 if __name__ == "__main__":
-    readfilename = r'G:\3DModeling\XNALara\XNALara_XPS\Young Samus\Generic_Item.mesh'
+    readfilename = r"G:\3DModeling\XNALara\XNALara_XPS\Young Samus\Generic_Item.mesh"
 
-    print('----READ START----')
+    print("----READ START----")
     xpsData = readXpsModel(readfilename)
-    print('----READ END----')
+    print("----READ END----")

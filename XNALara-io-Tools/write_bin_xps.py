@@ -14,14 +14,14 @@ def writeFilesString(string):
     length = len(stringBin)
     divQuot, divRem = divmod(length, xps_const.LIMIT)
 
-    if (length >= xps_const.LIMIT):
+    if length >= xps_const.LIMIT:
         length1 += xps_const.LIMIT
 
     # First Lenght Byte
     length1 += divRem
     byteString.append(length1)
 
-    if (divQuot):
+    if divQuot:
         # Second Lenght Byte
         length2 = divQuot
         byteString.append(length2)
@@ -101,15 +101,15 @@ def writeTriIdxs(co):
 
 def logHeader(xpsHeader):
     print("MAGIX:", xpsHeader.magic_number)
-    print('VER MAYOR:', xpsHeader.version_mayor)
-    print('VER MINOR:', xpsHeader.version_minor)
-    print('NAME:', xpsHeader.xna_aral)
-    print('SETTINGS LEN:', xpsHeader.settingsLen)
-    print('MACHINE:', xpsHeader.machine)
-    print('USR:', xpsHeader.user)
-    print('FILES:', xpsHeader.files)
-    print('SETTING:', xpsHeader.settings)
-    print('DEFAULT POSE:', xpsHeader.pose)
+    print("VER MAYOR:", xpsHeader.version_mayor)
+    print("VER MINOR:", xpsHeader.version_minor)
+    print("NAME:", xpsHeader.xna_aral)
+    print("SETTINGS LEN:", xpsHeader.settingsLen)
+    print("MACHINE:", xpsHeader.machine)
+    print("USR:", xpsHeader.user)
+    print("FILES:", xpsHeader.files)
+    print("SETTING:", xpsHeader.settings)
+    print("DEFAULT POSE:", xpsHeader.pose)
 
 
 def writeHeader(xpsSettings, header):
@@ -156,7 +156,7 @@ def writeBones(xpsSettings, bones):
 def writeMeshes(xpsSettings, meshes):
     meshCount = len(meshes)
     meshesArray = bytearray(bin_ops.writeUInt32(meshCount))
-    sortedMeshes = sorted(meshes, key=operator.attrgetter('name'))
+    sortedMeshes = sorted(meshes, key=operator.attrgetter("name"))
 
     verMayor = xpsSettings.versionMayor
     verMinor = xpsSettings.versionMinor
@@ -190,15 +190,17 @@ def writeMeshes(xpsSettings, meshes):
 
             # Sort first the biggest weights
             boneWeights = sorted(
-                vertex.boneWeights,
-                key=lambda bw: bw.weight,
-                reverse=True)
+                vertex.boneWeights, key=lambda bw: bw.weight, reverse=True
+            )
 
             if hasVariableWeights:
                 weightCount = len(boneWeights)
                 meshesArray.extend(bin_ops.writeUInt16(weightCount))
                 [meshesArray.extend(bin_ops.writeUInt16(bw.id)) for bw in boneWeights]
-                [meshesArray.extend(bin_ops.writeSingle(bw.weight)) for bw in boneWeights]
+                [
+                    meshesArray.extend(bin_ops.writeSingle(bw.weight))
+                    for bw in boneWeights
+                ]
             else:
                 meshesArray.extend(write4UInt16([bw.id for bw in boneWeights]))
                 meshesArray.extend(write4Float([bw.weight for bw in boneWeights]))
@@ -218,11 +220,11 @@ def writeIoStream(filename, ioStream):
 
 def writeXpsModel(xpsSettings, filename, xpsData):
     ioStream = io.BytesIO()
-    print('Writing Header')
+    print("Writing Header")
     ioStream.write(writeHeader(xpsSettings, xpsData.header))
-    print('Writing Bones')
+    print("Writing Bones")
     ioStream.write(writeBones(xpsSettings, xpsData.bones))
-    print('Writing Meshes')
+    print("Writing Meshes")
     ioStream.write(writeMeshes(xpsSettings, xpsData.meshes))
     ioStream.seek(0)
 
@@ -230,8 +232,8 @@ def writeXpsModel(xpsSettings, filename, xpsData):
 
 
 if __name__ == "__main__":
-    readfilename1 = r'G:\3DModeling\XNALara\XNALara_XPS\data\TESTING5\Drake\RECB DRAKE Pack_By DamianHandy\DRAKE Sneaking Suitxxz\Generic_Item - XPS pose.mesh'
-    writefilename1 = r'G:\3DModeling\XNALara\XNALara_XPS\data\TESTING5\Drake\RECB DRAKE Pack_By DamianHandy\DRAKE Sneaking Suitxxz\Generic_Item - BLENDER pose.mesh'
+    readfilename1 = r"G:\3DModeling\XNALara\XNALara_XPS\data\TESTING5\Drake\RECB DRAKE Pack_By DamianHandy\DRAKE Sneaking Suitxxz\Generic_Item - XPS pose.mesh"
+    writefilename1 = r"G:\3DModeling\XNALara\XNALara_XPS\data\TESTING5\Drake\RECB DRAKE Pack_By DamianHandy\DRAKE Sneaking Suitxxz\Generic_Item - BLENDER pose.mesh"
 
     # Simulate XPS Data
     # from . import mock_xps_data
@@ -240,6 +242,6 @@ if __name__ == "__main__":
     # import XPS File
     xpsData = read_bin_xps.readXpsModel(readfilename1)
 
-    print('----WRITE START----')
+    print("----WRITE START----")
     writeXpsModel(writefilename1, xpsData)
-    print('----WRITE END----')
+    print("----WRITE END----")

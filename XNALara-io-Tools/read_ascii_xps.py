@@ -9,8 +9,8 @@ from . import ascii_ops, xps_const, xps_types
 def readUvVert(file):
     line = ascii_ops.readline(file)
     values = ascii_ops.splitValues(line)
-    x = (ascii_ops.getFloat(values[0]))  # X pos
-    y = (ascii_ops.getFloat(values[1]))  # Y pos
+    x = ascii_ops.getFloat(values[0])  # X pos
+    y = ascii_ops.getFloat(values[1])  # Y pos
     coords = [x, y]
     return coords
 
@@ -19,9 +19,9 @@ def readXYZ(file):
     line = ascii_ops.readline(file)
     values = ascii_ops.splitValues(line)
 
-    x = (ascii_ops.getFloat(values[0]))  # X pos
-    y = (ascii_ops.getFloat(values[1]))  # Y pos
-    z = (ascii_ops.getFloat(values[2]))  # Z pos
+    x = ascii_ops.getFloat(values[0])  # X pos
+    y = ascii_ops.getFloat(values[1])  # Y pos
+    z = ascii_ops.getFloat(values[2])  # Z pos
     coords = [x, y, z]
     return coords
 
@@ -36,10 +36,10 @@ def read4Float(file):
     line = ascii_ops.readline(file)
     values = ascii_ops.splitValues(line)
     values = fillArray(values, 4, 0)
-    x = (ascii_ops.getFloat(values[0]))
-    y = (ascii_ops.getFloat(values[1]))
-    z = (ascii_ops.getFloat(values[2]))
-    w = (ascii_ops.getFloat(values[3]))
+    x = ascii_ops.getFloat(values[0])
+    y = ascii_ops.getFloat(values[1])
+    z = ascii_ops.getFloat(values[2])
+    w = ascii_ops.getFloat(values[3])
     coords = [x, y, z, w]
     return coords
 
@@ -104,7 +104,7 @@ def readMeshes(file, hasBones):
         # Name
         meshName = ascii_ops.readString(file)
         if not meshName:
-            meshName = 'xxx'
+            meshName = "xxx"
         # print('Mesh Name:', meshName)
         # uv Count
         uvLayerCount = ascii_ops.readInt(file)
@@ -143,9 +143,11 @@ def readMeshes(file, hasBones):
 
                 for idx in range(len(boneIdx)):
                     boneWeights.append(
-                        xps_types.BoneWeight(boneIdx[idx], boneWeight[idx]))
+                        xps_types.BoneWeight(boneIdx[idx], boneWeight[idx])
+                    )
             xpsVertex = xps_types.XpsVertex(
-                vertexId, coord, normal, vertexColor, uvs, boneWeights)
+                vertexId, coord, normal, vertexColor, uvs, boneWeights
+            )
             vertex.append(xpsVertex)
 
         # Faces
@@ -154,8 +156,7 @@ def readMeshes(file, hasBones):
         for i in range(triCount):
             triIdxs = readTriIdxs(file)
             faces.append(triIdxs)
-        xpsMesh = xps_types.XpsMesh(
-            meshName, textures, vertex, faces, uvLayerCount)
+        xpsMesh = xps_types.XpsMesh(meshName, textures, vertex, faces, uvLayerCount)
         meshes.append(xpsMesh)
     return meshes
 
@@ -166,28 +167,36 @@ def readPoseFile(file):
 
 def poseData(string):
     poseData = {}
-    poseList = string.split('\n')
+    poseList = string.split("\n")
     for bonePose in poseList:
         if bonePose:
-            pose = bonePose.split(':')
+            pose = bonePose.split(":")
 
             boneName = pose[0]
             dataList = fillArray(pose[1].split(), 9, 1)
-            rotDelta = Vector((
-                ascii_ops.getFloat(dataList[0]),
-                ascii_ops.getFloat(dataList[1]),
-                ascii_ops.getFloat(dataList[2])))
-            coordDelta = Vector((
-                ascii_ops.getFloat(dataList[3]),
-                ascii_ops.getFloat(dataList[4]),
-                ascii_ops.getFloat(dataList[5])))
-            scale = Vector((
-                ascii_ops.getFloat(dataList[6]),
-                ascii_ops.getFloat(dataList[7]),
-                ascii_ops.getFloat(dataList[8])))
+            rotDelta = Vector(
+                (
+                    ascii_ops.getFloat(dataList[0]),
+                    ascii_ops.getFloat(dataList[1]),
+                    ascii_ops.getFloat(dataList[2]),
+                )
+            )
+            coordDelta = Vector(
+                (
+                    ascii_ops.getFloat(dataList[3]),
+                    ascii_ops.getFloat(dataList[4]),
+                    ascii_ops.getFloat(dataList[5]),
+                )
+            )
+            scale = Vector(
+                (
+                    ascii_ops.getFloat(dataList[6]),
+                    ascii_ops.getFloat(dataList[7]),
+                    ascii_ops.getFloat(dataList[8]),
+                )
+            )
 
-            bonePose = xps_types.XpsBonePose(
-                boneName, coordDelta, rotDelta, scale)
+            bonePose = xps_types.XpsBonePose(boneName, coordDelta, rotDelta, scale)
             poseData[boneName] = bonePose
     return poseData
 
@@ -195,10 +204,10 @@ def poseData(string):
 def boneDictData(string):
     boneDictRename = {}
     boneDictRestore = {}
-    poseList = string.split('\n')
+    poseList = string.split("\n")
     for bonePose in poseList:
         if bonePose:
-            pose = bonePose.split(';')
+            pose = bonePose.split(";")
             if len(pose) == 2:
                 oldName, newName = pose
                 boneDictRename[oldName] = newName
@@ -216,10 +225,10 @@ def readXpsModel(filename):
     ioStream = readIoStream(filename)
     # print('Reading Header')
     # xpsHeader = readHeader(ioStream)
-    print('Reading Bones')
+    print("Reading Bones")
     bones = readBones(ioStream)
     hasBones = bool(bones)
-    print('Reading Meshes')
+    print("Reading Meshes")
     meshes = readMeshes(ioStream, hasBones)
     xpsModelData = xps_types.XpsData(bones=bones, meshes=meshes)
     return xpsModelData
@@ -241,10 +250,10 @@ def readBoneDict(filename):
 
 
 if __name__ == "__main__":
-    readModelfilename = r'G:\3DModeling\XNALara\XNALara_XPS\data\TESTING2\Tekken\Tekken - Lili Bride\generic_item.mesh.ascii'
-    readPosefilename = r'G:\3DModeling\XNALara\XNALara_XPS\data\TESTING2\Tekken\Tekken - Lili Bride\Lili 1.pose'
+    readModelfilename = r"G:\3DModeling\XNALara\XNALara_XPS\data\TESTING2\Tekken\Tekken - Lili Bride\generic_item.mesh.ascii"
+    readPosefilename = r"G:\3DModeling\XNALara\XNALara_XPS\data\TESTING2\Tekken\Tekken - Lili Bride\Lili 1.pose"
 
-    print('----READ START----')
+    print("----READ START----")
     xpsData = readXpsModel(readModelfilename)
     xpsData = readXpsPose(readPosefilename)
-    print('----READ END----')
+    print("----READ END----")
