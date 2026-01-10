@@ -4,3 +4,6 @@
 [submodule "XNALara-io-Tools/modules/ALXAddonUpdater"]
 	path = XNALara-io-Tools/modules/ALXAddonUpdater
 	url = https://github.com/Valerie-Bosco/ALXAddonUpdater.git
+[submodule "XNALara-io-Tools/modules/ALXCompatibilityLayer"]
+	path = XNALara-io-Tools/modules/ALXCompatibilityLayer
+	url = https://github.com/Valerie-Bosco/ALXCompatibilityLayer.git
