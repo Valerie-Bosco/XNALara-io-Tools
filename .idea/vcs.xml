@@ -3,6 +3,7 @@
   <component name="VcsDirectoryMappings">
     <mapping directory="" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/XNALara-io-Tools/modules/ALXAddonUpdater" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/XNALara-io-Tools/modules/ALXCompatibilityLayer" vcs="Git" />
     <mapping directory="$PROJECT_DIR$/XNALara-io-Tools/modules/ALXModuleManager" vcs="Git" />
   </component>
 </project>
