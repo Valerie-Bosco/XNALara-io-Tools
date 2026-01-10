@@ -471,7 +471,6 @@ def mix_normal_group():
     if BLENDER_VERSION >= 50:
         combineFinalNode.mode = "RGB"
 
-    # TODO accidental node group wipes
     # Input/Output
     group_inputs = node_group.nodes.new(NODE_GROUP_INPUT)
     group_inputs.location = mainNormalSeparateNode.location + Vector((-200, -100))
