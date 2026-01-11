@@ -116,10 +116,10 @@ def makeShaderMixNode(node_tree):
 
 
 def randomColor():
-    randomR = random.random()
-    randomG = random.random()
-    randomB = random.random()
-    return (randomR, randomG, randomB)
+    random_r = random.random()
+    random_g = random.random()
+    random_b = random.random()
+    return (random_r, random_g, random_b)
 
 
 # TODO missing version check
@@ -142,8 +142,8 @@ def getNodeGroup(node_tree, group):
 # TODO make platform independent
 
 
-def makeImageFilepath(rootDir, textureFilename):
-    return os.path.join(rootDir, textureFilename)
+def makeImageFilepath(root_dir, texture_filename):
+    return os.path.join(root_dir, texture_filename)
 
 
 # TODO make platform independent
@@ -209,20 +209,20 @@ def makeNodesMaterial(
     bUseAlpha = renderGroup.rgAlpha
 
     # Nodes
-    ouputNode = makeMaterialOutputNode(node_tree)
-    xpsShadeNode = getNodeGroup(node_tree, XPS_SHADER_NODE)
-    ouputNode.location = xpsShadeNode.location + Vector((700, 400))
-    coordNode = node_tree.nodes.new(COORD_NODE)
-    coordNode.location = xpsShadeNode.location + Vector((-2500, 400))
+    output_node = makeMaterialOutputNode(node_tree)
+    xps_shade_node = getNodeGroup(node_tree, XPS_SHADER_NODE)
+    output_node.location = xps_shade_node.location + Vector((700, 400))
+    coord_node = node_tree.nodes.new(COORD_NODE)
+    coord_node.location = xps_shade_node.location + Vector((-2500, 400))
 
-    if bUseAlpha == True:
+    if bUseAlpha:
 
         if BLENDER_VERSION <= 41:
             material.blend_method = "HASHED"
         else:
             material.surface_render_method = "DITHERED"
 
-    node_tree.links.new(xpsShadeNode.outputs["Shader"], ouputNode.inputs["Surface"])
+    node_tree.links.new(xps_shade_node.outputs["Shader"], output_node.inputs["Surface"])
 
     bump1Image = None
     bump2Image = None
@@ -251,11 +251,11 @@ def makeNodesMaterial(
         node_tree.links.new(
             mappingCoordNode.outputs["Vector"], imageNode.inputs["Vector"]
         )
-        imageNode.location = xpsShadeNode.location + Vector(
+        imageNode.location = xps_shade_node.location + Vector(
             (imagesPosX, imagesPosY * 0)
         )
         mappingCoordNode.location = imageNode.location + Vector((-400, 0))
-        node_tree.links.new(coordNode.outputs["UV"], mappingCoordNode.inputs["Vector"])
+        node_tree.links.new(coord_node.outputs["UV"], mappingCoordNode.inputs["Vector"])
 
         if texIndex >= len(renderGroup.rgTexType):
             continue
@@ -264,33 +264,33 @@ def makeNodesMaterial(
         if texType == xps_material.TextureType.DIFFUSE:
             imageNode.label = "Diffuse"
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Diffuse"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Diffuse"]
             )
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * 1)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
             diffuseImgNode = imageNode
             if bUseAlpha == True:
                 node_tree.links.new(
-                    imageNode.outputs["Alpha"], xpsShadeNode.inputs["Alpha"]
+                    imageNode.outputs["Alpha"], xps_shade_node.inputs["Alpha"]
                 )
         elif texType == xps_material.TextureType.LIGHT:
             imageNode.label = "Light Map"
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * 0)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Lightmap"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Lightmap"]
             )
         elif texType == xps_material.TextureType.BUMP:
             imageNode.label = "Bump Map"
             imageNode.image.colorspace_settings.is_data = True
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Bump Map"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Bump Map"]
             )
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * -2)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
@@ -298,9 +298,9 @@ def makeNodesMaterial(
             imageNode.label = "Specular"
             imageNode.image.colorspace_settings.is_data = True
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Specular"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Specular"]
             )
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * -1)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
@@ -310,28 +310,28 @@ def makeNodesMaterial(
             environmentNode.image = imageNode.image
             node_tree.nodes.remove(imageNode)
             imageNode = environmentNode
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * 2)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
             node_tree.links.new(
-                coordNode.outputs["Reflection"], mappingCoordNode.inputs["Vector"]
+                coord_node.outputs["Reflection"], mappingCoordNode.inputs["Vector"]
             )
             node_tree.links.new(
                 mappingCoordNode.outputs["Vector"], environmentNode.inputs["Vector"]
             )
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Environment"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Environment"]
             )
         elif texType == xps_material.TextureType.MASK:
             imageNode.label = "Bump Mask"
             imageNode.image.colorspace_settings.is_data = True
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * -3)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Bump Mask"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Bump Mask"]
             )
         elif texType == xps_material.TextureType.BUMP1:
             imageNode.label = "Micro Bump 1"
@@ -343,15 +343,15 @@ def makeNodesMaterial(
                 texRepeater = renderType.texRepeater1
             setNodeScale(mappingCoordNode, texRepeater)
             node_tree.links.new(
-                coordNode.outputs["UV"], mappingCoordNode.inputs["Vector"]
+                coord_node.outputs["UV"], mappingCoordNode.inputs["Vector"]
             )
             node_tree.links.new(
                 mappingCoordNode.outputs["Vector"], imageNode.inputs["Vector"]
             )
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["MicroBump 1"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["MicroBump 1"]
             )
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * -4)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
@@ -361,38 +361,38 @@ def makeNodesMaterial(
             texRepeater = renderType.texRepeater2
             setNodeScale(mappingCoordNode, texRepeater)
             node_tree.links.new(
-                coordNode.outputs["UV"], mappingCoordNode.inputs["Vector"]
+                coord_node.outputs["UV"], mappingCoordNode.inputs["Vector"]
             )
             node_tree.links.new(
                 mappingCoordNode.outputs["Vector"], imageNode.inputs["Vector"]
             )
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["MicroBump 2"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["MicroBump 2"]
             )
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * -5)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
         elif texType == xps_material.TextureType.EMISSION:
             imageNode.label = "Emission Map"
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * 2)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
             if renderGroup.renderGroupNum in (36, 37):
                 setNodeScale(mappingCoordNode, param1)
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Emission"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Emission"]
             )
         elif texType == xps_material.TextureType.EMISSION_MINI:
             imageNode.label = "Mini Emission"
-            imageNode.location = xpsShadeNode.location + Vector(
+            imageNode.location = xps_shade_node.location + Vector(
                 (imagesPosX, imagesPosY * -6)
             )
             mappingCoordNode.location = imageNode.location + Vector((-400, 0))
             setNodeScale(mappingCoordNode, param1)
             node_tree.links.new(
-                imageNode.outputs["Color"], xpsShadeNode.inputs["Emission"]
+                imageNode.outputs["Color"], xps_shade_node.inputs["Emission"]
             )
 
 
@@ -489,8 +489,8 @@ def mix_normal_group():
     detail_normal_socket.default_value = NORMAL_COLOR
 
     # Output Sockets
-    output_value = node_group.interface.new_socket(
-        "Color", in_out="OUTPUT", socket_type="NodeSocketColor"
+    output_value = Material.NG_new_output(
+        node_group, "Color", socket_type="NodeSocketColor"
     )
 
     # Links Input
@@ -586,8 +586,8 @@ def invert_channel_group():
     invert_b.min_value = 0
     invert_b.max_value = 1
 
-    output_value = node_group.interface.new_socket(
-        "Color", in_out="OUTPUT", socket_type="NodeSocketColor"
+    output_value = Material.NG_new_output(
+        node_group, "Color", socket_type="NodeSocketColor"
     )
 
     # Links Input
@@ -733,9 +733,7 @@ def xps_shader_group():
     output_alpha.default_value = 1
 
     # Group outputs
-    shader.interface.new_socket(
-        "Shader", in_out="OUTPUT", socket_type="NodeSocketShader"
-    )
+    Material.NG_new_output(shader, "Shader", socket_type="NodeSocketShader")
 
     principled = shader.nodes.new(PRINCIPLED_SHADER_NODE)
 

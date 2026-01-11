@@ -1,4 +1,3 @@
-from .XPS_Constants import BLENDER_VERSION
 import os
 import re
 from math import radians
@@ -7,24 +6,25 @@ import bpy
 from mathutils import Euler, Matrix, Vector
 
 from . import read_ascii_xps
+from .XPS_Constants import BLENDER_VERSION
 from .timing import timing
 
-PLACE_HOLDER = r'*side*'
-RIGHT_BLENDER_SUFFIX = r'.R'
-LEFT_BLENDER_SUFFIX = r'.L'
-RIGHT_XPS_SUFFIX = r'right'
-LEFT_XPS_SUFFIX = r'left'
+PLACE_HOLDER = r"*side*"
+RIGHT_BLENDER_SUFFIX = r".R"
+LEFT_BLENDER_SUFFIX = r".L"
+RIGHT_XPS_SUFFIX = r"right"
+LEFT_XPS_SUFFIX = r"left"
 
 
 def changeBoneNameToBlender(boneName, xpsSuffix, blenderSuffix):
-    ''' '''
+    """ """
     # replace suffix with place holder
     newName = re.sub(xpsSuffix, PLACE_HOLDER, boneName, flags=re.I)
     # remove doble spaces
-    newName = re.sub(r'\s+', ' ', newName, flags=re.I)
+    newName = re.sub(r"\s+", " ", newName, flags=re.I)
     newName = str.strip(newName)
     if boneName != newName:
-        newName = '{0}{1}'.format(newName, blenderSuffix)
+        newName = "{0}{1}".format(newName, blenderSuffix)
 
     return newName.strip()
 
@@ -34,11 +34,13 @@ def renameBoneToBlender(oldName):
     if PLACE_HOLDER not in oldName.lower():
         if re.search(LEFT_XPS_SUFFIX, oldName, flags=re.I):
             newName = changeBoneNameToBlender(
-                oldName, LEFT_XPS_SUFFIX, LEFT_BLENDER_SUFFIX)
+                oldName, LEFT_XPS_SUFFIX, LEFT_BLENDER_SUFFIX
+            )
 
         if re.search(RIGHT_XPS_SUFFIX, oldName, flags=re.I):
             newName = changeBoneNameToBlender(
-                oldName, RIGHT_XPS_SUFFIX, RIGHT_BLENDER_SUFFIX)
+                oldName, RIGHT_XPS_SUFFIX, RIGHT_BLENDER_SUFFIX
+            )
 
     return newName
 
@@ -52,10 +54,11 @@ def renameBonesToBlender(armatures_obs):
 
 def changeBoneNameToXps(oldName, blenderSuffix, xpsSuffix):
     # remove '.R' '.L' from the end of the name
-    newName = re.sub('{0}{1}'.format(
-        re.escape(blenderSuffix), '$'), '', oldName, flags=re.I)
+    newName = re.sub(
+        "{0}{1}".format(re.escape(blenderSuffix), "$"), "", oldName, flags=re.I
+    )
     # remove doble spaces
-    newName = re.sub(r'\s+', ' ', newName, flags=re.I)
+    newName = re.sub(r"\s+", " ", newName, flags=re.I)
     # replcace place holder
     newName = re.sub(re.escape(PLACE_HOLDER), xpsSuffix, newName, flags=re.I)
     return newName
@@ -65,12 +68,12 @@ def renameBoneToXps(oldName):
     newName = oldName
     if PLACE_HOLDER in oldName.lower():
         if re.search(re.escape(LEFT_BLENDER_SUFFIX), oldName, re.I):
-            newName = changeBoneNameToXps(
-                oldName, LEFT_BLENDER_SUFFIX, LEFT_XPS_SUFFIX)
+            newName = changeBoneNameToXps(oldName, LEFT_BLENDER_SUFFIX, LEFT_XPS_SUFFIX)
 
         if re.search(re.escape(RIGHT_BLENDER_SUFFIX), oldName, re.I):
             newName = changeBoneNameToXps(
-                oldName, RIGHT_BLENDER_SUFFIX, RIGHT_XPS_SUFFIX)
+                oldName, RIGHT_BLENDER_SUFFIX, RIGHT_XPS_SUFFIX
+            )
 
     return newName.strip()
 
@@ -84,12 +87,14 @@ def renameBonesToXps(armatures_obs):
 def getInputPoseSequence(filename):
     filepath, file = os.path.split(filename)
     basename, ext = os.path.splitext(file)
-    poseSuffix = re.sub(r'\d+$', '', basename)
+    poseSuffix = re.sub(r"\d+$", "", basename)
 
     files = []
-    for f in [file for file in os.listdir(filepath) if os.path.splitext(file)[1] == '.pose']:
+    for f in [
+        file for file in os.listdir(filepath) if os.path.splitext(file)[1] == ".pose"
+    ]:
         fName, fExt = os.path.splitext(f)
-        fPoseSuffix = re.sub(r'\d+$', '', fName)
+        fPoseSuffix = re.sub(r"\d+$", "", fName)
         if poseSuffix == fPoseSuffix:
             files.append(f)
 
@@ -143,7 +148,7 @@ def xpsImport(filename):
     print("Importing Pose: ", filename)
 
     rootDir, file = os.path.split(filename)
-    print('rootDir: {}'.format(rootDir))
+    print("root_dir: {}".format(rootDir))
 
     xpsData = loadXpsFile(filename)
 
@@ -152,7 +157,7 @@ def xpsImport(filename):
 
 def importPose():
     boneCount = len(xpsData)
-    print('Importing Pose', str(boneCount), 'bones')
+    print("Importing Pose", str(boneCount), "bones")
 
     armature = bpy.context.active_object
     setXpsPose(armature, xpsData)
@@ -166,30 +171,30 @@ def resetPose(armature):
 def setXpsPose(armature, xpsData):
     currentMode = bpy.context.mode
     currentObj = bpy.context.active_object
-    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+    bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
 
     context = bpy.context
     rigobj = armature
     context.view_layer.objects.active = rigobj
     rigobj.select_set(state=True)
 
-    bpy.ops.object.mode_set(mode='POSE')
-    bpy.ops.pose.select_all(action='DESELECT')
+    bpy.ops.object.mode_set(mode="POSE")
+    bpy.ops.pose.select_all(action="DESELECT")
     for boneData in xpsData.items():
         xpsBoneData = boneData[1]
         boneName = xpsBoneData.boneName
         poseBone: bpy.types.PoseBone = rigobj.pose.bones.get(boneName)
-        if (poseBone is None):
+        if poseBone is None:
             poseBone = rigobj.pose.bones.get(renameBoneToBlender(boneName))
 
-        if (poseBone is not None):
+        if poseBone is not None:
             xpsPoseBone(poseBone, xpsBoneData)
-            if (BLENDER_VERSION < 50):
+            if BLENDER_VERSION < 50:
                 poseBone.bone.select = True
             else:
                 poseBone.select = True
 
-    bpy.ops.anim.keyframe_insert(type='LocRotScale')
+    bpy.ops.anim.keyframe_insert(type="LocRotScale")
     bpy.ops.object.posemode_toggle()
     context.view_layer.objects.active = currentObj
     bpy.ops.object.mode_set(mode=currentMode)
@@ -205,7 +210,7 @@ def xpsBoneRotToEuler(rotDelta):
     xRad = radians(rotDelta.x)
     yRad = radians(rotDelta.y)
     zRad = radians(rotDelta.z)
-    return Euler((xRad, yRad, zRad), 'YXZ')
+    return Euler((xRad, yRad, zRad), "YXZ")
 
 
 def vectorTransform(vec):
@@ -236,7 +241,7 @@ def vectorTransformScale(vec):
 
 def xpsBoneRotate(poseBone, rotDelta):
     current_rottion_mode = poseBone.rotation_mode
-    poseBone.rotation_mode = 'QUATERNION'
+    poseBone.rotation_mode = "QUATERNION"
     rotation = vectorTransform(rotDelta)
     eulerRot = xpsBoneRotToEuler(rotation)
     origRot = poseBone.bone.matrix_local.to_quaternion()  # LOCAL EditBone

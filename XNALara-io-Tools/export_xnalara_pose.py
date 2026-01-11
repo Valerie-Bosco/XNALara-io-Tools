@@ -1,18 +1,19 @@
-from math import degrees
 import os
 import re
+from math import degrees
+
+import bpy
+from mathutils import Vector
 
 from . import write_ascii_xps
 from . import xps_types
 from .timing import timing
-import bpy
-from mathutils import Vector
 
 
 def getOutputPoseSequence(filename):
     filepath, file = os.path.split(filename)
     basename, ext = os.path.splitext(file)
-    poseSuffix = re.sub(r'\d+$', '', basename)
+    poseSuffix = re.sub(r"\d+$", "", basename)
 
     startFrame = bpy.context.scene.frame_start
     endFrame = bpy.context.scene.frame_end
@@ -20,7 +21,7 @@ def getOutputPoseSequence(filename):
 
     for currFrame in range(startFrame, endFrame + 1):
         bpy.context.scene.frame_set(currFrame)
-        numSuffix = '{:0>3d}'.format(currFrame)
+        numSuffix = "{:0>3d}".format(currFrame)
         name = poseSuffix + numSuffix + ext
 
         newPoseFilename = os.path.join(filepath, name)
@@ -60,7 +61,7 @@ def xpsExport(filename):
     print("Exporting Pose: ", filename)
 
     rootDir, file = os.path.split(filename)
-    print('rootDir: {}'.format(rootDir))
+    print("root_dir: {}".format(rootDir))
 
     xpsPoseData = exportPose()
 
@@ -68,10 +69,11 @@ def xpsExport(filename):
 
 
 def exportPose():
-    armature = next((obj for obj in bpy.context.selected_objects
-                     if obj.type == 'ARMATURE'), None)
+    armature = next(
+        (obj for obj in bpy.context.selected_objects if obj.type == "ARMATURE"), None
+    )
     boneCount = len(armature.data.bones)
-    print('Exporting Pose', str(boneCount), 'bones')
+    print("Exporting Pose", str(boneCount), "bones")
 
     return xpsPoseData(armature)
 
@@ -81,10 +83,10 @@ def xpsPoseData(armature):
     currentMode = bpy.context.mode
     currentObj = bpy.context.active_object
     context.view_layer.objects.active = armature
-    bpy.ops.object.mode_set(mode='OBJECT', toggle=False)
+    bpy.ops.object.mode_set(mode="OBJECT", toggle=False)
 
-    bpy.ops.object.mode_set(mode='POSE')
-    bpy.ops.pose.select_all(action='DESELECT')
+    bpy.ops.object.mode_set(mode="POSE")
+    bpy.ops.pose.select_all(action="DESELECT")
     bones = armature.pose.bones
     objectMatrix = armature.matrix_world
 
@@ -106,8 +108,7 @@ def xpsPoseBone(poseBone, objectMatrix):
     boneRotDelta = xpsBoneRotate(poseBone)
     boneCoordDelta = xpsBoneTranslate(poseBone, objectMatrix)
     boneScale = xpsBoneScale(poseBone)
-    boneData = xps_types.XpsBonePose(boneName, boneCoordDelta, boneRotDelta,
-                                     boneScale)
+    boneData = xps_types.XpsBonePose(boneName, boneCoordDelta, boneRotDelta, boneScale)
     return boneData
 
 
@@ -151,7 +152,7 @@ def xpsBoneRotate(poseBone):
     editMatLocal = poseBone.bone.matrix_local.to_quaternion()
 
     rotQuat = editMatLocal @ poseMatGlobal @ editMatLocal.inverted()
-    rotEuler = rotQuat.to_euler('YXZ')
+    rotEuler = rotQuat.to_euler("YXZ")
     xpsRot = eulerToXpsBoneRot(rotEuler)
     rot = vectorTransform(xpsRot)
     return rot
@@ -171,7 +172,9 @@ def xpsBoneScale(poseBone):
 
 
 if __name__ == "__main__":
-    writePosefilename0 = (r"G:\3DModeling\XNALara\XNALara_XPS\dataTest\Models"
-                          r"\Queen's Blade\echidna pose - copy.pose")
+    writePosefilename0 = (
+        r"G:\3DModeling\XNALara\XNALara_XPS\dataTest\Models"
+        r"\Queen's Blade\echidna pose - copy.pose"
+    )
 
     getOutputFilename(writePosefilename0)

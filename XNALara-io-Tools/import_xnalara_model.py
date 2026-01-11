@@ -132,7 +132,7 @@ def xpsImport():
     print("Importing file: ", xpsSettings.filename)
 
     rootDir, file = os.path.split(xpsSettings.filename)
-    print("rootDir: {}".format(rootDir))
+    print("root_dir: {}".format(rootDir))
 
     xpsData = loadXpsFile(xpsSettings.filename)
     if not xpsData:
