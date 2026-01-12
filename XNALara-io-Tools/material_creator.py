@@ -571,17 +571,17 @@ def invert_channel_group():
     )
     input_color.default_value = GREY_COLOR
     invert_r = Material.NG_IO_new_input(node_group, "R", socket_type="NodeSocketFloat")
-    Material.NG_IO_set_subtype(invert_r, Material.NodeGroupInput_Subtype.FACTOR)
+    Material.NG_IO_set_subtype(invert_r, Material.NodeGroupInput_Subtype.Factor)
     invert_r.default_value = 0
     invert_r.min_value = 0
     invert_r.max_value = 1
     invert_g = Material.NG_IO_new_input(node_group, "G", socket_type="NodeSocketFloat")
-    Material.NG_IO_set_subtype(invert_g, Material.NodeGroupInput_Subtype.FACTOR)
+    Material.NG_IO_set_subtype(invert_g, Material.NodeGroupInput_Subtype.Factor)
     invert_g.default_value = 0
     invert_g.min_value = 0
     invert_g.max_value = 1
     invert_b = Material.NG_IO_new_input(node_group, "B", socket_type="NodeSocketFloat")
-    Material.NG_IO_set_subtype(invert_b, Material.NodeGroupInput_Subtype.FACTOR)
+    Material.NG_IO_set_subtype(invert_b, Material.NodeGroupInput_Subtype.Factor)
     invert_b.default_value = 0
     invert_b.min_value = 0
     invert_b.max_value = 1
@@ -679,7 +679,7 @@ def normal_mask_group():
     )
     normal_detail_color.default_value = NORMAL_COLOR
 
-    output_value = Material.NG_IO_new_input(
+    output_value = Material.NG_IO_new_output(
         node_tree, "Normal", socket_type="NodeSocketColor"
     )
 
@@ -703,42 +703,42 @@ def xps_shader_group():
         return bpy.data.node_groups[XPS_SHADER_NODE]
     shader = bpy.data.node_groups.new(name=XPS_SHADER_NODE, type=SHADER_NODE_TREE)
 
-    # Group inputs
     group_input = shader.nodes.new(NODE_GROUP_INPUT)
     group_input.location += Vector((-1200, 0))
 
     group_output = shader.nodes.new(NODE_GROUP_OUTPUT)
     group_output.location += Vector((600, 0))
 
-    output_diffuse = Material.NG_IO_new_input(shader, "Diffuse", "NodeSocketColor")
+    # Group inputs
+    i_diffuse = Material.NG_IO_new_input(shader, "Diffuse", "NodeSocketColor")
+    i_diffuse.default_value = DIFFUSE_COLOR
 
-    output_diffuse.default_value = DIFFUSE_COLOR
-    output_lightmap = Material.NG_IO_new_input(shader, "Lightmap", "NodeSocketColor")
+    i_lightmap = Material.NG_IO_new_input(shader, "Lightmap", "NodeSocketColor")
+    i_lightmap.default_value = LIGHTMAP_COLOR
 
-    output_lightmap.default_value = LIGHTMAP_COLOR
-    output_specular = Material.NG_IO_new_input(shader, "Specular", "NodeSocketColor")
-    output_specular.default_value = SPECULAR_COLOR
-    output_emission = Material.NG_IO_new_input(shader, "Emission", "NodeSocketColor")
+    i_specular = Material.NG_IO_new_input(shader, "Specular", "NodeSocketColor")
+    i_specular.default_value = SPECULAR_COLOR
 
-    output_normal = Material.NG_IO_new_input(shader, "Bump Map", "NodeSocketColor")
-    output_normal.default_value = NORMAL_COLOR
-    output_bump_mask = Material.NG_IO_new_input(shader, "Bump Mask", "NodeSocketColor")
-    output_microbump1 = Material.NG_IO_new_input(
-        shader, "MicroBump 1", "NodeSocketColor"
-    )
-    output_microbump1.default_value = NORMAL_COLOR
-    output_microbump2 = Material.NG_IO_new_input(
-        shader, "MicroBump 2", "NodeSocketColor"
-    )
-    output_microbump2.default_value = NORMAL_COLOR
-    output_environment = Material.NG_IO_new_input(
-        shader, "Environment", "NodeSocketColor"
-    )
-    output_alpha = Material.NG_IO_new_input(shader, "Alpha", "NodeSocketFloat")
-    Material.NG_IO_set_subtype(output_alpha, Material.NodeGroupInput_Subtype.FACTOR)
-    output_alpha.min_value = 0
-    output_alpha.max_value = 1
-    output_alpha.default_value = 1
+    i_emission = Material.NG_IO_new_input(shader, "Emission", "NodeSocketColor")
+
+    i_normal = Material.NG_IO_new_input(shader, "Bump Map", "NodeSocketColor")
+    i_normal.default_value = NORMAL_COLOR
+
+    i_bump_mask = Material.NG_IO_new_input(shader, "Bump Mask", "NodeSocketColor")
+
+    i_microbump1 = Material.NG_IO_new_input(shader, "MicroBump 1", "NodeSocketColor")
+    i_microbump1.default_value = NORMAL_COLOR
+
+    i_microbump2 = Material.NG_IO_new_input(shader, "MicroBump 2", "NodeSocketColor")
+    i_microbump2.default_value = NORMAL_COLOR
+
+    i_environment = Material.NG_IO_new_input(shader, "Environment", "NodeSocketColor")
+
+    i_alpha = Material.NG_IO_new_input(shader, "Alpha", "NodeSocketFloat")
+    Material.NG_IO_set_subtype(i_alpha, Material.NodeGroupInput_Subtype.FACTOR)
+    i_alpha.min_value = 0
+    i_alpha.max_value = 1
+    i_alpha.default_value = 1
 
     # Group outputs
     Material.NG_IO_new_output(shader, "Shader", socket_type="NodeSocketShader")
@@ -773,7 +773,8 @@ def xps_shader_group():
     # Alpha & Emission
     shader.links.new(group_input.outputs["Alpha"], principled.inputs["Alpha"])
     shader.links.new(
-        group_input.outputs["Emission"], principled.inputs["Emission Color"]
+        group_input.outputs["Emission"],
+        principled.inputs[Material.PrincipledBSDF.Inputs.Emission],
     )
 
     # Normals

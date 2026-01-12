@@ -169,6 +169,7 @@ def xpsImport():
     # endregion
 
     # region import meshes
+    print(armature_object.type)
     mesh_objects = importMeshesList(armature_object)
 
     if xpsSettings.separate_optional_objects:
@@ -490,12 +491,12 @@ def createJoinedMeshes():
     return newMeshes
 
 
-def importMeshesList(armature_ob):
+def importMeshesList(armature_object):
     if xpsSettings.joinMeshParts:
         newMeshes = createJoinedMeshes()
     else:
         newMeshes = xpsData.meshes
-    importedMeshes = [importMesh(armature_ob, meshInfo) for meshInfo in newMeshes]
+    importedMeshes = [importMesh(armature_object, meshInfo) for meshInfo in newMeshes]
     return [mesh for mesh in importedMeshes if mesh]
 
 
