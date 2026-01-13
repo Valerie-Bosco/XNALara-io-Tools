@@ -8,11 +8,11 @@ from ..utilities.color_utilities import random_color_rgb
 xnal_model_bone_names = []
 
 
-def Xnal_CreateArmatureObject(name="Armature"):
-    armature_da = bpy.data.armatures.new(name)
-    armature_da.display_type = "STICK"
-    armature_obj = bpy.data.objects.new(name, armature_da)
-    return armature_obj
+def create_armature_object(name: str = "Armature") -> bpy.types.Object:
+    armature_data = bpy.data.armatures.new(name)
+    armature_data.display_type = "STICK"
+    armature_object = bpy.data.objects.new(name, armature_data)
+    return armature_object
 
 
 def XnaL_AddRegisterBoneName(name: str):
@@ -104,14 +104,15 @@ def XnaL_CreateBoneCollection(
     pose_bone_active_color = random_color_rgb()
 
     if BLENDER_VERSION <= 36:
-        bone_group = armature.pose.bone_groups.new(name=mesh_object.name)
+        bone_group = armature_object.pose.bone_groups.new(name=mesh_object.name)
         bone_group.color_set = "CUSTOM"
         bone_group.colors.normal = pose_bone_normal_color
         bone_group.colors.select = pose_bone_select_color
         bone_group.colors.active = pose_bone_active_color
 
         for bone_vertex_group_name in mesh_object.vertex_groups.keys():
-            pose_bone = armature.pose.bones.get(bone_vertex_group_name)
+
+            pose_bone = armature_object.pose.bones.get(bone_vertex_group_name)
 
             if pose_bone is not None:
                 pose_bone.bone_group = bone_group

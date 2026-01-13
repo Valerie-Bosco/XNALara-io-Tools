@@ -19,7 +19,7 @@ from .armature_tools.xnal_armature_utilities import (
     XnaL_AddRegisterBoneName,
     XnaL_CreateBoneCollection,
     XnaL_GetBoneNameByIndex,
-    Xnal_CreateArmatureObject,
+    create_armature_object,
 )
 from .utilities.mesh_utilities import create_split_normals
 
@@ -157,7 +157,7 @@ def xpsImport():
     xps_model_collection.children.link(xps_model_optional_objects_collection)
 
     # region import armature
-    armature_object = Xnal_CreateArmatureObject()
+    armature_object = create_armature_object()
     if armature_object is not None:
         linkToCollection(xps_model_collection, armature_object)
         XnaL_ImportModelBones(bpy.context, armature_object)

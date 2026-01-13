@@ -735,7 +735,7 @@ def xps_shader_group():
     i_environment = Material.NG_IO_new_input(shader, "Environment", "NodeSocketColor")
 
     i_alpha = Material.NG_IO_new_input(shader, "Alpha", "NodeSocketFloat")
-    Material.NG_IO_set_subtype(i_alpha, Material.NodeGroupInput_Subtype.FACTOR)
+    Material.NG_IO_set_subtype(i_alpha, Material.NodeGroupInput_Subtype.Factor)
     i_alpha.min_value = 0
     i_alpha.max_value = 1
     i_alpha.default_value = 1
