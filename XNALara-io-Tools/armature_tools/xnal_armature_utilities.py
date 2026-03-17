@@ -8,6 +8,25 @@ from ..utilities.color_utilities import random_color_rgb
 xnal_model_bone_names = []
 
 
+def SET_ArmatureBonesVisibility(
+    armature_objects: list[bpy.types.Object],
+    visibility_target=["ALL"],
+    visibility: bool = False,
+):
+    for armature_object in armature_objects:
+        XNA_SET_BoneVisibility(
+            armature_object, armature_object.data.bones, visibility_target, visibility
+        )
+
+
+def SET_ArmatureCollectionVisibility(
+    armature_objects: list[bpy.types.Object], visibility=True
+):
+    for armature_object in armature_objects:
+        for collection in armature_object.data.collections:
+            collection.is_visible = True
+
+
 def create_armature_object(name: str = "Armature") -> bpy.types.Object:
     armature_data = bpy.data.armatures.new(name)
     armature_data.display_type = "STICK"

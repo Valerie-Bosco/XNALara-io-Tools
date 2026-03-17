@@ -1,136 +1,155 @@
 import bpy
 
 from . import import_xnalara_model, import_xnalara_pose
+from .armature_tools import xnal_armature_utilities
 
 
 class ArmatureBonesHideByName_Op(bpy.types.Operator):
-    bl_idname = 'xps_tools.bones_hide_by_name'
-    bl_label = 'Hide bones by name'
+    bl_idname = "xps_tools.bones_hide_by_name"
+    bl_label = "Hide bones by name"
     bl_description = 'Move bones starting with "unused" to the armature layer 2'
-    bl_options = {'PRESET'}
+    bl_options = {"PRESET"}
 
     @classmethod
     def poll(cls, context):
         return bool(
             next(
-                (obj for obj in context.selected_objects if obj.type == 'ARMATURE'),
-                None))
+                (obj for obj in context.selected_objects if obj.type == "ARMATURE"),
+                None,
+            )
+        )
 
     def execute(self, context):
         import_xnalara_model.XNA_BoneHideUnused(self.armature_objs)
-        return {'FINISHED'}
+        return {"FINISHED"}
 
     def invoke(self, context, event):
         self.armature_objs = [
-            obj for obj in context.selected_objects if obj.type == 'ARMATURE']
+            obj for obj in context.selected_objects if obj.type == "ARMATURE"
+        ]
         return self.execute(context)
 
     def check(self, context):
-        print('CHECK')
-        return {'RUNNING_MODAL'}
+        print("CHECK")
+        return {"RUNNING_MODAL"}
 
 
 class ArmatureBonesHideByVertexGroup_Op(bpy.types.Operator):
-    bl_idname = 'xps_tools.bones_hide_by_vertex_group'
-    bl_label = 'Hide bones by weight'
-    bl_description = 'Move bones that do not alter any mesh to the armature layer 2'
-    bl_options = {'PRESET'}
+    bl_idname = "xps_tools.bones_hide_by_vertex_group"
+    bl_label = "Hide bones by weight"
+    bl_description = "Move bones that do not alter any mesh to the armature layer 2"
+    bl_options = {"PRESET"}
 
     @classmethod
     def poll(cls, context):
         return bool(
             next(
-                (obj for obj in context.selected_objects if obj.type == 'ARMATURE'),
-                None))
+                (obj for obj in context.selected_objects if obj.type == "ARMATURE"),
+                None,
+            )
+        )
 
     def execute(self, context):
         import_xnalara_model.hideBonesByVertexGroup(self.armature_objs)
-        return {'FINISHED'}
+        return {"FINISHED"}
 
     def invoke(self, context, event):
         self.armature_objs = [
-            obj for obj in context.selected_objects if obj.type == 'ARMATURE']
+            obj for obj in context.selected_objects if obj.type == "ARMATURE"
+        ]
         return self.execute(context)
 
     def check(self, context):
-        print('CHECK')
-        return {'RUNNING_MODAL'}
+        print("CHECK")
+        return {"RUNNING_MODAL"}
 
 
 class ArmatureBonesShowAll_Op(bpy.types.Operator):
-    bl_idname = 'xps_tools.bones_show_all'
-    bl_label = 'Show all Bones'
-    bl_description = 'Move all bones to the armature layer 1'
-    bl_options = {'PRESET'}
+    bl_idname = "xps_tools.bones_show_all"
+    bl_label = "Show all Bones"
+    bl_description = "Move all bones to the armature layer 1"
+    bl_options = {"PRESET"}
 
     @classmethod
     def poll(cls, context):
         return bool(
             next(
-                (obj for obj in context.selected_objects if obj.type == 'ARMATURE'),
-                None))
+                (obj for obj in context.selected_objects if obj.type == "ARMATURE"),
+                None,
+            )
+        )
 
     def execute(self, context):
-        import_xnalara_model.showAllBones(self.armature_objs)
-        return {'FINISHED'}
+        xnal_armature_utilities.SET_ArmatureBonesVisibility(
+            self.armature_objs, visibility_target=["ALL"], visibility=True
+        )
+        xnal_armature_utilities.SET_ArmatureCollectionVisibility(
+            self.armature_objs, visibility=True
+        )
+        return {"FINISHED"}
 
     def invoke(self, context, event):
         self.armature_objs = [
-            obj for obj in context.selected_objects if obj.type == 'ARMATURE']
+            obj for obj in context.selected_objects if obj.type == "ARMATURE"
+        ]
         return self.execute(context)
 
     def check(self, context):
-        print('CHECK')
-        return {'RUNNING_MODAL'}
+        print("CHECK")
+        return {"RUNNING_MODAL"}
 
 
 class ArmatureBonesRenameToBlender_Op(bpy.types.Operator):
-    bl_idname = 'xps_tools.bones_rename_to_blender'
-    bl_label = 'Rename Bones'
-    bl_description = 'Rename bones to Blender bone name convention (left -> .L)'
-    bl_options = {'PRESET'}
+    bl_idname = "xps_tools.bones_rename_to_blender"
+    bl_label = "Rename Bones"
+    bl_description = "Rename bones to Blender bone name convention (left -> .L)"
+    bl_options = {"PRESET"}
 
     @classmethod
     def poll(cls, context):
         return bool(
             next(
-                (obj for obj in context.selected_objects if obj.type == 'ARMATURE'),
-                None))
+                (obj for obj in context.selected_objects if obj.type == "ARMATURE"),
+                None,
+            )
+        )
 
     def execute(self, context):
         armatures_obs = filter(
-            lambda obj: obj.type == 'ARMATURE',
-            context.selected_objects)
+            lambda obj: obj.type == "ARMATURE", context.selected_objects
+        )
         import_xnalara_pose.renameBonesToBlender(armatures_obs)
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class ArmatureBonesRenameToXps_Op(bpy.types.Operator):
-    bl_idname = 'xps_tools.bones_rename_to_xps'
-    bl_label = 'Rename Bones'
-    bl_description = 'Rename bones back to XPS (.L -> left)'
-    bl_options = {'PRESET'}
+    bl_idname = "xps_tools.bones_rename_to_xps"
+    bl_label = "Rename Bones"
+    bl_description = "Rename bones back to XPS (.L -> left)"
+    bl_options = {"PRESET"}
 
     @classmethod
     def poll(cls, context):
         return bool(
             next(
-                (obj for obj in context.selected_objects if obj.type == 'ARMATURE'),
-                None))
+                (obj for obj in context.selected_objects if obj.type == "ARMATURE"),
+                None,
+            )
+        )
 
     def execute(self, context):
         armatures_obs = filter(
-            lambda obj: obj.type == 'ARMATURE',
-            context.selected_objects)
+            lambda obj: obj.type == "ARMATURE", context.selected_objects
+        )
         import_xnalara_pose.renameBonesToXps(armatures_obs)
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class ArmatureBonesConnect_Op(bpy.types.Operator):
-    bl_idname = 'xps_tools.bones_connect'
-    bl_label = 'Set Bones Connection'
-    bl_description = 'Set Bones Connection'
-    bl_options = {'PRESET'}
+    bl_idname = "xps_tools.bones_connect"
+    bl_label = "Set Bones Connection"
+    bl_description = "Set Bones Connection"
+    bl_options = {"PRESET"}
 
     connectBones: bpy.props.BoolProperty()  # type:ignore
 
@@ -138,46 +157,57 @@ class ArmatureBonesConnect_Op(bpy.types.Operator):
     def poll(cls, context):
         return bool(
             next(
-                (obj for obj in context.selected_objects if obj.type == 'ARMATURE'),
-                None))
+                (obj for obj in context.selected_objects if obj.type == "ARMATURE"),
+                None,
+            )
+        )
 
     def execute(self, context):
         armatures_obs = filter(
-            lambda obj: obj.type == 'ARMATURE',
-            context.selected_objects)
+            lambda obj: obj.type == "ARMATURE", context.selected_objects
+        )
         activeObj = bpy.context.active_object
         for armature_ob in armatures_obs:
             bpy.context.view_layer.objects.active = armature_ob
             import_xnalara_model.setBoneConnect(self.connectBones)
         bpy.context.view_layer.objects.active = activeObj
-        return {'FINISHED'}
+        return {"FINISHED"}
 
 
 class NewRestPose_Op(bpy.types.Operator):
-    bl_idname = 'xps_tools.new_rest_pose'
-    bl_label = 'New Rest Pose'
-    bl_description = 'Set Current Pose as The New Rest Pose'
+    bl_idname = "xps_tools.new_rest_pose"
+    bl_label = "New Rest Pose"
+    bl_description = "Set Current Pose as The New Rest Pose"
     bl_options = {"PRESET"}
 
     @classmethod
     def poll(cls, context):
-        return (context.active_object and context.active_object.type == 'ARMATURE'
-                and bool(next((obj for obj in context.selected_objects if obj.type == 'MESH'), None)))
+        return (
+            context.active_object
+            and context.active_object.type == "ARMATURE"
+            and bool(
+                next(
+                    (obj for obj in context.selected_objects if obj.type == "MESH"),
+                    None,
+                )
+            )
+        )
 
     def action_common(self, context):
-        meshes_obs = filter(lambda obj: obj.type == 'MESH',
-                            context.selected_objects)
+        meshes_obs = filter(lambda obj: obj.type == "MESH", context.selected_objects)
         activeArmature = context.active_object
         for obj in meshes_obs:
-            if (obj.find_armature() == activeArmature):
+            if obj.find_armature() == activeArmature:
                 sourceModif = obj.modifiers[-1]
-                if (sourceModif and sourceModif.type == 'ARMATURE'):
-                    destModif = obj.modifiers.new(
-                        sourceModif.name, sourceModif.type)
+                if sourceModif and sourceModif.type == "ARMATURE":
+                    destModif = obj.modifiers.new(sourceModif.name, sourceModif.type)
 
                     # collect names of writable properties
-                    properties = [p.identifier for p in destModif.bl_rna.properties
-                                  if not p.is_readonly]
+                    properties = [
+                        p.identifier
+                        for p in destModif.bl_rna.properties
+                        if not p.is_readonly
+                    ]
 
                     # copy those properties
                     for prop in properties:
@@ -188,9 +218,9 @@ class NewRestPose_Op(bpy.types.Operator):
                     bpy.ops.object.modifier_apply(modifier=destModif.name)
 
         bpy.context.view_layer.objects.active = activeArmature
-        bpy.ops.object.mode_set(mode='POSE')
+        bpy.ops.object.mode_set(mode="POSE")
         bpy.ops.pose.armature_apply()
-        bpy.ops.object.mode_set(mode='OBJECT')
+        bpy.ops.object.mode_set(mode="OBJECT")
 
     def execute(self, context):
         self.action_common(context)
