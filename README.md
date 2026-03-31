@@ -1,18 +1,18 @@
 # XPS Tools 
 
 ℹ️NOTE: <br>
-**THERE IS ONLY ONE RELEASE <br>
-IT'S DATE DOES NOT REFLECT THE VERSION AND FILES ARE BEING UPDATED OVER IT TO KEEP LINK INTEGRITY OUTSIDE OF GITHUB**
+**FURTHER DEVELOPMENT DEPENDS ON REPORTS, IF YOU SEE AN ISSUE IN THE ADDON, REPORT IT**
 
 
-### Patched and improved to support 3.6 - 4.5 <br>
+
+### Patched and improved to support 3.6 - 5.0 <br>
 **[ The Original version has been fully discontinued by it's developer ]** <br>
 **[Only Blender Releases are supported, alpha/beta versions of Blender are not and will not be supported]**
 
 <br>
 
 Check out [Issues](https://github.com/Valerie-Bosco/XNALara-io-Tools/issues) and [Discussions](https://github.com/Valerie-Bosco/XNALara-io-Tools/discussions) for bug reports or feedback/feature requests <br>
-Discord Server: https://discord.gg/44fSbYrzZd
+Fluxer Server: https://fluxer.gg/VA08iWIv
 
 <br>
 
