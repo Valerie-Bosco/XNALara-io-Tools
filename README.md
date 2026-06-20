@@ -12,7 +12,7 @@
 <br>
 
 Check out [Issues](https://github.com/Valerie-Bosco/XNALara-io-Tools/issues) and [Discussions](https://github.com/Valerie-Bosco/XNALara-io-Tools/discussions) for bug reports or feedback/feature requests <br>
-Fluxer Server: https://fluxer.gg/VA08iWIv
+Discord Server: https://discord.gg/44fSbYrzZd
 
 <br>
 
