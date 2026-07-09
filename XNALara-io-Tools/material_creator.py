@@ -192,12 +192,13 @@ def makeMaterial(xpsSettings, rootDir, mesh_da, meshInfo, flags):
 
 
 def makeNodesMaterial(
-    xpsSettings, material: bpy.types.Material, rootDir, mesh_da, meshInfo, flags
+    xps_settings, material: bpy.types.Material, root_dir, mesh_da, mesh_info, flags
 ):
-    textureFilepaths = meshInfo.textures
+    texture_filepaths = mesh_info.textures
     material.use_nodes = True
     node_tree = material.node_tree
-    Material.NT_clear_node_tree(node_tree)
+    if node_tree is not None:
+        Material.NT_clear_node_tree(node_tree)
 
     meshFullName = material.name
     renderType = xps_material.makeRenderType(meshFullName)
@@ -237,7 +238,7 @@ def makeNodesMaterial(
 
     # TODO make platform independent
     imageFilepath = None
-    for texIndex, textureInfo in enumerate(textureFilepaths):
+    for texIndex, textureInfo in enumerate(texture_filepaths):
         textureFilename = textureInfo.file
         # textureUvLayer = textureInfo.uvLayer
         textureBasename = os.path.basename(textureFilename)
@@ -245,7 +246,7 @@ def makeNodesMaterial(
         # image mapping node
         mappingCoordNode = node_tree.nodes.new(MAPPING_NODE)
         # load image
-        imageFilepath = makeImageFilepath(rootDir, textureBasename)
+        imageFilepath = makeImageFilepath(root_dir, textureBasename)
         imageNode = makeImageNode(node_tree)
         imageNode.image = loadImage(imageFilepath)
         node_tree.links.new(

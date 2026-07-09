@@ -1,4 +1,3 @@
-import bpy
 from bpy_extras import node_shader_utils
 from mathutils import Vector
 
@@ -25,7 +24,9 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     NODES_LIST = node_shader_utils.ShaderWrapper.NODES_LIST + NODES_LIST
 
     def __init__(self, material, is_readonly=True, use_nodes=True):
-        super(XPSShaderWrapper, self).__init__(material, is_readonly, use_nodes)
+        super(XPSShaderWrapper,self).__init__(material = material, is_readonly =  is_readonly, use_nodes = use_nodes)
+
+
 
     def update(self):
         super(XPSShaderWrapper, self).update()
