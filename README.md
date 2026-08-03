@@ -5,7 +5,7 @@
 
 
 
-### Patched and improved to support 3.6 - 5.0 <br>
+### Patched and improved to support 3.6 - 5.2 <br>
 **[ The Original version has been fully discontinued by it's developer ]** <br>
 **[Only Blender Releases are supported, alpha/beta versions of Blender are not and will not be supported]**
 
