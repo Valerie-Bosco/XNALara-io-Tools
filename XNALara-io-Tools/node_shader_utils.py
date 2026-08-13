@@ -7,6 +7,8 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     Hard coded shader setup, based in XPS Shader.
     Should cover most common cases on import, and gives a basic nodal shaders support for export.
     """
+    use_nodes:bool = True
+
     NODES_LIST = (
         "node_out",
         "node_principled_bsdf",
@@ -24,8 +26,8 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     NODES_LIST = node_shader_utils.ShaderWrapper.NODES_LIST + NODES_LIST
 
     def __init__(self, material, is_readonly=True, use_nodes=True):
-        super(XPSShaderWrapper,self).__init__(material = material, is_readonly =  is_readonly, use_nodes = use_nodes)
-
+        super(XPSShaderWrapper,self).__init__(material = material, is_readonly =  is_readonly)
+        self.use_nodes =use_nodes
 
 
     def update(self):
