@@ -1,0 +1,43 @@
+name: Build Release
+
+env:
+  RELEASE_BRANCH: release
+
+on:
+  push: 
+    branches: 
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  sync-release-branch:
+    if: contains(github.event.head_commit.message, '@release')
+  
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: "${{env.RELEASE_BRANCH}}"
+
+      - name: Sync release from main
+        run: |
+            git config user.name "${{ github.event.head_commit.author.name }}"
+            git config user.email "${{ github.event.head_commit.author.email }}"
+          
+            git checkout -B release origin/release
+            git reset --hard origin/main
+            git push --force-with-lease origin release
+
+      - name: Zip release
+        shell: bash
+        run: |
+          git archive \
+            --format=zip \
+            --output="${{ github.event.repository.name }}.zip" \
+            HEAD \
+            XNALara-io-Tools/
