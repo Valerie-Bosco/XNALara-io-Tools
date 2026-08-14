@@ -1,20 +1,25 @@
 name: Build Release
 
 env:
+  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
   RELEASE_BRANCH: release
 
 on:
-  push: 
-    branches: 
+  push:
+    branches:
       - main
+
+
 
 permissions:
   contents: write
 
+
+
 jobs:
   sync-release-branch:
     if: contains(github.event.head_commit.message, '@release')
-  
+
     runs-on: ubuntu-latest
 
     steps:
@@ -26,18 +31,46 @@ jobs:
 
       - name: Sync release from main
         run: |
-            git config user.name "${{ github.event.head_commit.author.name }}"
-            git config user.email "${{ github.event.head_commit.author.email }}"
+          git config user.name "${{ github.event.head_commit.author.name }}"
+          git config user.email "${{ github.event.head_commit.author.email }}"
           
-            git checkout -B release origin/release
-            git reset --hard origin/main
-            git push --force-with-lease origin release
+          git checkout -B release origin/release
+          git reset --hard origin/main
+          git push --force-with-lease origin release
+          
+          TAG="v$(grep '"version"' XNALara-io-Tools/__init__.py | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*\(([^)]*)\).*/\1/' | tr -d ' ' | tr ',' '.')"
+          echo "TAG=$TAG" >> "$GITHUB_ENV"
 
       - name: Zip release
         shell: bash
         run: |
+          mkdir -p "./build/libs/$TAG/"
           git archive \
             --format=zip \
-            --output="${{ github.event.repository.name }}.zip" \
+            --output="./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
+            --prefix="${{ github.event.repository.name }}/" \
             HEAD \
             XNALara-io-Tools/
+
+      - name: Create or update GitHub release
+        run: |
+          if ! gh release create "$TAG" \
+            --title "$TAG" \
+            --notes-file CHANGELOG.md \
+            --latest \
+            --verify-tag \
+            ./build/libs/$TAG/*; then
+
+            # Update release notes and mark as latest
+            gh release edit "$TAG" \
+              --title "$TAG" \
+              --notes-file CHANGELOG.md \
+              --latest
+
+            # Re-upload artifacts (delete first to avoid duplicates)
+            for FILE in ./build/libs/$TAG/*; do
+              NAME=$(basename "$FILE")
+              gh release delete-asset "$TAG" "$NAME" -y || true
+              gh release upload "$TAG" "$FILE" --clobber
+            done
+          fi

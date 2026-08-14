@@ -1,13 +1,15 @@
 from bpy_extras import node_shader_utils
 from mathutils import Vector
 
+from .modules.ALXCompatibilityLayer.ALXCompatibilityLayer import VersionUtils
+
 
 class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     """
     Hard coded shader setup, based in XPS Shader.
     Should cover most common cases on import, and gives a basic nodal shaders support for export.
     """
-    use_nodes:bool = True
+    use_nodes: bool = True
 
     NODES_LIST = (
         "node_out",
@@ -26,9 +28,10 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     NODES_LIST = node_shader_utils.ShaderWrapper.NODES_LIST + NODES_LIST
 
     def __init__(self, material, is_readonly=True, use_nodes=True):
-        super(XPSShaderWrapper,self).__init__(material = material, is_readonly =  is_readonly)
-        self.use_nodes =use_nodes
-
+        if VersionUtils.lessthan_version((5, 2)):
+            super(XPSShaderWrapper, self).__init__(material=material, is_readonly=is_readonly, use_nodes=use_nodes)
+        else:
+            super(XPSShaderWrapper, self).__init__(material=material, is_readonly=is_readonly)
 
     def update(self):
         super(XPSShaderWrapper, self).update()
@@ -59,10 +62,10 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
                     if node_out.bl_idname == 'ShaderNodeOutputMaterial':
                         break
             if (
-                node_out is not None and node_principled is not None
-                and node_out.bl_idname == 'ShaderNodeOutputMaterial'
-                and node_principled.bl_idname == 'ShaderNodeGroup'
-                and node_principled.node_tree.name == 'XPS Shader'
+                    node_out is not None and node_principled is not None
+                    and node_out.bl_idname == 'ShaderNodeOutputMaterial'
+                    and node_principled.bl_idname == 'ShaderNodeGroup'
+                    and node_principled.node_tree.name == 'XPS Shader'
             ):
                 break
             node_out = node_principled = None  # Could not find a valid pair, let's try again

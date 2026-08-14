@@ -14,17 +14,17 @@ def zip_addon(zip_name_includes_version: bool = False):
     parent_path = path
     folder_name = path.name
 
-    if (parent_path.is_dir()):
+    if parent_path.is_dir():
         zip_source_path = pathlib.Path.joinpath(parent_path, folder_name)
         zip_target_path = ""
 
-        if (zip_name_includes_version):
+        if zip_name_includes_version:
             with zip_source_path.joinpath("__init__.py").open() as init_file:
                 init_content = init_file.read()
             init_file.close()
 
             addon_version_match = re.search(r"([\"\']version[\"\']\s*:\s*(\(\s*[0-9]*\,\s*[0-9]*\,\s*[0-9]*\)))", init_content)
-            if (addon_version_match is not None):
+            if addon_version_match is not None:
 
                 addon_version = str(
                     re.sub(
