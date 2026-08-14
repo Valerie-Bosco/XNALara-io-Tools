@@ -8,6 +8,7 @@ env:
 on:
   push:
     branches:
+      - main
       - master
 
 
@@ -52,7 +53,7 @@ jobs:
           zip -r \
             "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
             .
-          
+
       - name: Create or update GitHub release
         run: |
           if ! gh release create "$TAG" \
