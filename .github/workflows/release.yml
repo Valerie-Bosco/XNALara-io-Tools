@@ -57,14 +57,12 @@ jobs:
         run: |
           if ! gh release create "$TAG" \
             --title "$TAG" \
-            --notes-file CHANGELOG.md \
             --latest \
             ./build/libs/$TAG/*; then
 
             # Update release notes and mark as latest
             gh release edit "$TAG" \
               --title "$TAG" \
-              --notes-file CHANGELOG.md \
               --latest
 
             # Re-upload artifacts (delete first to avoid duplicates)
