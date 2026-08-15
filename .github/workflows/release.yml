@@ -47,12 +47,12 @@ jobs:
         shell: bash
         run: |
           mkdir -p "./build/libs/$TAG"
-
-          cd XNALara-io-Tools
-      
-          zip -r \
-            "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
-            .
+          
+          git archive \
+            --format=zip \
+            --output="./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
+            HEAD \
+            XNALara-io-Tools/
 
       - name: Create or update GitHub release
         run: |
