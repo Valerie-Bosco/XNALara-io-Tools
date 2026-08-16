@@ -44,7 +44,7 @@ jobs:
           git submodule sync --recursive
           git submodule update --init --recursive
 
-          rm --rf */.{idea/,github/ } */.{git,gitignore} */{README.*,LICENSE.*}
+          rm -rf */.{idea/,github/ } */.{git,gitignore} */{README.*,LICENSE.*}
           
           TAG="v$(grep '"version"' XNALara-io-Tools/__init__.py | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*\(([^)]*)\).*/\1/' | tr -d ' ' | tr ',' '.')"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
