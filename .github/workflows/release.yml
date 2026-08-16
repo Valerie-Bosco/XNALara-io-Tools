@@ -52,10 +52,9 @@ jobs:
         run: |
           mkdir -p "./build/libs/$TAG"
 
-          cd "XNALara-io-Tools/"
            zip -r \
-            "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
-            "." \
+            "./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
+            "XNALara-io-Tools" \
             -x "./*/.git/*" \
                  "./*/.github/*" \
                  "./*/.idea/*" \
