@@ -43,8 +43,6 @@ jobs:
 
           git submodule sync --recursive
           git submodule update --init --recursive
-
-          rm -rf */.{idea/,github/ } */.{git,gitignore} */{README.*,LICENSE.*}
           
           TAG="v$(grep '"version"' XNALara-io-Tools/__init__.py | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*\(([^)]*)\).*/\1/' | tr -d ' ' | tr ',' '.')"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
@@ -54,11 +52,12 @@ jobs:
         run: |
           mkdir -p "./build/libs/$TAG"
 
-          rm -rf .idea
-          
+          rm -rf */.{idea/,github/ } */.{git,gitignore} */{README.*,LICENSE.*}
+
+          cd  XNALara-io-Tools/
            zip -r \
             "build/libs/$TAG/${{ github.event.repository.name }}.zip" \
-            . \XNALara-io-Tools
+            . /
 
       - name: Create or update GitHub release
         run: |
