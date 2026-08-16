@@ -56,7 +56,7 @@ jobs:
           rm -rf */.{idea/,github/ } */.{git,gitignore} */{README.*,LICENSE.*}
            zip -r \
             "build/libs/$TAG/${{ github.event.repository.name }}.zip" \
-            . /
+            . \
 
       - name: Create or update GitHub release
         run: |
