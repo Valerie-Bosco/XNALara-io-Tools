@@ -52,11 +52,11 @@ jobs:
         run: |
           mkdir -p "./build/libs/$TAG"
           
-          git archive \
-            --format=zip \
-            --output="./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
-            HEAD \
-            XNALara-io-Tools/
+           zip -r \
+            "build/libs/$TAG/${{ github.event.repository.name }}.zip" \
+            . \
+            -x '*/.git/*' \
+            -x '.git/*'
 
       - name: Create or update GitHub release
         run: |
