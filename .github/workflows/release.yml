@@ -53,7 +53,7 @@ jobs:
           mkdir -p "./build/libs/$TAG"
 
           cd  XNALara-io-Tools/
-          rm -rf */.{idea/,github/ } */.{git,gitignore} */{README.*,LICENSE.*}
+          rm -rf ./*/.idea/ ./*/.github/ ./*/.git ./*/.gitignore ./*/README.* ./*/LICENSE.*
            zip -r \
             "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
             . \
