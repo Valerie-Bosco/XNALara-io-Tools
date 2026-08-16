@@ -52,11 +52,15 @@ jobs:
         run: |
           mkdir -p "./build/libs/$TAG"
 
-          cd  XNALara-io-Tools/
-          rm -rf ./*/.idea/ ./*/.github/ ./*/.git ./*/.gitignore ./*/README.* ./*/LICENSE.*
            zip -r \
             "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
-            . \
+            "XNALara-io-Tools" \
+            -x "XNALara-io-Tools/*/.git/*" \
+                 "XNALara-io-Tools/*/.github/*" \
+                 "XNALara-io-Tools/*/.idea/*" \
+                 "XNALara-io-Tools/*/.gitignore" \
+                 "XNALara-io-Tools/*/README.*" \
+                 "XNALara-io-Tools/*/LICENSE.*"
 
       - name: Create or update GitHub release
         run: |
