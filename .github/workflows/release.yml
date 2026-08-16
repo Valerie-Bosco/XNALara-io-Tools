@@ -50,10 +50,10 @@ jobs:
       - name: Zip release
         shell: bash
         run: |
-          mkdir -p "/build/libs/$TAG"
+          mkdir -p "./build/libs/$TAG"
 
            zip -r \
-            "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
+            "./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
             "XNALara-io-Tools" \
             -x "XNALara-io-Tools/*/.git/*" \
                  "XNALara-io-Tools/*/.github/*" \
