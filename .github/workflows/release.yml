@@ -50,7 +50,7 @@ jobs:
       - name: Zip release
         shell: bash
         run: |
-          mkdir -p "./build/libs/$TAG"
+          mkdir -p "/build/libs/$TAG"
 
            zip -r \
             "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
