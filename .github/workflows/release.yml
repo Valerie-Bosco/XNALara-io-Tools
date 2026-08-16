@@ -50,18 +50,19 @@ jobs:
       - name: Zip release
         shell: bash
         run: |
-          mkdir -p "./build/libs/$TAG"
+          mkdir -p "../build/libs/$TAG"
 
+          cd "XNALara-io-Tools/"
            zip -r \
-            "./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
+            "../build/libs/$TAG/${{ github.event.repository.name }}.zip" \
             "." \
-            -x "XNALara-io-Tools/*/.git/*" \
-                 "XNALara-io-Tools/*/.github/*" \
-                 "XNALara-io-Tools/*/.idea/*" \
-                 "XNALara-io-Tools/*/.git" \
-                 "XNALara-io-Tools/*/.gitignore" \
-                 "XNALara-io-Tools/*/README.*" \
-                 "XNALara-io-Tools/*/LICENSE"
+            -x "*/.git/*" \
+                 "*/.github/*" \
+                 "*/.idea/*" \
+                 "*/.git" \
+                 "*/.gitignore" \
+                 "*/README.*" \
+                 "*/LICENSE"
 
       - name: Create or update GitHub release
         run: |
