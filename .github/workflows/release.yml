@@ -39,6 +39,9 @@ jobs:
           git checkout -B release origin/release
           git reset --hard origin/$DEFAULT_BRANCH
           git push --force-with-lease origin release
+
+          git submodule sync --recursive
+          git submodule update --init --recursive
           
           TAG="v$(grep '"version"' XNALara-io-Tools/__init__.py | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*\(([^)]*)\).*/\1/' | tr -d ' ' | tr ',' '.')"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
