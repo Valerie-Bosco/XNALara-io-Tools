@@ -30,6 +30,7 @@ jobs:
         with:
           fetch-depth: 0
           ref: "${{env.RELEASE_BRANCH}}"
+          submodules: recursive
 
       - name: Sync release from main
         run: |
@@ -39,6 +40,9 @@ jobs:
           git checkout -B release origin/release
           git reset --hard origin/$DEFAULT_BRANCH
           git push --force-with-lease origin release
+
+          git submodule sync --recursive
+          git submodule update --init --recursive
           
           TAG="v$(grep '"version"' XNALara-io-Tools/__init__.py | sed -E 's/.*"version"[[:space:]]*:[[:space:]]*\(([^)]*)\).*/\1/' | tr -d ' ' | tr ',' '.')"
           echo "TAG=$TAG" >> "$GITHUB_ENV"
@@ -47,12 +51,17 @@ jobs:
         shell: bash
         run: |
           mkdir -p "./build/libs/$TAG"
-          
-          git archive \
-            --format=zip \
-            --output="./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
-            HEAD \
-            XNALara-io-Tools/
+
+           zip -r \
+            "./build/libs/$TAG/${{ github.event.repository.name }}.zip" \
+            "XNALara-io-Tools" \
+            -x "./*/.git/*" \
+                 "./*/.github/*" \
+                 "./*/.idea/*" \
+                 "./*/.git" \
+                 "./*/.gitignore" \
+                 "./*/README.*" \
+                 "./*/LICENSE"
 
       - name: Create or update GitHub release
         run: |
