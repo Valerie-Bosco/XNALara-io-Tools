@@ -9,7 +9,7 @@ bl_info = {
     "name": "XNALara-io-Tools",
     "author": "Valerie Bosco[Valy Arhal], johnzero7[Original Developer]",
     "description": "Import-Export for XNALara/XPS files",
-    "version": (1, 3, 8),
+    "version": (1, 3, 9),
     "blender": (3, 6, 0),
     "category": "Import-Export",
     "location": "File > Import-Export > XNALara/XPS",
