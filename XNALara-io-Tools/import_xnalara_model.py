@@ -21,7 +21,7 @@ from .armature_tools.xnal_armature_utilities import (
     XnaL_GetBoneNameByIndex,
     create_armature_object,
 )
-from .utilities.mesh_utilities import create_split_normals
+from .utils.mesh_utilities import create_split_normals
 
 # imported XPS directory
 rootDir = ""

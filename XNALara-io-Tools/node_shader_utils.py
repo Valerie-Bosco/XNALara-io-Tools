@@ -9,12 +9,12 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     Hard coded shader setup, based in XPS Shader.
     Should cover most common cases on import, and gives a basic nodal shaders support for export.
     """
+
     use_nodes: bool = True
 
     NODES_LIST = (
         "node_out",
         "node_principled_bsdf",
-
         "_node_normalmap",
         "_node_texcoords",
     )
@@ -28,10 +28,14 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     NODES_LIST = node_shader_utils.ShaderWrapper.NODES_LIST + NODES_LIST
 
     def __init__(self, material, is_readonly=True, use_nodes=True):
-        if VersionUtils.lessthan_version((5, 2)):
-            super(XPSShaderWrapper, self).__init__(material=material, is_readonly=is_readonly, use_nodes=use_nodes)
+        if VersionUtils.lessthanequal_version((5, 2)):
+            super(XPSShaderWrapper, self).__init__(
+                material=material, is_readonly=is_readonly, use_nodes=use_nodes
+            )
         else:
-            super(XPSShaderWrapper, self).__init__(material=material, is_readonly=is_readonly)
+            super(XPSShaderWrapper, self).__init__(
+                material=material, is_readonly=is_readonly
+            )
 
     def update(self):
         super(XPSShaderWrapper, self).update()
@@ -50,39 +54,46 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
         node_principled = None
         for n in nodes:
             # print("loop:",n.name)
-            if n.bl_idname == 'ShaderNodeOutputMaterial' and n.inputs[0].is_linked:
+            if n.bl_idname == "ShaderNodeOutputMaterial" and n.inputs[0].is_linked:
                 # print("output found:")
                 node_out = n
                 node_principled = n.inputs[0].links[0].from_node
-            elif n.bl_idname == 'ShaderNodeGroup' and n.node_tree.name == 'XPS Shader' and n.outputs[0].is_linked:
+            elif (
+                n.bl_idname == "ShaderNodeGroup"
+                and n.node_tree.name == "XPS Shader"
+                and n.outputs[0].is_linked
+            ):
                 # print("xps shader found")
                 node_principled = n
                 for lnk in n.outputs[0].links:
                     node_out = lnk.to_node
-                    if node_out.bl_idname == 'ShaderNodeOutputMaterial':
+                    if node_out.bl_idname == "ShaderNodeOutputMaterial":
                         break
             if (
-                    node_out is not None and node_principled is not None
-                    and node_out.bl_idname == 'ShaderNodeOutputMaterial'
-                    and node_principled.bl_idname == 'ShaderNodeGroup'
-                    and node_principled.node_tree.name == 'XPS Shader'
+                node_out is not None
+                and node_principled is not None
+                and node_out.bl_idname == "ShaderNodeOutputMaterial"
+                and node_principled.bl_idname == "ShaderNodeGroup"
+                and node_principled.node_tree.name == "XPS Shader"
             ):
                 break
-            node_out = node_principled = None  # Could not find a valid pair, let's try again
+            node_out = node_principled = (
+                None  # Could not find a valid pair, let's try again
+            )
 
         if node_out is not None:
             self._grid_to_location(0, 0, ref_node=node_out)
         elif not self.is_readonly:
-            node_out = nodes.new(type='ShaderNodeOutputMaterial')
+            node_out = nodes.new(type="ShaderNodeOutputMaterial")
             node_out.label = "Material Out"
-            node_out.target = 'ALL'
+            node_out.target = "ALL"
             self._grid_to_location(1, 1, dst_node=node_out)
         self.node_out = node_out
 
         if node_principled is not None:
             self._grid_to_location(0, 0, ref_node=node_principled)
         elif not self.is_readonly:
-            node_principled = nodes.new(type='XPS Shader')
+            node_principled = nodes.new(type="XPS Shader")
             node_principled.label = "Principled BSDF"
             self._grid_to_location(0, 1, dst_node=node_principled)
             # Link
@@ -104,7 +115,8 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
         if not self.use_nodes or self.node_principled_bsdf is None:
             return None
         return node_shader_utils.ShaderImageTextureWrapper(
-            self, self.node_principled_bsdf,
+            self,
+            self.node_principled_bsdf,
             self.node_principled_bsdf.inputs[inputName],
             grid_row_diff=1,
         )
@@ -116,7 +128,8 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
         if not self.use_nodes or self.node_principled_bsdf is None:
             return None
         return ShaderEnvironmentTextureWrapper(
-            self, self.node_principled_bsdf,
+            self,
+            self.node_principled_bsdf,
             self.node_principled_bsdf.inputs[inputName],
             grid_row_diff=1,
         )
@@ -194,7 +207,7 @@ class XPSShaderWrapper(node_shader_utils.ShaderWrapper):
     environment_texture = property(environment_texture_get)
 
 
-class ShaderEnvironmentTextureWrapper():
+class ShaderEnvironmentTextureWrapper:
     """
     Generic 'environment texture'-like wrapper, handling image node
     """
@@ -204,7 +217,6 @@ class ShaderEnvironmentTextureWrapper():
     NODES_LIST = (
         "node_dst",
         "socket_dst",
-
         "_node_image",
         "_node_mapping",
     )
@@ -219,7 +231,14 @@ class ShaderEnvironmentTextureWrapper():
         *NODES_LIST,
     )
 
-    def __new__(cls, owner_shader: node_shader_utils.ShaderWrapper, node_dst, socket_dst, *_args, **_kwargs):
+    def __new__(
+        cls,
+        owner_shader: node_shader_utils.ShaderWrapper,
+        node_dst,
+        socket_dst,
+        *_args,
+        **_kwargs
+    ):
         instance = owner_shader._textures.get((node_dst, socket_dst), None)
         if instance is not None:
             return instance
@@ -227,8 +246,16 @@ class ShaderEnvironmentTextureWrapper():
         owner_shader._textures[(node_dst, socket_dst)] = instance
         return instance
 
-    def __init__(self, owner_shader: node_shader_utils.ShaderWrapper, node_dst, socket_dst, grid_row_diff=0,
-                 use_alpha=False, colorspace_is_data=..., colorspace_name=...):
+    def __init__(
+        self,
+        owner_shader: node_shader_utils.ShaderWrapper,
+        node_dst,
+        socket_dst,
+        grid_row_diff=0,
+        use_alpha=False,
+        colorspace_is_data=...,
+        colorspace_name=...,
+    ):
         self.owner_shader = owner_shader
         self.is_readonly = owner_shader.is_readonly
         self.node_dst = node_dst
@@ -247,14 +274,14 @@ class ShaderEnvironmentTextureWrapper():
 
         if socket_dst.is_linked:
             from_node = socket_dst.links[0].from_node
-            if from_node.bl_idname == 'ShaderNodeTexEnvironment':
+            if from_node.bl_idname == "ShaderNodeTexEnvironment":
                 self._node_image = from_node
 
         if self.node_image is not None:
             socket_dst = self.node_image.inputs["Vector"]
             if socket_dst.is_linked:
                 from_node = socket_dst.links[0].from_node
-                if from_node.bl_idname == 'ShaderNodeMapping':
+                if from_node.bl_idname == "ShaderNodeMapping":
                     self._node_mapping = from_node
 
     def copy_from(self, tex):
@@ -306,7 +333,7 @@ class ShaderEnvironmentTextureWrapper():
             # Running only once, trying to find a valid image node.
             if self.socket_dst.is_linked:
                 node_image = self.socket_dst.links[0].from_node
-                if node_image.bl_idname == 'ShaderNodeTexImage':
+                if node_image.bl_idname == "ShaderNodeTexImage":
                     self._node_image = node_image
                     self.owner_shader._grid_to_location(0, 0, ref_node=node_image)
             if self._node_image is ...:
@@ -314,10 +341,15 @@ class ShaderEnvironmentTextureWrapper():
         if self._node_image is None and not self.is_readonly:
             tree = self.owner_shader.material.node_tree
 
-            node_image = tree.nodes.new(type='ShaderNodeTexImage')
-            self.owner_shader._grid_to_location(-1, 0 + self.grid_row_diff, dst_node=node_image, ref_node=self.node_dst)
+            node_image = tree.nodes.new(type="ShaderNodeTexImage")
+            self.owner_shader._grid_to_location(
+                -1, 0 + self.grid_row_diff, dst_node=node_image, ref_node=self.node_dst
+            )
 
-            tree.links.new(node_image.outputs["Alpha" if self.use_alpha else "Color"], self.socket_dst)
+            tree.links.new(
+                node_image.outputs["Alpha" if self.use_alpha else "Color"],
+                self.socket_dst,
+            )
 
             self._node_image = node_image
         return self._node_image
@@ -330,11 +362,17 @@ class ShaderEnvironmentTextureWrapper():
     @node_shader_utils._set_check
     def image_set(self, image):
         if self.colorspace_is_data is not ...:
-            if image.colorspace_settings.is_data != self.colorspace_is_data and image.users >= 1:
+            if (
+                image.colorspace_settings.is_data != self.colorspace_is_data
+                and image.users >= 1
+            ):
                 image = image.copy()
             image.colorspace_settings.is_data = self.colorspace_is_data
         if self.colorspace_name is not ...:
-            if image.colorspace_settings.is_data != self.colorspace_is_data and image.users >= 1:
+            if (
+                image.colorspace_settings.is_data != self.colorspace_is_data
+                and image.users >= 1
+            ):
                 image = image.copy()
             image.colorspace_settings.name = self.colorspace_name
         self.node_image.image = image
@@ -342,7 +380,11 @@ class ShaderEnvironmentTextureWrapper():
     image = property(image_get, image_set)
 
     def projection_get(self):
-        return self.node_image.projection if self.node_image is not None else 'EQUIRECTANGULAR'
+        return (
+            self.node_image.projection
+            if self.node_image is not None
+            else "EQUIRECTANGULAR"
+        )
 
     @node_shader_utils._set_check
     def projection_set(self, projection):
@@ -352,16 +394,18 @@ class ShaderEnvironmentTextureWrapper():
 
     def texcoords_get(self):
         if self.node_image is not None:
-            socket = (self.node_mapping if self.has_mapping_node() else self.node_image).inputs["Vector"]
+            socket = (
+                self.node_mapping if self.has_mapping_node() else self.node_image
+            ).inputs["Vector"]
             if socket.is_linked:
                 return socket.links[0].from_socket.name
-        return 'UV'
+        return "UV"
 
     @node_shader_utils._set_check
     def texcoords_set(self, texcoords):
         # Image texture node already defaults to UVs, no extra node needed.
         # ONLY in case we do not have any texcoords mapping!!!
-        if texcoords == 'UV' and not self.has_mapping_node():
+        if texcoords == "UV" and not self.has_mapping_node():
             return
         tree = self.node_image.id_data
         links = tree.links
@@ -384,9 +428,11 @@ class ShaderEnvironmentTextureWrapper():
                 return None
             if self.node_image.inputs["Vector"].is_linked:
                 node_mapping = self.node_image.inputs["Vector"].links[0].from_node
-                if node_mapping.bl_idname == 'ShaderNodeMapping':
+                if node_mapping.bl_idname == "ShaderNodeMapping":
                     self._node_mapping = node_mapping
-                    self.owner_shader._grid_to_location(0, 0 + self.grid_row_diff, ref_node=node_mapping)
+                    self.owner_shader._grid_to_location(
+                        0, 0 + self.grid_row_diff, ref_node=node_mapping
+                    )
             if self._node_mapping is ...:
                 self._node_mapping = None
         if self._node_mapping is None and not self.is_readonly:
@@ -394,14 +440,17 @@ class ShaderEnvironmentTextureWrapper():
             socket_dst = self.node_image.inputs["Vector"]
             # If not already existing, we need to create texcoords -> mapping link (from UV).
             socket_src = (
-                socket_dst.links[0].from_socket if socket_dst.is_linked
-                else self.owner_shader.node_texcoords.outputs['UV']
+                socket_dst.links[0].from_socket
+                if socket_dst.is_linked
+                else self.owner_shader.node_texcoords.outputs["UV"]
             )
 
             tree = self.owner_shader.material.node_tree
-            node_mapping = tree.nodes.new(type='ShaderNodeMapping')
-            node_mapping.vector_type = 'TEXTURE'
-            self.owner_shader._grid_to_location(-1, 0, dst_node=node_mapping, ref_node=self.node_image)
+            node_mapping = tree.nodes.new(type="ShaderNodeMapping")
+            node_mapping.vector_type = "TEXTURE"
+            self.owner_shader._grid_to_location(
+                -1, 0, dst_node=node_mapping, ref_node=self.node_image
+            )
 
             # Link mapping -> image node.
             tree.links.new(node_mapping.outputs["Vector"], socket_dst)
@@ -416,32 +465,32 @@ class ShaderEnvironmentTextureWrapper():
     def translation_get(self):
         if self.node_mapping is None:
             return Vector((0.0, 0.0, 0.0))
-        return self.node_mapping.inputs['Location'].default_value
+        return self.node_mapping.inputs["Location"].default_value
 
     @node_shader_utils._set_check
     def translation_set(self, translation):
-        self.node_mapping.inputs['Location'].default_value = translation
+        self.node_mapping.inputs["Location"].default_value = translation
 
     translation = property(translation_get, translation_set)
 
     def rotation_get(self):
         if self.node_mapping is None:
             return Vector((0.0, 0.0, 0.0))
-        return self.node_mapping.inputs['Rotation'].default_value
+        return self.node_mapping.inputs["Rotation"].default_value
 
     @node_shader_utils._set_check
     def rotation_set(self, rotation):
-        self.node_mapping.inputs['Rotation'].default_value = rotation
+        self.node_mapping.inputs["Rotation"].default_value = rotation
 
     rotation = property(rotation_get, rotation_set)
 
     def scale_get(self):
         if self.node_mapping is None:
             return Vector((1.0, 1.0, 1.0))
-        return self.node_mapping.inputs['Scale'].default_value
+        return self.node_mapping.inputs["Scale"].default_value
 
     @node_shader_utils._set_check
     def scale_set(self, scale):
-        self.node_mapping.inputs['Scale'].default_value = scale
+        self.node_mapping.inputs["Scale"].default_value = scale
 
     scale = property(scale_get, scale_set)

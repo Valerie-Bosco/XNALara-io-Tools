@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="Black">
+    <option name="enabledOnSave" value="true" />
+    <option name="pathToExecutable" value="C:\Users\User\AppData\Local\Programs\Python\Python314\Scripts\black.exe" />
     <option name="sdkName" value="Python 3.14 (XNALara-io-Tools)" />
   </component>
 </project>

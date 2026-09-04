@@ -3,7 +3,7 @@ from typing import Iterable
 import bpy
 
 from ..XPS_Constants import BLENDER_VERSION
-from ..utilities.color_utilities import random_color_rgb
+from ..utils.color_utilities import random_color_rgb
 
 xnal_model_bone_names = []
 

@@ -6,7 +6,7 @@ from mathutils import Vector
 
 from . import xps_material
 from .XPS_Constants import BLENDER_VERSION
-from .modules.ALXCompatibilityLayer.ALXCompatibilityLayer import Material
+from .modules.ALXCompatibilityLayer.ALXCompatibilityLayer import Material, VersionUtils
 
 ALPHA_MODE_CHANNEL = "CHANNEL_PACKED"
 # Nodes Layout
@@ -43,11 +43,15 @@ SHADER_NODE_MATH = "ShaderNodeMath"
 RGB_TO_BW_NODE = "ShaderNodeRGBToBW"
 
 SHADER_NODE_SEPARATE_RGB = (
-    "ShaderNodeSeparateRGB" if (BLENDER_VERSION < 50) else "ShaderNodeSeparateColor"
+    "ShaderNodeSeparateRGB"
+    if (VersionUtils.lessthan_version((5, 0)))
+    else "ShaderNodeSeparateColor"
 )
 
 SHADER_NODE_COMBINE_RGB = (
-    "ShaderNodeCombineRGB" if (BLENDER_VERSION < 50) else "ShaderNodeCombineColor"
+    "ShaderNodeCombineRGB"
+    if (VersionUtils.lessthan_version((5, 0)))
+    else "ShaderNodeCombineColor"
 )
 
 # Node Groups
@@ -76,13 +80,10 @@ LIGHTMAP_COLOR = (1, 1, 1, 1)
 NORMAL_COLOR = (0.5, 0.5, 1, 1)
 GREY_COLOR = (0.5, 0.5, 0.5, 1)
 
-# 5.0: I/O Changes
-IO_R = "R" if (BLENDER_VERSION < 50) else "Red"
-IO_G = "G" if (BLENDER_VERSION < 50) else "Green"
-IO_B = "B" if (BLENDER_VERSION < 50) else "Blue"
-IO_IMAGE = "Image" if (BLENDER_VERSION < 50) else "Color"
-
-# TODO
+IO_R = "R" if (VersionUtils.lessthan_version((5, 0))) else "Red"
+IO_G = "G" if (VersionUtils.lessthan_version((5, 0))) else "Green"
+IO_B = "B" if (VersionUtils.lessthan_version((5, 0))) else "Blue"
+IO_IMAGE = "Image" if (VersionUtils.lessthan_version((5, 0))) else "Color"
 
 
 def makeMaterialOutputNode(node_tree):
@@ -192,7 +193,7 @@ def makeMaterial(xpsSettings, rootDir, mesh_da, meshInfo, flags):
 
 
 def makeNodesMaterial(
-    xps_settings, material: bpy.types.Material, root_dir, mesh_da, mesh_info, flags
+        xps_settings, material: bpy.types.Material, root_dir, mesh_da, mesh_info, flags
 ):
     texture_filepaths = mesh_info.textures
     material.use_nodes = True
@@ -398,93 +399,98 @@ def makeNodesMaterial(
 
 
 def mix_normal_group():
-    # create a group
     if MIX_NORMAL_NODE in bpy.data.node_groups:
-        return bpy.data.node_groups[MIX_NORMAL_NODE]
+        bpy.data.node_groups.remove(bpy.data.node_groups[MIX_NORMAL_NODE])
+
     node_group = bpy.data.node_groups.new(name=MIX_NORMAL_NODE, type=SHADER_NODE_TREE)
     Material.NT_clear_node_tree(node_group)
 
     # separate
-    mainNormalSeparateNode: bpy.types.ShaderNodeSeparateColor = node_group.nodes.new(
-        SHADER_NODE_SEPARATE_RGB
-    )
-    mainNormalSeparateNode.location = Vector((0, 0))
+    main_normal_separate_node: (
+            bpy.types.ShaderNodeSeparateRGB | bpy.types.ShaderNodeSeparateColor
+    ) = node_group.nodes.new(type=SHADER_NODE_SEPARATE_RGB)
+    main_normal_separate_node.location = Vector((0, 0))
     if BLENDER_VERSION >= 50:
-        mainNormalSeparateNode.mode = "RGB"
+        main_normal_separate_node.mode = "RGB"
 
-    detailNormalSeparateNode: bpy.types.ShaderNodeSeparateColor = node_group.nodes.new(
-        SHADER_NODE_SEPARATE_RGB
-    )
-    detailNormalSeparateNode.location = mainNormalSeparateNode.location + Vector(
+    detail_normal_separate_node = node_group.nodes.new(SHADER_NODE_SEPARATE_RGB)
+    detail_normal_separate_node.location = main_normal_separate_node.location + Vector(
         (0, -200)
     )
     if BLENDER_VERSION >= 50:
-        detailNormalSeparateNode.mode = "RGB"
+        detail_normal_separate_node.mode = "RGB"
 
     # combine
-    mainNormalCombineNode: bpy.types.ShaderNodeCombineColor = node_group.nodes.new(
+    main_normal_combine_node: bpy.types.ShaderNodeCombineColor = node_group.nodes.new(
         SHADER_NODE_COMBINE_RGB
     )
-    mainNormalCombineNode.location = mainNormalSeparateNode.location + Vector((200, 0))
+    main_normal_combine_node.location = main_normal_separate_node.location + Vector(
+        (200, 0)
+    )
     if BLENDER_VERSION >= 50:
-        mainNormalCombineNode.mode = "RGB"
+        main_normal_combine_node.mode = "RGB"
 
-    detailNormalCombineNode: bpy.types.ShaderNodeCombineColor = node_group.nodes.new(
+    detail_normal_combine_node: bpy.types.ShaderNodeCombineColor = node_group.nodes.new(
         SHADER_NODE_COMBINE_RGB
     )
-    detailNormalCombineNode.location = mainNormalSeparateNode.location + Vector(
+    detail_normal_combine_node.location = main_normal_separate_node.location + Vector(
         (200, -200)
     )
     if BLENDER_VERSION >= 50:
-        detailNormalCombineNode.mode = "RGB"
+        detail_normal_combine_node.mode = "RGB"
 
     # multiply
-    multiplyBlueNode = node_group.nodes.new(SHADER_NODE_MATH)
-    multiplyBlueNode.operation = "MULTIPLY"
-    multiplyBlueNode.inputs[1].default_value = 1
-    multiplyBlueNode.location = mainNormalSeparateNode.location + Vector((200, -400))
+    multiply_blue_node = node_group.nodes.new(SHADER_NODE_MATH)
+    multiply_blue_node.operation = "MULTIPLY"
+    multiply_blue_node.inputs[1].default_value = 1
+    multiply_blue_node.location = main_normal_separate_node.location + Vector(
+        (200, -400)
+    )
 
     # add
-    addRGBNode = node_group.nodes.new(RGB_MIX_NODE)
-    addRGBNode.blend_type = "ADD"
-    addRGBNode.inputs["Fac"].default_value = 1
-    addRGBNode.location = mainNormalSeparateNode.location + Vector((400, 0))
+    add_rgb_node = node_group.nodes.new(RGB_MIX_NODE)
+    add_rgb_node.blend_type = "ADD"
+    add_rgb_node.inputs["Fac"].default_value = 1
+    add_rgb_node.location = main_normal_separate_node.location + Vector((400, 0))
 
     # subtract
-    subsRGBNode = node_group.nodes.new(RGB_MIX_NODE)
-    subsRGBNode.blend_type = "SUBTRACT"
-    subsRGBNode.inputs["Fac"].default_value = 1
-    subsRGBNode.location = mainNormalSeparateNode.location + Vector((600, -100))
+    subs_rgb_node = node_group.nodes.new(RGB_MIX_NODE)
+    subs_rgb_node.blend_type = "SUBTRACT"
+    subs_rgb_node.inputs["Fac"].default_value = 1
+    subs_rgb_node.location = main_normal_separate_node.location + Vector((600, -100))
 
     # separate
     separateRedBlueNode: bpy.types.ShaderNodeSeparateColor = node_group.nodes.new(
         SHADER_NODE_SEPARATE_RGB
     )
-    separateRedBlueNode.location = mainNormalSeparateNode.location + Vector((800, -100))
+    separateRedBlueNode.location = main_normal_separate_node.location + Vector(
+        (800, -100)
+    )
     if BLENDER_VERSION >= 50:
-        detailNormalSeparateNode.mode = "RGB"
+        detail_normal_separate_node.mode = "RGB"
 
     # combine
     combineFinalNode: bpy.types.ShaderNodeCombineColor = node_group.nodes.new(
         SHADER_NODE_COMBINE_RGB
     )
-    combineFinalNode.location = mainNormalSeparateNode.location + Vector((1000, -200))
+    combineFinalNode.location = main_normal_separate_node.location + Vector(
+        (1000, -200)
+    )
     if BLENDER_VERSION >= 50:
         combineFinalNode.mode = "RGB"
 
     # Input/Output
     group_inputs = node_group.nodes.new(NODE_GROUP_INPUT)
-    group_inputs.location = mainNormalSeparateNode.location + Vector((-200, -100))
+    group_inputs.location = main_normal_separate_node.location + Vector((-200, -100))
     group_outputs = node_group.nodes.new(NODE_GROUP_OUTPUT)
-    group_outputs.location = mainNormalSeparateNode.location + Vector((1200, -100))
-    Material.NT_clear_node_tree(node_group)
+    group_outputs.location = main_normal_separate_node.location + Vector((1200, -100))
 
     # Input Sockets
     main_normal_socket = Material.NG_IO_new_input(node_group, "Main", "NodeSocketColor")
 
     main_normal_socket.default_value = NORMAL_COLOR
     detail_normal_socket = Material.NG_IO_new_input(
-        node_group, "Detail", socket_type="NodeSocketColor"
+        node_group, "Detail", _socket_type="NodeSocketColor"
     )
 
     detail_normal_socket.default_value = NORMAL_COLOR
@@ -494,31 +500,42 @@ def mix_normal_group():
         node_group, "Color", socket_type="NodeSocketColor"
     )
 
+    print("PUTAIN")
+    print([output for output in group_inputs.outputs])
+
     # Links Input
     links = node_group.links
-    links.new(group_inputs.outputs["Main"], mainNormalSeparateNode.inputs[IO_IMAGE])
-    links.new(group_inputs.outputs["Detail"], detailNormalSeparateNode.inputs[IO_IMAGE])
-
-    links.new(mainNormalSeparateNode.outputs[IO_R], mainNormalCombineNode.inputs[IO_R])
-    links.new(mainNormalSeparateNode.outputs[IO_G], mainNormalCombineNode.inputs[IO_G])
-    links.new(mainNormalSeparateNode.outputs[IO_B], multiplyBlueNode.inputs[0])
+    links.new(group_inputs.outputs["Main"], main_normal_separate_node.inputs[IO_IMAGE])
     links.new(
-        detailNormalSeparateNode.outputs[IO_R], detailNormalCombineNode.inputs[IO_R]
+        group_inputs.outputs["Detail"], detail_normal_separate_node.inputs[IO_IMAGE]
+    )
+
+    links.new(
+        main_normal_separate_node.outputs[IO_R], main_normal_combine_node.inputs[IO_R]
     )
     links.new(
-        detailNormalSeparateNode.outputs[IO_G], detailNormalCombineNode.inputs[IO_G]
+        main_normal_separate_node.outputs[IO_G], main_normal_combine_node.inputs[IO_G]
     )
-    links.new(detailNormalSeparateNode.outputs[IO_B], multiplyBlueNode.inputs[1])
+    links.new(main_normal_separate_node.outputs[IO_B], multiply_blue_node.inputs[0])
+    links.new(
+        detail_normal_separate_node.outputs[IO_R],
+        detail_normal_combine_node.inputs[IO_R],
+    )
+    links.new(
+        detail_normal_separate_node.outputs[IO_G],
+        detail_normal_combine_node.inputs[IO_G],
+    )
+    links.new(detail_normal_separate_node.outputs[IO_B], multiply_blue_node.inputs[1])
 
-    links.new(mainNormalCombineNode.outputs[IO_IMAGE], addRGBNode.inputs[1])
-    links.new(detailNormalCombineNode.outputs[IO_IMAGE], addRGBNode.inputs[2])
-    links.new(addRGBNode.outputs["Color"], subsRGBNode.inputs[1])
+    links.new(main_normal_combine_node.outputs[IO_IMAGE], add_rgb_node.inputs[1])
+    links.new(detail_normal_combine_node.outputs[IO_IMAGE], add_rgb_node.inputs[2])
+    links.new(add_rgb_node.outputs["Color"], subs_rgb_node.inputs[1])
 
-    links.new(subsRGBNode.outputs["Color"], separateRedBlueNode.inputs[IO_IMAGE])
+    links.new(subs_rgb_node.outputs["Color"], separateRedBlueNode.inputs[IO_IMAGE])
 
     links.new(separateRedBlueNode.outputs[IO_R], combineFinalNode.inputs[IO_R])
     links.new(separateRedBlueNode.outputs[IO_G], combineFinalNode.inputs[IO_G])
-    links.new(multiplyBlueNode.outputs["Value"], combineFinalNode.inputs[IO_B])
+    links.new(multiply_blue_node.outputs["Value"], combineFinalNode.inputs[IO_B])
 
     links.new(combineFinalNode.outputs[IO_IMAGE], group_outputs.inputs["Color"])
 
@@ -564,24 +581,23 @@ def invert_channel_group():
     group_inputs.location = separate_rgb_node.location + Vector((-200, -100))
     group_outputs = node_group.nodes.new(NODE_GROUP_OUTPUT)
     group_outputs.location = combine_rgb_node.location + Vector((200, 0))
-    Material.NT_clear_node_tree(node_group)
 
     # Input/Output Sockets
     input_color = Material.NG_IO_new_input(
-        node_group, "Color", socket_type="NodeSocketColor"
+        node_group, "Color", _socket_type="NodeSocketColor"
     )
     input_color.default_value = GREY_COLOR
-    invert_r = Material.NG_IO_new_input(node_group, "R", socket_type="NodeSocketFloat")
+    invert_r = Material.NG_IO_new_input(node_group, "R", _socket_type="NodeSocketFloat")
     Material.NG_IO_set_subtype(invert_r, Material.NodeGroupInput_Subtype.Factor)
     invert_r.default_value = 0
     invert_r.min_value = 0
     invert_r.max_value = 1
-    invert_g = Material.NG_IO_new_input(node_group, "G", socket_type="NodeSocketFloat")
+    invert_g = Material.NG_IO_new_input(node_group, "G", _socket_type="NodeSocketFloat")
     Material.NG_IO_set_subtype(invert_g, Material.NodeGroupInput_Subtype.Factor)
     invert_g.default_value = 0
     invert_g.min_value = 0
     invert_g.max_value = 1
-    invert_b = Material.NG_IO_new_input(node_group, "B", socket_type="NodeSocketFloat")
+    invert_b = Material.NG_IO_new_input(node_group, "B", _socket_type="NodeSocketFloat")
     Material.NG_IO_set_subtype(invert_b, Material.NodeGroupInput_Subtype.Factor)
     invert_b.default_value = 0
     invert_b.min_value = 0
@@ -664,19 +680,18 @@ def normal_mask_group():
     group_inputs.location = maskSeparateNode.location + Vector((-200, -100))
     group_outputs = node_tree.nodes.new(NODE_GROUP_OUTPUT)
     group_outputs.location = normalMixNode.location + Vector((200, 0))
-    Material.NT_clear_node_tree(node_tree)
 
     # Input/Output Sockets
     mask_color = Material.NG_IO_new_input(
-        node_tree, "Mask", socket_type="NodeSocketColor"
+        node_tree, "Mask", _socket_type="NodeSocketColor"
     )
     mask_color.default_value = LIGHTMAP_COLOR
     normal_main_color = Material.NG_IO_new_input(
-        node_tree, "Normal1", socket_type="NodeSocketColor"
+        node_tree, "Normal1", _socket_type="NodeSocketColor"
     )
     normal_main_color.default_value = NORMAL_COLOR
     normal_detail_color = Material.NG_IO_new_input(
-        node_tree, "Normal2", socket_type="NodeSocketColor"
+        node_tree, "Normal2", _socket_type="NodeSocketColor"
     )
     normal_detail_color.default_value = NORMAL_COLOR
 
