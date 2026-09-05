@@ -117,17 +117,14 @@ def linkToCollection(collection, obj):
 
 
 def xpsImport():
-
     global rootDir
     global xpsData
 
-    print(
-        """
+    print("""
         ------------------------------------------------------------\n
         ---------------EXECUTING XPS PYTHON IMPORTER----------------\n
         ------------------------------------------------------------\n
-        """
-    )
+        """)
 
     print("Importing file: ", xpsSettings.filename)
 
@@ -188,7 +185,7 @@ def xpsImport():
         else:
             for mesh_object in mesh_objects:
                 if (
-                    mesh_object.name in xps_model_optional_objects_collection.objects
+                        mesh_object.name in xps_model_optional_objects_collection.objects
                 ) and (mesh_object.name in xps_model_collection.objects):
                     xps_model_collection.objects.unlink(mesh_object)
     else:
@@ -260,13 +257,13 @@ def hideBonesByVertexGroup(armature_objects: Iterable[bpy.types.Object]):
                 children_object
                 for children_object in armature_object.children
                 if children_object is not None
-                and children_object.type == "MESH"
-                and [
-                    True
-                    for modifier in children_object.modifiers
-                    if modifier.type == "ARMATURE"
-                    and modifier.object == armature_object
-                ]
+                   and children_object.type == "MESH"
+                   and [
+                       True
+                       for modifier in children_object.modifiers
+                       if modifier.type == "ARMATURE"
+                          and modifier.object == armature_object
+                   ]
             ]
 
         vertex_groups = set(
@@ -288,7 +285,7 @@ def hideBonesByVertexGroup(armature_objects: Iterable[bpy.types.Object]):
 
 
 def XNA_BoneChainHideRecurse(
-    armature_object: bpy.types.Object, bone: bpy.types.Bone, vertex_group: Iterable[str]
+        armature_object: bpy.types.Object, bone: bpy.types.Bone, vertex_group: Iterable[str]
 ):
     _visible_child = False
     for childBone in bone.children:
@@ -331,14 +328,14 @@ def renameBonesUsingDict(armatureObj, boneDict):
 
 
 def XnaL_ImportModelBones(
-    context: bpy.types.Context, armature_object: bpy.types.Object
+        context: bpy.types.Context, armature_object: bpy.types.Object
 ):
     xps_bones = xpsData.bones
 
     if (
-        (armature_object is not None)
-        and (armature_object.data is not None)
-        and (armature_object.type == "ARMATURE")
+            (armature_object is not None)
+            and (armature_object.data is not None)
+            and (armature_object.type == "ARMATURE")
     ):
         armature: bpy.types.Armature = armature_object.data
 
@@ -584,9 +581,9 @@ def importMesh(armature_object, meshInfo):
 
             if useSeams:
                 if (
-                    mergedVertList[v1New].merged
-                    or mergedVertList[v2New].merged
-                    or mergedVertList[v3New].merged
+                        mergedVertList[v1New].merged
+                        or mergedVertList[v2New].merged
+                        or mergedVertList[v3New].merged
                 ):
                     findMergedEdges(
                         seamEdgesDict,
@@ -692,7 +689,7 @@ def findMergedEdges(seamEdgesDict, vertexDict, mergedVertList, mergedVertices, o
 
 
 def findMergedVert(
-    seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace, mergedVert
+        seamEdgesDict, vertexDict, mergedVertList, mergedVertices, oldFace, mergedVert
 ):
     v1Old = oldFace[0]
     v2Old = oldFace[1]
@@ -783,6 +780,7 @@ def assignVertexGroup(vert, armature, mesh_ob):
                 vertGroup.add([vert.id], vertexWeight, "REPLACE")
 
 
+# DEBUG
 if __name__ == "__main__":
     readfilename = r"C:\XPS Tutorial\Yaiba MOMIJIII\momi3.mesh.mesh"
     uvDisplX = 0

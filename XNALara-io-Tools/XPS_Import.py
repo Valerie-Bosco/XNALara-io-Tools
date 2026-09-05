@@ -23,7 +23,7 @@ class XPS_OT_ImportModal(bpy.types.Operator, ImportHelper):
 
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
     # import status
     status: XPS_ImportStatus = XPS_ImportStatus.NotRunning
@@ -35,84 +35,82 @@ class XPS_OT_ImportModal(bpy.types.Operator, ImportHelper):
     filename_ext = ".mesh"
 
     # filter File Extension
-    filter_glob: bpy.props.StringProperty(  # type:ignore
+    filter_glob: bpy.props.StringProperty(  # type: ignore
         default="*.ascii;*.mesh;*.xps",
-        options={'HIDDEN'},
-    )  # type:ignore
+        options={"HIDDEN"},
+    )  # type: ignore
 
-    uvDisplX: bpy.props.IntProperty(  # type:ignore
+    uvDisplX: bpy.props.IntProperty(  # type: ignore
         name="X",
         description="Displace UV X axis",
         default=uv_x_displace,
-    )  # type:ignore
+    )  # type: ignore
 
-    uvDisplY: bpy.props.IntProperty(  # type:ignore
+    uvDisplY: bpy.props.IntProperty(  # type: ignore
         name="Y",
         description="Displace UV Y axis",
         default=uv_y_displace,
-    )  # type:ignore
+    )  # type: ignore
 
-    impDefPose: bpy.props.BoolProperty(  # type:ignore
+    impDefPose: bpy.props.BoolProperty(  # type: ignore
         name="Default Pose",
         description="Import Default Pose",
         default=False,
     )
 
-    markSeams: bpy.props.BoolProperty(  # type:ignore
+    markSeams: bpy.props.BoolProperty(  # type: ignore
         name="Mark Seams",
         description="Mark as Seams the edged merged by the addon",
         default=True,
-    )  # type:ignore
+    )  # type: ignore
 
-    vColors: bpy.props.BoolProperty(  # type:ignore
+    vColors: bpy.props.BoolProperty(  # type: ignore
         name="Vertex Colors",
         description="Import Vertex Colors",
         default=True,
-    )  # type:ignore
+    )  # type: ignore
 
-    joinMeshRips: bpy.props.BoolProperty(  # type:ignore
+    joinMeshRips: bpy.props.BoolProperty(  # type: ignore
         name="Merge Doubles by Normal",
         description="Merge vertices with the same position and normal",
         default=True,
-    )  # type:ignore
+    )  # type: ignore
 
-    joinMeshParts: bpy.props.BoolProperty(  # type:ignore
+    joinMeshParts: bpy.props.BoolProperty(  # type: ignore
         name="Join MeshParts",
         description="Join MeshParts (meshes that contain 'nPart!' in the name)",
         default=True,
-    )  # type:ignore
+    )  # type: ignore
 
-    connectBones: bpy.props.BoolProperty(  # type:ignore
+    connectBones: bpy.props.BoolProperty(  # type: ignore
         name="Connect Bones",
         description="Connect Bones all bones",
         default=True,
-    )  # type:ignore
+    )  # type: ignore
 
-    autoIk: bpy.props.BoolProperty(  # type:ignore
+    autoIk: bpy.props.BoolProperty(  # type: ignore
         name="AutoIK",
         description="Set AutoIK",
         default=True,
-    )  # type:ignore
+    )  # type: ignore
 
-    importNormals: bpy.props.BoolProperty(  # type:ignore
+    importNormals: bpy.props.BoolProperty(  # type: ignore
         name="Import Normals",
         description="Import Custom Normals",
         default=True,
-    )  # type:ignore
+    )  # type: ignore
 
-    separate_optional_objects: bpy.props.BoolProperty(  # type:ignore
+    separate_optional_objects: bpy.props.BoolProperty(  # type: ignore
         name="Separate Optional Objects",
         description="Separate into collection object marked as optional",
-        default=True
-    )  # type:ignore
+        default=True,
+    )  # type: ignore
 
     # endregion
 
     def menu_func(self, context):
-        self.layout.operator_context = 'INVOKE_DEFAULT'
-        self.layout.operator(
-            Import_Xps_Model_Op.bl_idname,
-            text="Text Export Operator")
+        self.layout.operator_context = "INVOKE_DEFAULT"
+        self.layout.operator(Import_Xps_Model_Op.bl_idname, text="Text Export Operator")
 
     @classmethod
     def poll(self, context):
@@ -131,18 +129,18 @@ class XPS_OT_ImportModal(bpy.types.Operator, ImportHelper):
             self.connectBones,
             self.autoIk,
             self.importNormals,
-            self.separate_optional_objects
+            self.separate_optional_objects,
         )
         material_creator.create_group_nodes()
         status = import_xnalara_model.getInputFilename(xpsSettings)
-        if status == '{NONE}':
+        if status == "{NONE}":
             # self.report({'DEBUG'}, "DEBUG File Format unrecognized")
             # self.report({'INFO'}, "INFO File Format unrecognized")
             # self.report({'OPERATOR'}, "OPERATOR File Format unrecognized")
             # self.report({'WARNING'}, "WARNING File Format unrecognized")
             # self.report({'ERROR'}, "ERROR File Format unrecognized")
-            self.report({'ERROR'}, "ERROR File Format unrecognized")
-        return {'FINISHED'}
+            self.report({"ERROR"}, "ERROR File Format unrecognized")
+        return {"FINISHED"}
 
     def modal(self, context, event):
         match self.status:
@@ -182,7 +180,7 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
     bl_label = "Import XNALara/XPS Model"
     bl_space_type = "PROPERTIES"
     bl_region_type = "WINDOW"
-    bl_options = {'REGISTER', 'UNDO'}
+    bl_options = {"REGISTER", "UNDO"}
 
     filename_ext = ".mesh"
 
@@ -190,82 +188,81 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
     # to the class instance from the operator settings before calling.
 
     # filter File Extension
-    filter_glob: bpy.props.StringProperty(  # type:ignore
-        default="*.ascii;*.mesh;*.xps",
-        options={'HIDDEN'},
-    )  # type:ignore
 
-    uvDisplX: bpy.props.IntProperty(  # type:ignore
+    filter_glob: bpy.props.StringProperty(  # type: ignore
+        default="*.ascii;*.mesh;*.xps",
+        options={"HIDDEN"},
+    )
+
+    uvDisplX: bpy.props.IntProperty(  # type: ignore
         name="X",
         description="Displace UV X axis",
         default=uv_x_displace,
-    )  # type:ignore
+    )
 
-    uvDisplY: bpy.props.IntProperty(  # type:ignore
+    uvDisplY: bpy.props.IntProperty(  # type: ignore
         name="Y",
         description="Displace UV Y axis",
         default=uv_y_displace,
-    )  # type:ignore
+    )
 
-    impDefPose: bpy.props.BoolProperty(  # type:ignore
+    impDefPose: bpy.props.BoolProperty(  # type: ignore
         name="Default Pose",
         description="Import Default Pose",
         default=False,
-    )  # type:ignore
+    )
 
-    markSeams: bpy.props.BoolProperty(  # type:ignore
+    markSeams: bpy.props.BoolProperty(  # type: ignore
         name="Mark Seams",
         description="Mark as Seams the edged merged by the addon",
         default=True,
-    )  # type:ignore
+    )
 
-    vColors: bpy.props.BoolProperty(  # type:ignore
+    vColors: bpy.props.BoolProperty(  # type: ignore
         name="Vertex Colors",
         description="Import Vertex Colors",
         default=True,
-    )  # type:ignore
+    )
 
-    joinMeshRips: bpy.props.BoolProperty(  # type:ignore
+    joinMeshRips: bpy.props.BoolProperty(  # type: ignore
         name="Merge Doubles by Normal",
         description="Merge vertices with the same position and normal",
         default=True,
-    )  # type:ignore
+    )
 
-    joinMeshParts: bpy.props.BoolProperty(  # type:ignore
+    joinMeshParts: bpy.props.BoolProperty(  # type: ignore
         name="Join MeshParts",
         description="Join MeshParts (meshes that contain 'nPart!' in the name)",
         default=True,
-    )  # type:ignore
+    )
 
-    connectBones: bpy.props.BoolProperty(  # type:ignore
+    connectBones: bpy.props.BoolProperty(  # type: ignore
         name="Connect Bones",
         description="Connect Bones all bones",
         default=True,
-    )  # type:ignore
+    )
 
-    autoIk: bpy.props.BoolProperty(  # type:ignore
+    autoIk: bpy.props.BoolProperty(  # type: ignore
         name="AutoIK",
         description="Set AutoIK",
-        default=True,
-    )  # type:ignore
+        default=False,
+    )
 
-    importNormals: bpy.props.BoolProperty(  # type:ignore
+    importNormals: bpy.props.BoolProperty(  # type: ignore
         name="Import Normals",
         description="Import Custom Normals",
         default=True,
-    )  # type:ignore
+    )
 
-    separate_optional_objects: bpy.props.BoolProperty(  # type:ignore
+    separate_optional_objects: bpy.props.BoolProperty(  # type: ignore
         name="Separate Optional Objects",
         description="Separate into collection object marked as optional",
-        default=True
-    )  # type:ignore
+        default=True,
+    )
 
     def menu_func(self, context):
-        self.layout.operator_context = 'INVOKE_DEFAULT'
-        self.layout.operator(
-            Import_Xps_Model_Op.bl_idname,
-            text="Text Export Operator")
+        self.layout.operator_context = "INVOKE_DEFAULT"
+        self.layout.operator(Import_Xps_Model_Op.bl_idname, text="Text Export Operator")
 
     @classmethod
     def poll(cls, context):
@@ -285,28 +282,28 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
             self.connectBones,
             self.autoIk,
             self.importNormals,
-            self.separate_optional_objects
+            self.separate_optional_objects,
         )
         material_creator.create_group_nodes()
         status = import_xnalara_model.getInputFilename(xpsSettings)
-        if status == '{NONE}':
+        if status == "{NONE}":
             # self.report({'DEBUG'}, "DEBUG File Format unrecognized")
             # self.report({'INFO'}, "INFO File Format unrecognized")
             # self.report({'OPERATOR'}, "OPERATOR File Format unrecognized")
             # self.report({'WARNING'}, "WARNING File Format unrecognized")
             # self.report({'ERROR'}, "ERROR File Format unrecognized")
-            self.report({'ERROR'}, "ERROR File Format unrecognized")
-        return {'FINISHED'}
+            self.report({"ERROR"}, "ERROR File Format unrecognized")
+        return {"FINISHED"}
 
     def draw(self, context):
         layout = self.layout
         col = layout.column(align=True)
-        col.label(text='UV Displace')
+        col.label(text="UV Displace")
         col.prop(self, "uvDisplX")
         col.prop(self, "uvDisplY")
 
         col = layout.column(align=True)
-        col.label(text='Mesh')
+        col.label(text="Mesh")
         col.prop(self, "joinMeshParts")
         col.prop(self, "joinMeshRips")
         col.prop(self, "separate_optional_objects")
@@ -320,7 +317,7 @@ class Import_Xps_Model_Op(bpy.types.Operator, ImportHelper):
         self.markSeams = self.joinMeshRips and self.markSeams
 
         col = layout.column(align=True)
-        col.label(text='Armature')
+        col.label(text="Armature")
         col.prop(self, "impDefPose")
         col.prop(self, "connectBones")
         col.prop(self, "autoIk")

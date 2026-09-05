@@ -193,7 +193,7 @@ def makeMaterial(xpsSettings, rootDir, mesh_da, meshInfo, flags):
 
 
 def makeNodesMaterial(
-        xps_settings, material: bpy.types.Material, root_dir, mesh_da, mesh_info, flags
+    xps_settings, material: bpy.types.Material, root_dir, mesh_da, mesh_info, flags
 ):
     texture_filepaths = mesh_info.textures
     material.use_nodes = True
@@ -407,7 +407,7 @@ def mix_normal_group():
 
     # separate
     main_normal_separate_node: (
-            bpy.types.ShaderNodeSeparateRGB | bpy.types.ShaderNodeSeparateColor
+        bpy.types.ShaderNodeSeparateRGB | bpy.types.ShaderNodeSeparateColor
     ) = node_group.nodes.new(type=SHADER_NODE_SEPARATE_RGB)
     main_normal_separate_node.location = Vector((0, 0))
     if BLENDER_VERSION >= 50:
